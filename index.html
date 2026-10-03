@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lupo Nero — Tentativo</title>
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#f7f7f5,#090a09);--surface:light-dark(#fff,#121512);--surface2:light-dark(#f0f1ed,#1b1e1b);--text:light-dark(#151715,#f4f5f1);--muted:light-dark(#646b64,#a7afa7);--border:light-dark(#dfe2dc,#2b302b);--accent:light-dark(#171a17,#d9ded8)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+#app{min-height:100vh;background:var(--bg);display:grid;place-items:center;padding:28px 18px;border-radius:0}
+.card{width:min(520px,100%);background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:34px 28px;box-shadow:0 20px 60px rgba(0,0,0,.12);text-align:center}
+.mark{font-size:52px;line-height:1;margin-bottom:12px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.title{font-size:clamp(32px,8vw,54px);letter-spacing:-.05em;margin:8px 0}
+.sub{color:var(--muted);line-height:1.5;margin:0 auto 26px;max-width:390px}
+.box{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:18px;margin:18px 0}
+.chance{font-size:14px;color:var(--muted)}
+.timer{font-variant-numeric:tabular-nums;font-size:38px;font-weight:800;letter-spacing:.02em;margin:4px 0}
+.status{font-size:14px;color:var(--muted)}
+button{width:100%;border:0;border-radius:16px;padding:17px 20px;background:var(--accent);color:light-dark(#fff,#101210);font-size:16px;font-weight:800;cursor:pointer;transition:.15s transform,.15s opacity}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:disabled{opacity:.42;cursor:not-allowed}
+.result{min-height:26px;margin-top:18px;font-weight:800}
+.win{font-size:24px}
+.note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:24px}
+</style>
+</head>
+
+<body>
+<main id="app">
+<section class="card">
+
+<div class="mark">🐺</div>
+<div class="eyebrow">Lista Lupo Nero</div>
+
+<h1 class="title">Tenta la sorte.</h1>
+
+<p class="sub">
+Ogni 8 ore puoi tentare il sorteggio per vincere un gadget della Lista Lupo Nero.
+</p>
+
+<div class="box">
+<div class="chance">Prossimo tentativo</div>
+<div class="timer" id="timer">00:00:00</div>
+<div class="status" id="status">Puoi tentare adesso.</div>
+</div>
+
+<div id="nicknameBox" style="margin-top:16px">
+<input
+id="nickname"
+maxlength="30"
+placeholder="@tuonickname"
+style="width:100%;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-size:15px"
+>
+<div style="font-size:12px;color:var(--muted);margin-top:8px">
+Inserisci il tuo nickname Instagram prima di tentare.
+</div>
+</div>
+
+<button id="tryBtn" style="margin-top:16px">
+🎲 TENTA LA SORTE
+</button>
+
+<div class="result" id="result" aria-live="polite"></div>
+
+<p class="note">
+Hai vinto? Fai uno screenshot del risultato e invialo su Instagram a
+<strong>@ReLupoNero</strong> oppure <strong>@Lista.LupoNero</strong>.
+</p>
+
+</section>
+</main>
+
+<script>
+
+const KEY='lupo-nero-last-attempt-v1';
+const COOLDOWN=8*60*60*1000;
+
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwnR8ufQskPSC5CqXLD3BuwT8DZtRZuUWbs-UzzUQFyeygNYBO6V3BoESreujhc4vgm/exec';
+
+const LOSING_PHRASES=[
+'Il branco ha ululato… ma non oggi. 🐺',
+'La sorte ti ha visto e ha pensato: “anche no”.',
+'Questa volta il lupo passa oltre. Tu invece puoi riprovare tra 8 ore.',
+'Non era il tuo momento. Ma almeno ci hai provato. 😏',
+'Quasi… ma il destino ha detto no. Con una certa soddisfazione.',
+'Niente gadget stavolta. La fortuna oggi aveva di meglio da fare.',
+'Hai sfidato la sorte. La sorte ha riso.',
+'Il lupo non molla. Tu però smettila di cliccare come un disperato. 🐺',
+'Hai ululato alla fortuna. Lei ha messo il telefono in silenzioso.',
+'Il gadget era lì. Poi ha visto te e si è nascosto.',
+'La fortuna ti sta evitando con una precisione inquietante.',
+'Niente ciccia, lupetto. Torna tra 8 ore.',
+'Oggi il branco ti guarda. E nessuno sa cosa dirti.',
+'Hai perso. Ma con stile. Forse.',
+'La luna non era dalla tua parte. Nemmeno il resto dell’universo, a quanto pare.',
+'La sfortuna si distrae. Magari tra 8 ore.',
+'Il destino ha pescato il tuo nome. Poi l’ha rimesso dentro.',
+'Nope. La zampa della fortuna oggi era occupata.',
+'Hai avuto una possibilità. Hai scelto di sprecarla. Complimenti, campione.',
+'La fortuna ti ha mandato affanculo con educazione.',
+'Hai perso. Non piangere, lupetto: fai più bella figura in silenzio.',
+'Il destino ti ha dato una sberla e tu hai pure detto grazie.',
+'Sei riuscito a perdere anche contro una probabilità microscopica. Applausi. 👏',
+'La fortuna oggi non ti vuole vedere nemmeno col binocolo.',
+'Hai cliccato con convinzione. Hai perso con altrettanta convinzione.',
+'Il gadget non è per te. Almeno oggi. Fattene una ragione.',
+'Che culo… ma al contrario.',
+'Il branco ha deciso: oggi fai da spettatore.',
+'Non sei sfortunato. Oggi sei proprio fuori dal giro.',
+'Hai sfidato il destino e il destino ti ha risposto: “ma levati”.',
+'La fortuna ha visto il tuo nickname e ha chiuso la porta.',
+'Riprova tra 8 ore, genio. Magari nel frattempo impari a vincere.',
+'Hai perso. Il branco ride. Tu fai finta di niente.',
+'Il tuo premio? Altri 8 ore di attesa. Che culo.',
+'La sorte ti ha guardato negli occhi e ha scelto qualcun altro.',
+'La fortuna oggi ti ha visto arrivare e ha cambiato strada.',
+'Hai perso. Ma tranquillo, poteva andare peggio. Forse.',
+'Il destino aveva una sorpresa per te. Era un altro no.',
+'La fortuna non ti odia. Semplicemente non ti considera.',
+'Hai bussato alla porta della fortuna. Nessuno ha aperto.',
+'Il lupo ha fiutato la fortuna. Tu evidentemente no. 🐺',
+'Oggi la sorte non è dalla tua parte. Domani vediamo, forse.',
+'Hai giocato la tua carta. Era quella sbagliata.',
+'La fortuna era vicina. Tu sei riuscito comunque a mancarla.'
+];
+
+const WIN_PREFIX='🐺 HAI VINTO, MIO/A CARO/A LUPETTO/A!';
+const WIN_KEY='lupo-nero-win-code-v1';
+
+const timer=document.querySelector('#timer');
+const status=document.querySelector('#status');
+const btn=document.querySelector('#tryBtn');
+const result=document.querySelector('#result');
+const nicknameBox=document.querySelector('#nicknameBox');
+const nickname=document.querySelector('#nickname');
+
+async function logAttempt(nicknameValue,risultato,codice){
+try{
+await fetch(SHEET_URL,{
+method:'POST',
+headers:{'Content-Type':'text/plain;charset=utf-8'},
+body:JSON.stringify({
+nickname:nicknameValue,
+risultato:risultato,
+codice:codice||''
+}),
+mode:'no-cors',
+keepalive:true
+})
+}catch(e){}
+}
+
+function last(){
+const n=Number(localStorage.getItem(KEY));
+return Number.isFinite(n)&&n>0?n:0
+}
+
+function fmt(ms){
+let s=Math.max(0,Math.ceil(ms/1000));
+const h=Math.floor(s/3600);
+s%=3600;
+const m=Math.floor(s/60);
+s%=60;
+
+return [
+h,
+m,
+s
+].map(x=>String(x).padStart(2,'0')).join(':')
+}
+
+function render(){
+
+const l=last();
+const remaining=l?COOLDOWN-(Date.now()-l):0;
+
+if(remaining>0){
+
+timer.textContent=fmt(remaining);
+status.textContent='Prossimo tentativo disponibile tra:';
+btn.disabled=true;
+
+}else{
+
+timer.textContent='00:00:00';
+status.textContent='Puoi tentare adesso.';
+btn.disabled=false;
+
+}
+
+}
+
+btn.addEventListener('click',async()=>{
+
+if(btn.disabled)return;
+
+const n=nickname.value.trim();
+
+if(!n){
+
+result.textContent='Inserisci prima il tuo nickname Instagram.';
+nickname.focus();
+return;
+
+}
+
+localStorage.setItem(KEY,String(Date.now()));
+
+const won=Math.floor(Math.random()*1000)===0;
+
+if(won){
+
+const code=Date.now().toString(36).toUpperCase().slice(-6);
+
+localStorage.setItem(WIN_KEY,code);
+
+result.innerHTML=
+'<span class="win">'+
+WIN_PREFIX+
+'<br><small>CODICE: LN-'+code+'</small>'+
+'</span>';
+
+await logAttempt(n,'Vinto','LN-'+code);
+
+}else{
+
+result.textContent=
+LOSING_PHRASES[Math.floor(Math.random()*LOSING_PHRASES.length)]+' Riprova tra 8 ore.';
+
+await logAttempt(n,'Perso','');
+
+}
+
+render();
+
+});
+
+render();
+setInterval(render,250);
+
+</script>
+
+</body>
+</html>
