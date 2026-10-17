@@ -1,9 +1,8 @@
-
 <!doctype html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090909">
 <title>Lista Lupo Nero</title>
 
@@ -18,8 +17,13 @@
   --good:#83d69a;
   --bad:#ff9696;
 }
+
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+
+html{
+  scroll-behavior:smooth;
+}
+
 body{
   margin:0;
   background:radial-gradient(ellipse at top,#202020 0,#090909 52%);
@@ -27,7 +31,9 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   line-height:1.5;
 }
+
 a{color:#fff}
+
 header{
   padding:26px 16px 18px;
   text-align:center;
@@ -38,12 +44,19 @@ header{
   z-index:5;
   backdrop-filter:blur(10px);
 }
+
 .brand{
   font-weight:900;
   letter-spacing:.12em;
   font-size:clamp(1.25rem,4vw,2rem);
 }
-.tag{color:var(--muted);font-size:.9rem;margin-top:4px}
+
+.tag{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-top:4px;
+}
+
 nav{
   display:flex;
   justify-content:center;
@@ -51,6 +64,7 @@ nav{
   flex-wrap:wrap;
   margin-top:15px;
 }
+
 nav a{
   font-size:.88rem;
   text-decoration:none;
@@ -59,8 +73,18 @@ nav a{
   border-radius:999px;
   background:#151515;
 }
-nav a:hover,button:hover,.btn:hover{background:#333}
-main{width:min(100% - 28px,900px);margin:26px auto 70px}
+
+nav a:hover,
+button:hover,
+.btn:hover{
+  background:#333;
+}
+
+main{
+  width:min(100% - 28px,900px);
+  margin:26px auto 70px;
+}
+
 section{
   scroll-margin-top:165px;
   margin:18px 0;
@@ -70,11 +94,31 @@ section{
   background:linear-gradient(145deg,#191919,#101010);
   box-shadow:0 12px 35px #0005;
 }
-h1,h2,h3{line-height:1.15}
-h1{font-size:clamp(1.6rem,5vw,2.5rem);margin:.2rem 0 12px}
-h2{margin:0 0 14px;font-size:clamp(1.35rem,4vw,1.8rem)}
-p{color:#dedede}
-.muted,.hint{color:var(--muted);font-size:.92rem}
+
+h1,h2,h3{
+  line-height:1.15;
+}
+
+h1{
+  font-size:clamp(1.6rem,5vw,2.5rem);
+  margin:.2rem 0 12px;
+}
+
+h2{
+  margin:0 0 14px;
+  font-size:clamp(1.35rem,4vw,1.8rem);
+}
+
+p{
+  color:#dedede;
+}
+
+.muted,
+.hint{
+  color:var(--muted);
+  font-size:.92rem;
+}
+
 .eyebrow{
   text-transform:uppercase;
   letter-spacing:.16em;
@@ -82,13 +126,23 @@ p{color:#dedede}
   color:#bdbdbd;
   font-weight:800;
 }
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button,.btn{
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+input,
+button,
+.btn{
   font:inherit;
   border-radius:11px;
   border:1px solid #555;
   padding:11px 14px;
 }
+
 input{
   background:#090909;
   color:#fff;
@@ -96,7 +150,9 @@ input{
   flex:1;
   width:100%;
 }
-button,.btn{
+
+button,
+.btn{
   background:#eee;
   color:#111;
   font-weight:800;
@@ -106,9 +162,18 @@ button,.btn{
   justify-content:center;
   align-items:center;
 }
-button:disabled{opacity:.55;cursor:not-allowed}
-button.secondary,.btn.secondary{background:#191919;color:#fff}
-.wide{width:100%}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+button.secondary,
+.btn.secondary{
+  background:#191919;
+  color:#fff;
+}
+
 .result{
   margin-top:16px;
   padding:16px;
@@ -117,26 +182,28 @@ button.secondary,.btn.secondary{background:#191919;color:#fff}
   border:1px solid var(--line);
   min-height:65px;
 }
-.result.good{border-color:#39764a}
-.result.bad{border-color:#814444}
-.result img{
-  display:block;
-  max-width:210px;
-  max-height:190px;
-  object-fit:contain;
-  margin:10px auto;
+
+.result.good{
+  border-color:#39764a;
 }
+
+.result.bad{
+  border-color:#814444;
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
   gap:14px;
 }
+
 .event{
   border:1px solid var(--line);
   border-radius:14px;
   overflow:hidden;
   background:#101010;
 }
+
 .event img{
   width:100%;
   aspect-ratio:4/5;
@@ -144,9 +211,20 @@ button.secondary,.btn.secondary{background:#191919;color:#fff}
   display:block;
   background:#222;
 }
-.event-body{padding:15px}
-.event h3{margin:0 0 8px}
-.event .btn{width:100%;margin-top:8px}
+
+.event-body{
+  padding:15px;
+}
+
+.event h3{
+  margin:0 0 8px;
+}
+
+.event .btn{
+  width:100%;
+  margin-top:8px;
+}
+
 .empty{
   border:1px dashed #555;
   padding:18px;
@@ -154,8 +232,15 @@ button.secondary,.btn.secondary{background:#191919;color:#fff}
   color:var(--muted);
 }
 
-/* LUPO RUNNER */
-.game-wrap{touch-action:pan-y}
+/* =========================
+   LUPO RUNNER
+   ========================= */
+
+.game-wrap{
+  width:100%;
+  touch-action:auto;
+}
+
 .game-head{
   display:flex;
   justify-content:space-between;
@@ -163,7 +248,12 @@ button.secondary,.btn.secondary{background:#191919;color:#fff}
   flex-wrap:wrap;
   margin-bottom:12px;
 }
-.score{font-variant-numeric:tabular-nums;font-weight:800}
+
+.score{
+  font-variant-numeric:tabular-nums;
+  font-weight:800;
+}
+
 .game-stage{
   width:100%;
   max-width:420px;
@@ -174,76 +264,144 @@ button.secondary,.btn.secondary{background:#191919;color:#fff}
   border-radius:18px;
   background:#111;
   box-shadow:0 0 30px #0009;
+
+  /*
+    IMPORTANTISSIMO:
+    pan-y permette al telefono di scorrere
+    verticalmente anche quando il dito passa
+    sopra il gioco.
+  */
+  touch-action:pan-y;
 }
+
 .game-canvas{
   display:block;
   width:100%;
   height:auto;
   aspect-ratio:420/620;
-  touch-action:none;
+
+  /*
+    Non blocchiamo lo scroll.
+    Un tap viene riconosciuto dal JavaScript.
+  */
+  touch-action:pan-y;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
 }
+
 .game-controls{
   display:flex;
   gap:10px;
   margin:14px auto 0;
   max-width:420px;
 }
+
 .game-controls button{
   flex:1;
   min-height:58px;
   font-size:1rem;
 }
+
 #jumpGame{
   background:#242424;
   color:#fff;
   border-color:#666;
 }
+
 .game-note{
   max-width:420px;
   margin:12px auto 0;
   color:var(--muted);
   font-size:.88rem;
 }
+
 .leaderboard{
   width:100%;
   border-collapse:collapse;
   margin-top:10px;
 }
-.leaderboard th,.leaderboard td{
+
+.leaderboard th,
+.leaderboard td{
   text-align:left;
   padding:10px;
   border-bottom:1px solid var(--line);
 }
-.leaderboard th{color:var(--muted);font-size:.8rem}
-.leaderboard td:last-child,.leaderboard th:last-child{text-align:right}
-.rank{font-weight:900;width:42px}
+
+.leaderboard th{
+  color:var(--muted);
+  font-size:.8rem;
+}
+
+.leaderboard td:last-child,
+.leaderboard th:last-child{
+  text-align:right;
+}
+
+.rank{
+  font-weight:900;
+  width:42px;
+}
+
 footer{
   text-align:center;
   padding:25px 14px;
   color:var(--muted);
   border-top:1px solid var(--line);
 }
-.notice{font-size:.85rem;color:var(--muted)}
-.hidden{display:none!important}
+
+.notice{
+  font-size:.85rem;
+  color:var(--muted);
+}
 
 @media(max-width:600px){
-  header{position:relative}
-  section{scroll-margin-top:12px}
-  nav a{font-size:.82rem;padding:6px 9px}
-  .game-controls{flex-direction:column}
-  .game-controls button{min-height:56px}
-  .game-stage{border-radius:14px}
+
+  header{
+    position:relative;
+  }
+
+  section{
+    scroll-margin-top:12px;
+  }
+
+  nav a{
+    font-size:.82rem;
+    padding:6px 9px;
+  }
+
+  .game-controls{
+    flex-direction:column;
+  }
+
+  .game-controls button{
+    min-height:56px;
+  }
+
+  .game-stage{
+    border-radius:14px;
+  }
 }
+
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
+
+  html{
+    scroll-behavior:auto;
+  }
 }
 </style>
 </head>
 
 <body>
+
 <header>
   <div class="brand">🐺 LISTA LUPO NERO</div>
-  <div class="tag">Il branco si muove insieme.</div>
+
+  <div class="tag">
+    Il branco si muove insieme.
+  </div>
+
   <nav aria-label="Navigazione principale">
     <a href="#sorteggio">Sorteggio</a>
     <a href="#eventi">Eventi</a>
@@ -253,793 +411,2493 @@ footer{
 </header>
 
 <main>
-<section id="sorteggio">
-  <div class="eyebrow">Un tentativo ogni 8 ore</div>
-  <h1>Il Sorteggio del Branco</h1>
-  <p>Inserisci un nickname e tenta la fortuna. Ogni tentativo ha una probabilità teorica di vincita pari a <strong>1 su 1000</strong>. Il risultato viene gestito da questa pagina; non è un sistema di pagamento né una garanzia di premio.</p>
 
-  <label for="nickname"><strong>Il tuo nickname</strong></label>
-  <div class="row" style="margin-top:8px">
-    <input id="nickname" maxlength="24" placeholder="Come vuoi farti chiamare?" autocomplete="nickname">
-    <button id="drawBtn">Tenta la sorte</button>
+<!-- =========================
+     SORTEGGIO
+     ========================= -->
+
+<section id="sorteggio">
+
+  <div class="eyebrow">
+    Un tentativo ogni 8 ore
   </div>
 
-  <div id="drawResult" class="result" aria-live="polite">Il prossimo ululato potrebbe essere il tuo…</div>
+  <h1>
+    Il Sorteggio del Branco
+  </h1>
+
+  <p>
+    Inserisci un nickname e tenta la fortuna.
+    Ogni tentativo ha una probabilità teorica di vincita pari a
+    <strong>1 su 1000</strong>.
+    Il risultato viene gestito da questa pagina; non è un sistema di pagamento né una garanzia di premio.
+  </p>
+
+  <label for="nickname">
+    <strong>Il tuo nickname</strong>
+  </label>
+
+  <div class="row" style="margin-top:8px">
+
+    <input
+      id="nickname"
+      maxlength="24"
+      placeholder="Come vuoi farti chiamare?"
+      autocomplete="nickname"
+    >
+
+    <button id="drawBtn">
+      Tenta la sorte
+    </button>
+
+  </div>
+
+  <div
+    id="drawResult"
+    class="result"
+    aria-live="polite"
+  >
+    Il prossimo ululato potrebbe essere il tuo…
+  </div>
 
   <p class="hint">
+
     Se vinci, contattaci su
-    <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista</a>
+    <a
+      href="https://www.instagram.com/lista.luponero/"
+      target="_blank"
+      rel="noopener"
+    >@Lista</a>
+
     oppure su
-    <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Lupo Nero</a>.
+
+    <a
+      href="https://www.instagram.com/reluponero/"
+      target="_blank"
+      rel="noopener"
+    >Lupo Nero</a>.
+
     Il limite di 8 ore viene salvato nel browser e può essere aggirato cancellando i dati del browser: non usarlo per concorsi che richiedono controlli verificabili.
+
   </p>
+
 </section>
+
+
+<!-- =========================
+     EVENTI
+     ========================= -->
 
 <section id="eventi">
-  <div class="eyebrow">Dove ci incontriamo</div>
-  <h2>Eventi</h2>
-  <p class="muted">Locandine, dettagli e link ufficiali per acquistare i biglietti.</p>
-  <div id="eventsList" class="grid">
-    <div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>
+
+  <div class="eyebrow">
+    Dove ci incontriamo
   </div>
+
+  <h2>
+    Eventi
+  </h2>
+
+  <p class="muted">
+    Locandine, dettagli e link ufficiali per acquistare i biglietti.
+  </p>
+
+  <div id="eventsList" class="grid">
+
+    <div class="empty">
+      Nessun evento inserito al momento.
+      Aggiungi gli eventi nel file <code>eventi.js</code>.
+    </div>
+
+  </div>
+
 </section>
+
+
+<!-- =========================
+     SOSTIENI
+     ========================= -->
 
 <section id="sostieni">
-  <div class="eyebrow">Aiuta il progetto</div>
-  <h2>Sostieni il Branco</h2>
-  <div class="result">
-    <h3>🚧 WORK IN PROGRESS</h3>
-    <p class="muted">La sezione donazioni è attualmente in lavorazione. Torna presto per scoprire le novità!</p>
+
+  <div class="eyebrow">
+    Aiuta il progetto
   </div>
+
+  <h2>
+    Sostieni il Branco
+  </h2>
+
+  <div class="result">
+
+    <h3>
+      🚧 WORK IN PROGRESS
+    </h3>
+
+    <p class="muted">
+      La sezione donazioni è attualmente in lavorazione.
+      Torna presto per scoprire le novità!
+    </p>
+
+  </div>
+
 </section>
+
+
+<!-- =========================
+     LUPO RUNNER
+     ========================= -->
 
 <section id="games">
-  <div class="eyebrow">Sfida il branco</div>
-  <h2>Lupo Games: Lupo Runner</h2>
-  <p>Corri nella notte, salta gli ostacoli e supera il tuo record. Tocca il gioco o premi <strong>Salta</strong> per saltare. Su PC puoi usare la barra spaziatrice.</p>
+
+  <div class="eyebrow">
+    Sfida il branco
+  </div>
+
+  <h2>
+    Lupo Games: Lupo Runner
+  </h2>
+
+  <p>
+    Corri nella notte, salta gli ostacoli e supera il tuo record.
+    Tocca il gioco o premi <strong>Salta</strong> per saltare.
+    Su PC puoi usare la barra spaziatrice.
+  </p>
+
 
   <div class="game-wrap">
+
     <div class="game-head">
-      <div>Punteggio: <span id="score" class="score">0 m</span></div>
-      <div>Record personale: <span id="personalBest" class="score">0 m</span></div>
+
+      <div>
+        Punteggio:
+        <span id="score" class="score">
+          0 m
+        </span>
+      </div>
+
+      <div>
+        Record personale:
+        <span id="personalBest" class="score">
+          0 m
+        </span>
+      </div>
+
     </div>
+
 
     <div class="game-stage">
-      <canvas id="gameCanvas" class="game-canvas" width="420" height="620" aria-label="Gioco verticale Lupo Runner">
+
+      <canvas
+        id="gameCanvas"
+        class="game-canvas"
+        width="420"
+        height="620"
+        aria-label="Gioco verticale Lupo Runner"
+      >
         Il tuo browser non supporta il gioco canvas.
       </canvas>
+
     </div>
+
 
     <div class="game-controls">
-      <button id="startGame">▶ Inizia / Riprova</button>
-      <button id="jumpGame" class="secondary">🐺 Salta</button>
+
+      <button id="startGame">
+        ▶ Inizia / Riprova
+      </button>
+
+      <button
+        id="jumpGame"
+        class="secondary"
+      >
+        🐺 Salta
+      </button>
+
     </div>
+
   </div>
 
-  <p id="gameMessage" class="result" aria-live="polite">Premi “Inizia / Riprova” per partire.</p>
 
-  <div class="row" style="margin-top:12px">
-    <input id="playerName" maxlength="20" placeholder="Nickname per la classifica">
-    <button id="submitScore" class="secondary">Invia record</button>
+  <p
+    id="gameMessage"
+    class="result"
+    aria-live="polite"
+  >
+    Premi “Inizia / Riprova” per partire.
+  </p>
+
+
+  <div
+    class="row"
+    style="margin-top:12px"
+  >
+
+    <input
+      id="playerName"
+      maxlength="20"
+      placeholder="Nickname per la classifica"
+    >
+
+    <button
+      id="submitScore"
+      class="secondary"
+    >
+      Invia record
+    </button>
+
   </div>
 
-  <p class="notice">Il record personale è salvato su questo browser. I punteggi inviati alla classifica pubblica non sono completamente protetti da manomissioni.</p>
 
-  <h3>🏆 Classifica — migliori 5</h3>
-  <p id="leaderboardStatus" class="muted">Caricamento della classifica…</p>
+  <p class="notice">
+    Il record personale è salvato su questo browser.
+    I punteggi inviati alla classifica pubblica non sono completamente protetti da manomissioni.
+  </p>
+
+
+  <h3>
+    🏆 Classifica — migliori 5
+  </h3>
+
+  <p
+    id="leaderboardStatus"
+    class="muted"
+  >
+    Caricamento della classifica…
+  </p>
+
 
   <table class="leaderboard">
+
     <thead>
-      <tr><th>#</th><th>Nickname</th><th>Distanza</th></tr>
+
+      <tr>
+        <th>#</th>
+        <th>Nickname</th>
+        <th>Distanza</th>
+      </tr>
+
     </thead>
+
     <tbody id="leaderboardBody">
-      <tr><td colspan="3" class="muted">Caricamento…</td></tr>
+
+      <tr>
+        <td
+          colspan="3"
+          class="muted"
+        >
+          Caricamento…
+        </td>
+      </tr>
+
     </tbody>
+
   </table>
 
-  <button id="refreshBoard" class="secondary" style="margin-top:12px">Aggiorna classifica</button>
-  <p class="game-note">Consiglio: prova a saltare poco prima degli ostacoli. Più resisti, più aumenta la velocità!</p>
+
+  <button
+    id="refreshBoard"
+    class="secondary"
+    style="margin-top:12px"
+  >
+    Aggiorna classifica
+  </button>
+
+
+  <p class="game-note">
+    Consiglio: prova a saltare poco prima degli ostacoli.
+    Più resisti, più aumenta la velocità!
+  </p>
+
 </section>
+
 </main>
 
+
 <footer>
+
   © <span id="year"></span> Lista Lupo Nero ·
-  <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">Instagram Lista</a> ·
-  <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Instagram Lupo Nero</a>
+
+  <a
+    href="https://www.instagram.com/lista.luponero/"
+    target="_blank"
+    rel="noopener"
+  >
+    Instagram Lista
+  </a>
+
+  ·
+
+  <a
+    href="https://www.instagram.com/reluponero/"
+    target="_blank"
+    rel="noopener"
+  >
+    Instagram Lupo Nero
+  </a>
+
 </footer>
 
+
 <script src="eventi.js"></script>
+
 <script>
-"use strict";
 
-/* CONFIGURAZIONE CLASSIFICA ONLINE */
-const LEADERBOARD_API_URL = "https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
+/* =====================================================
+   CONFIGURAZIONE
+   ===================================================== */
 
-/* SORTeggio */
-const DRAW_COOLDOWN_MS = 8 * 60 * 60 * 1000;
-const WIN_CHANCE = 1 / 1000;
-const drawBtn = document.getElementById("drawBtn");
-const drawResult = document.getElementById("drawResult");
+const LEADERBOARD_API_URL =
+"https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
 
-document.getElementById("year").textContent = new Date().getFullYear();
+const DRAW_COOLDOWN_MS =
+8 * 60 * 60 * 1000;
+
+const WIN_CHANCE =
+1 / 1000;
+
+
+/* =====================================================
+   ANNO
+   ===================================================== */
+
+document.getElementById("year").textContent =
+new Date().getFullYear();
+
+
+/* =====================================================
+   SORTEGGIO
+   ===================================================== */
+
+const drawBtn =
+document.getElementById("drawBtn");
+
+const drawResult =
+document.getElementById("drawResult");
+
 
 function renderCooldown(){
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
-  const remaining = last + DRAW_COOLDOWN_MS - Date.now();
+
+  const last =
+  Number(localStorage.getItem("lupoDrawLast") || 0);
+
+  const remaining =
+  last + DRAW_COOLDOWN_MS - Date.now();
 
   if(remaining > 0){
+
     drawBtn.disabled = true;
-    drawBtn.textContent = `Riprova tra ${Math.ceil(remaining / 60000)} min`;
+
+    drawBtn.textContent =
+    `Riprova tra ${Math.ceil(remaining / 60000)} min`;
+
   }else{
+
     drawBtn.disabled = false;
-    drawBtn.textContent = "Tenta la sorte";
+
+    drawBtn.textContent =
+    "Tenta la sorte";
+
   }
+
 }
 
-function renderResult(text, kind = ""){
-  drawResult.className = "result " + kind;
-  drawResult.textContent = text;
+
+function renderResult(text,kind=""){
+
+  drawResult.className =
+  "result " + kind;
+
+  drawResult.textContent =
+  text;
+
 }
 
-drawBtn.addEventListener("click", () => {
-  const name = document.getElementById("nickname").value.trim();
+
+drawBtn.addEventListener("click",()=>{
+
+  const name =
+  document.getElementById("nickname").value.trim();
 
   if(!name){
-    renderResult("Inserisci prima un nickname.", "bad");
+
+    renderResult(
+      "Inserisci prima un nickname.",
+      "bad"
+    );
+
     return;
   }
 
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
+
+  const last =
+  Number(localStorage.getItem("lupoDrawLast") || 0);
+
 
   if(Date.now() - last < DRAW_COOLDOWN_MS){
+
     renderCooldown();
-    renderResult("Hai già tentato da poco. Il branco ti aspetta tra qualche ora.", "bad");
+
+    renderResult(
+      "Hai già tentato da poco. Il branco ti aspetta tra qualche ora.",
+      "bad"
+    );
+
     return;
   }
 
-  localStorage.setItem("lupoDrawLast", String(Date.now()));
+
+  localStorage.setItem(
+    "lupoDrawLast",
+    String(Date.now())
+  );
+
 
   if(Math.random() < WIN_CHANCE){
-    renderResult(`🐺 ${name}, hai vinto! Contatta @Lista o Lupo Nero su Instagram per verificare il risultato.`, "good");
+
+    renderResult(
+      `🐺 ${name}, hai vinto! Contatta @Lista o Lupo Nero su Instagram per verificare il risultato.`,
+      "good"
+    );
+
   }else{
+
     const lines = [
+
       "Il lupo ulula alla luna… ma oggi la fortuna è altrove.",
+
       "Non questa volta, lupetto. Il branco ti aspetta al prossimo tentativo.",
+
       "Il destino ha scelto un altro sentiero. Riprova tra 8 ore.",
+
       "La notte è lunga: il tuo momento potrebbe arrivare."
+
     ];
-    renderResult(lines[Math.floor(Math.random() * lines.length)], "bad");
+
+    renderResult(
+      lines[Math.floor(Math.random() * lines.length)],
+      "bad"
+    );
+
   }
 
   renderCooldown();
+
 });
+
 
 renderCooldown();
 
+
+/* =====================================================
+   SICUREZZA TESTO
+   ===================================================== */
+
 function safeText(value){
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
+
+  return String(value ?? "")
+  .replace(/[&<>"']/g,char=>({
+
     "&":"&amp;",
     "<":"&lt;",
     ">":"&gt;",
     '"':"&quot;",
     "'":"&#39;"
+
   }[char]));
+
 }
 
-/* EVENTI */
-function renderEvents(){
-  const host = document.getElementById("eventsList");
 
-  if(!Array.isArray(window.eventi) || !window.eventi.length){
-    host.innerHTML = '<div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>';
+/* =====================================================
+   EVENTI
+   ===================================================== */
+
+function renderEvents(){
+
+  const host =
+  document.getElementById("eventsList");
+
+
+  if(
+    !Array.isArray(window.eventi) ||
+    !window.eventi.length
+  ){
+
+    host.innerHTML =
+    '<div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>';
+
     return;
   }
 
-  host.innerHTML = window.eventi.map(event => `
+
+  host.innerHTML =
+  window.eventi.map(event=>`
+
     <article class="event">
+
       ${event.locandina ? `
-        <a href="${safeText(event.linkBiglietti || "#")}" target="_blank" rel="noopener" aria-label="Apri biglietti per ${safeText(event.nome)}">
-          <img src="${safeText(event.locandina)}" alt="Locandina ${safeText(event.nome)}" loading="lazy">
-        </a>` : ""}
+
+        <a
+          href="${safeText(event.linkBiglietti || "#")}"
+          target="_blank"
+          rel="noopener"
+          aria-label="Apri biglietti per ${safeText(event.nome)}"
+        >
+
+          <img
+            src="${safeText(event.locandina)}"
+            alt="Locandina ${safeText(event.nome)}"
+            loading="lazy"
+          >
+
+        </a>
+
+      ` : ""}
+
+
       <div class="event-body">
-        <h3>${safeText(event.nome)}</h3>
-        <p>${safeText(event.data || "Data da annunciare")}<br>${safeText(event.locale || "Locale da annunciare")}</p>
-        ${event.linkBiglietti
-          ? `<a class="btn" href="${safeText(event.linkBiglietti)}" target="_blank" rel="noopener">Biglietti</a>`
-          : '<span class="muted">Biglietti non ancora disponibili</span>'}
+
+        <h3>
+          ${safeText(event.nome)}
+        </h3>
+
+        <p>
+          ${safeText(event.data || "Data da annunciare")}
+          <br>
+          ${safeText(event.locale || "Locale da annunciare")}
+        </p>
+
+
+        ${
+          event.linkBiglietti
+
+          ?
+
+          `<a
+            class="btn"
+            href="${safeText(event.linkBiglietti)}"
+            target="_blank"
+            rel="noopener"
+          >
+            Biglietti
+          </a>`
+
+          :
+
+          '<span class="muted">Biglietti non ancora disponibili</span>'
+        }
+
       </div>
+
     </article>
+
   `).join("");
+
 }
+
 
 renderEvents();
 
-/* LUPO RUNNER — GIOCO ILLUSTRATO VERTICALE */
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
 
-const W = canvas.width;
-const H = canvas.height;
-const GROUND_Y = 510;
+/* =====================================================
+   LUPO RUNNER
+   ===================================================== */
 
-let running = false;
-let over = true;
-let frame = 0;
-let distance = 0;
-let speed = 4;
-let spawnTimer = 0;
-let obstacles = [];
+const canvas =
+document.getElementById("gameCanvas");
+
+const ctx =
+canvas.getContext("2d");
+
+
+const W =
+canvas.width;
+
+const H =
+canvas.height;
+
+
+const GROUND_Y =
+510;
+
+
+let running =
+false;
+
+let over =
+true;
+
+let frame =
+0;
+
+let distance =
+0;
+
+let speed =
+4;
+
+let spawnTimer =
+0;
+
+let obstacles =
+[];
+
+
+/* =====================================================
+   LUPETTO
+   ===================================================== */
 
 const wolf = {
-  x: 68,
-  y: GROUND_Y - 62,
-  w: 58,
-  h: 62,
-  vy: 0,
-  onGround: true
+
+  x:68,
+
+  y:GROUND_Y - 62,
+
+  w:58,
+
+  h:62,
+
+  vy:0,
+
+  onGround:true
+
 };
 
-let best = Number(localStorage.getItem("lupoRunnerBest") || 0);
-document.getElementById("personalBest").textContent = best + " m";
 
-function roundedRect(x, y, width, height, radius){
+let best =
+Number(
+  localStorage.getItem("lupoRunnerBest") || 0
+);
+
+
+document.getElementById(
+  "personalBest"
+).textContent =
+best + " m";
+
+
+/* =====================================================
+   UTILITY GRAFICA
+   ===================================================== */
+
+function roundedRect(
+  x,
+  y,
+  width,
+  height,
+  radius
+){
+
   ctx.beginPath();
-  ctx.roundRect(x, y, width, height, radius);
+
+  ctx.roundRect(
+    x,
+    y,
+    width,
+    height,
+    radius
+  );
+
 }
+
+
+/* =====================================================
+   SFONDO
+   ===================================================== */
 
 function drawBackground(){
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#080d19");
-  sky.addColorStop(.48, "#172435");
-  sky.addColorStop(1, "#292b31");
 
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
+  const sky =
+  ctx.createLinearGradient(
+    0,
+    0,
+    0,
+    H
+  );
 
-  /* Luna */
+
+  sky.addColorStop(
+    0,
+    "#080d19"
+  );
+
+
+  sky.addColorStop(
+    .48,
+    "#172435"
+  );
+
+
+  sky.addColorStop(
+    1,
+    "#292b31"
+  );
+
+
+  ctx.fillStyle =
+  sky;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  /* LUNA */
+
   ctx.save();
-  ctx.shadowColor = "#d8e4ff";
-  ctx.shadowBlur = 24;
-  ctx.fillStyle = "#e7e6dc";
+
+  ctx.shadowColor =
+  "#d8e4ff";
+
+  ctx.shadowBlur =
+  24;
+
+  ctx.fillStyle =
+  "#e7e6dc";
+
   ctx.beginPath();
-  ctx.arc(315, 95, 37, 0, Math.PI * 2);
+
+  ctx.arc(
+    315,
+    95,
+    37,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
+
   ctx.restore();
 
-  ctx.fillStyle = "#c6c8c9";
+
+  /* CRATERI */
+
+  ctx.fillStyle =
+  "#c6c8c9";
+
   ctx.beginPath();
-  ctx.arc(303, 84, 5, 0, Math.PI * 2);
-  ctx.arc(328, 108, 7, 0, Math.PI * 2);
-  ctx.arc(326, 78, 3, 0, Math.PI * 2);
+
+  ctx.arc(
+    303,
+    84,
+    5,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.arc(
+    328,
+    108,
+    7,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.arc(
+    326,
+    78,
+    3,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
 
-  /* Stelle */
-  for(let i = 0; i < 36; i++){
-    const x = (i * 79 + 23) % W;
-    const y = (i * 47 + 19) % 285;
-    const radius = i % 4 === 0 ? 2 : 1;
 
-    ctx.fillStyle = i % 3 === 0 ? "#dce4f0" : "#77899e";
+  /* STELLE */
+
+  for(let i=0;i<36;i++){
+
+    const x =
+    (i * 79 + 23) % W;
+
+    const y =
+    (i * 47 + 19) % 285;
+
+    const radius =
+    i % 4 === 0 ? 2 : 1;
+
+    ctx.fillStyle =
+    i % 3 === 0
+    ? "#dce4f0"
+    : "#77899e";
+
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+    ctx.arc(
+      x,
+      y,
+      radius,
+      0,
+      Math.PI * 2
+    );
+
     ctx.fill();
+
   }
 
-  /* Montagne lontane */
-  ctx.fillStyle = "#202c3a";
+
+  /* MONTAGNE LONTANE */
+
+  ctx.fillStyle =
+  "#202c3a";
+
   ctx.beginPath();
-  ctx.moveTo(0, 355);
-  ctx.lineTo(60, 267);
-  ctx.lineTo(120, 334);
-  ctx.lineTo(194, 240);
-  ctx.lineTo(273, 333);
-  ctx.lineTo(341, 276);
-  ctx.lineTo(420, 345);
-  ctx.lineTo(420, GROUND_Y);
-  ctx.lineTo(0, GROUND_Y);
+
+  ctx.moveTo(0,355);
+
+  ctx.lineTo(60,267);
+
+  ctx.lineTo(120,334);
+
+  ctx.lineTo(194,240);
+
+  ctx.lineTo(273,333);
+
+  ctx.lineTo(341,276);
+
+  ctx.lineTo(420,345);
+
+  ctx.lineTo(420,GROUND_Y);
+
+  ctx.lineTo(0,GROUND_Y);
+
   ctx.closePath();
+
   ctx.fill();
 
-  /* Montagne vicine */
-  ctx.fillStyle = "#131c27";
+
+  /* MONTAGNE VICINE */
+
+  ctx.fillStyle =
+  "#131c27";
+
   ctx.beginPath();
-  ctx.moveTo(0, 406);
-  ctx.lineTo(62, 333);
-  ctx.lineTo(127, 390);
-  ctx.lineTo(221, 315);
-  ctx.lineTo(310, 397);
-  ctx.lineTo(369, 344);
-  ctx.lineTo(420, 391);
-  ctx.lineTo(420, GROUND_Y);
-  ctx.lineTo(0, GROUND_Y);
+
+  ctx.moveTo(0,406);
+
+  ctx.lineTo(62,333);
+
+  ctx.lineTo(127,390);
+
+  ctx.lineTo(221,315);
+
+  ctx.lineTo(310,397);
+
+  ctx.lineTo(369,344);
+
+  ctx.lineTo(420,391);
+
+  ctx.lineTo(420,GROUND_Y);
+
+  ctx.lineTo(0,GROUND_Y);
+
   ctx.closePath();
+
   ctx.fill();
 
-  /* Alberi stilizzati */
-  for(let i = 0; i < 9; i++){
-    const x = ((i * 71 - frame * speed * .12) % 500 + 500) % 500 - 40;
-    const base = GROUND_Y - 5;
-    const height = 55 + (i % 3) * 19;
 
-    ctx.fillStyle = "#0b1219";
-    ctx.fillRect(x - 4, base - height * .35, 8, height * .55);
+  /* ALBERI */
+
+  for(let i=0;i<9;i++){
+
+    const x =
+    ((i * 71 - frame * speed * .12) % 500 + 500) % 500 - 40;
+
+    const base =
+    GROUND_Y - 5;
+
+    const height =
+    55 + (i % 3) * 19;
+
+
+    ctx.fillStyle =
+    "#0b1219";
+
+    ctx.fillRect(
+      x - 4,
+      base - height * .35,
+      8,
+      height * .55
+    );
+
 
     ctx.beginPath();
-    ctx.moveTo(x, base - height);
-    ctx.lineTo(x - 25, base - height * .43);
-    ctx.lineTo(x - 12, base - height * .43);
-    ctx.lineTo(x - 31, base - height * .12);
-    ctx.lineTo(x + 31, base - height * .12);
-    ctx.lineTo(x + 12, base - height * .43);
-    ctx.lineTo(x + 25, base - height * .43);
+
+    ctx.moveTo(
+      x,
+      base - height
+    );
+
+    ctx.lineTo(
+      x - 25,
+      base - height * .43
+    );
+
+    ctx.lineTo(
+      x - 12,
+      base - height * .43
+    );
+
+    ctx.lineTo(
+      x - 31,
+      base - height * .12
+    );
+
+    ctx.lineTo(
+      x + 31,
+      base - height * .12
+    );
+
+    ctx.lineTo(
+      x + 12,
+      base - height * .43
+    );
+
+    ctx.lineTo(
+      x + 25,
+      base - height * .43
+    );
+
     ctx.closePath();
+
     ctx.fill();
+
   }
 
-  /* Terreno */
-  ctx.fillStyle = "#111315";
-  ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
-  ctx.strokeStyle = "#777f88";
-  ctx.lineWidth = 2;
+  /* TERRENO */
+
+  ctx.fillStyle =
+  "#111315";
+
+  ctx.fillRect(
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y
+  );
+
+
+  ctx.strokeStyle =
+  "#777f88";
+
+  ctx.lineWidth =
+  2;
+
   ctx.beginPath();
-  ctx.moveTo(0, GROUND_Y);
-  ctx.lineTo(W, GROUND_Y);
+
+  ctx.moveTo(
+    0,
+    GROUND_Y
+  );
+
+  ctx.lineTo(
+    W,
+    GROUND_Y
+  );
+
   ctx.stroke();
 
-  /* Trattini sul terreno */
-  ctx.fillStyle = "#5d6369";
-  for(let i = 0; i < 12; i++){
-    const x = ((i * 51 - frame * speed * 1.4) % (W + 20) + W + 20) % (W + 20);
-    ctx.fillRect(x, GROUND_Y + 20 + (i % 3) * 15, 17, 2);
+
+  /* TRATTINI */
+
+  ctx.fillStyle =
+  "#5d6369";
+
+  for(let i=0;i<12;i++){
+
+    const x =
+    ((i * 51 - frame * speed * 1.4) %
+    (W + 20) + W + 20) %
+    (W + 20);
+
+    ctx.fillRect(
+      x,
+      GROUND_Y + 20 + (i % 3) * 15,
+      17,
+      2
+    );
+
   }
 
-  /* Ciuffi d'erba */
-  ctx.strokeStyle = "#4b5b4e";
-  ctx.lineWidth = 2;
-  for(let i = 0; i < 12; i++){
-    const x = ((i * 43 - frame * speed * .8) % (W + 20) + W + 20) % (W + 20);
+
+  /* ERBA */
+
+  ctx.strokeStyle =
+  "#4b5b4e";
+
+  ctx.lineWidth =
+  2;
+
+  for(let i=0;i<12;i++){
+
+    const x =
+    ((i * 43 - frame * speed * .8) %
+    (W + 20) + W + 20) %
+    (W + 20);
+
     ctx.beginPath();
-    ctx.moveTo(x, GROUND_Y + 2);
-    ctx.lineTo(x - 4, GROUND_Y - 7);
-    ctx.moveTo(x, GROUND_Y + 2);
-    ctx.lineTo(x + 5, GROUND_Y - 5);
+
+    ctx.moveTo(
+      x,
+      GROUND_Y + 2
+    );
+
+    ctx.lineTo(
+      x - 4,
+      GROUND_Y - 7
+    );
+
+    ctx.moveTo(
+      x,
+      GROUND_Y + 2
+    );
+
+    ctx.lineTo(
+      x + 5,
+      GROUND_Y - 5
+    );
+
     ctx.stroke();
+
   }
+
 }
 
-/* Lupetto illustrato: disegno vettoriale, senza immagini esterne */
+
+/* =====================================================
+   DISEGNO LUPETTO
+   ===================================================== */
+
 function drawWolf(){
-  const x = wolf.x;
-  const y = wolf.y;
-  const bob = running && wolf.onGround ? Math.sin(frame * .35) * 2 : 0;
+
+  const x =
+  wolf.x;
+
+  const y =
+  wolf.y;
+
+
+  const bob =
+  running && wolf.onGround
+  ? Math.sin(frame * .35) * 2
+  : 0;
+
 
   ctx.save();
-  ctx.translate(x, y + bob);
 
-  /* Coda */
-  ctx.fillStyle = "#17191e";
+  ctx.translate(
+    x,
+    y + bob
+  );
+
+
+  /* CODA */
+
+  ctx.fillStyle =
+  "#17191e";
+
   ctx.beginPath();
-  ctx.moveTo(13, 37);
-  ctx.quadraticCurveTo(-2, 28, 1, 17);
-  ctx.quadraticCurveTo(5, 27, 20, 29);
+
+  ctx.moveTo(13,37);
+
+  ctx.quadraticCurveTo(
+    -2,
+    28,
+    1,
+    17
+  );
+
+  ctx.quadraticCurveTo(
+    5,
+    27,
+    20,
+    29
+  );
+
   ctx.closePath();
+
   ctx.fill();
 
-  ctx.fillStyle = "#9299a2";
+
+  ctx.fillStyle =
+  "#9299a2";
+
   ctx.beginPath();
-  ctx.moveTo(2, 19);
-  ctx.lineTo(0, 11);
-  ctx.lineTo(9, 20);
+
+  ctx.moveTo(2,19);
+
+  ctx.lineTo(0,11);
+
+  ctx.lineTo(9,20);
+
   ctx.closePath();
+
   ctx.fill();
 
-  /* Zampe posteriori */
-  ctx.fillStyle = "#242832";
-  const legSwing = running && wolf.onGround ? Math.sin(frame * .35) * 5 : 0;
 
-  roundedRect(12, 43 + legSwing * .3, 12, 17 - legSwing * .3, 4);
-  ctx.fill();
-  roundedRect(36, 43 - legSwing * .3, 12, 17 + legSwing * .3, 4);
+  /* ZAMPE */
+
+  ctx.fillStyle =
+  "#242832";
+
+  const legSwing =
+  running && wolf.onGround
+  ? Math.sin(frame * .35) * 5
+  : 0;
+
+
+  roundedRect(
+    12,
+    43 + legSwing * .3,
+    12,
+    17 - legSwing * .3,
+    4
+  );
+
   ctx.fill();
 
-  ctx.fillStyle = "#b4bac1";
-  roundedRect(10, 55 + legSwing * .3, 15, 7, 3);
-  ctx.fill();
-  roundedRect(35, 55 - legSwing * .3, 15, 7, 3);
+
+  roundedRect(
+    36,
+    43 - legSwing * .3,
+    12,
+    17 + legSwing * .3,
+    4
+  );
+
   ctx.fill();
 
-  /* Corpo */
-  ctx.fillStyle = "#242831";
+
+  ctx.fillStyle =
+  "#b4bac1";
+
+
+  roundedRect(
+    10,
+    55 + legSwing * .3,
+    15,
+    7,
+    3
+  );
+
+  ctx.fill();
+
+
+  roundedRect(
+    35,
+    55 - legSwing * .3,
+    15,
+    7,
+    3
+  );
+
+  ctx.fill();
+
+
+  /* CORPO */
+
+  ctx.fillStyle =
+  "#242831";
+
   ctx.beginPath();
-  ctx.ellipse(29, 37, 25, 18, -.08, 0, Math.PI * 2);
+
+  ctx.ellipse(
+    29,
+    37,
+    25,
+    18,
+    -.08,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
 
-  /* Dorso illuminato */
-  ctx.strokeStyle = "#727b87";
-  ctx.lineWidth = 3;
+
+  /* DORSO */
+
+  ctx.strokeStyle =
+  "#727b87";
+
+  ctx.lineWidth =
+  3;
+
   ctx.beginPath();
-  ctx.moveTo(12, 28);
-  ctx.quadraticCurveTo(27, 13, 42, 28);
+
+  ctx.moveTo(
+    12,
+    28
+  );
+
+  ctx.quadraticCurveTo(
+    27,
+    13,
+    42,
+    28
+  );
+
   ctx.stroke();
 
-  /* Collo e testa */
-  ctx.fillStyle = "#343a45";
+
+  /* TESTA */
+
+  ctx.fillStyle =
+  "#343a45";
+
   ctx.beginPath();
-  ctx.ellipse(43, 26, 15, 15, -.2, 0, Math.PI * 2);
+
+  ctx.ellipse(
+    43,
+    26,
+    15,
+    15,
+    -.2,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
 
-  /* Orecchie */
-  ctx.fillStyle = "#454c59";
+
+  /* ORECCHIO SINISTRO */
+
+  ctx.fillStyle =
+  "#454c59";
+
   ctx.beginPath();
-  ctx.moveTo(32, 18);
-  ctx.lineTo(29, 0);
-  ctx.lineTo(42, 12);
+
+  ctx.moveTo(
+    32,
+    18
+  );
+
+  ctx.lineTo(
+    29,
+    0
+  );
+
+  ctx.lineTo(
+    42,
+    12
+  );
+
   ctx.closePath();
+
   ctx.fill();
 
+
+  /* ORECCHIO DESTRO */
+
   ctx.beginPath();
-  ctx.moveTo(43, 15);
-  ctx.lineTo(51, 2);
-  ctx.lineTo(53, 21);
+
+  ctx.moveTo(
+    43,
+    15
+  );
+
+  ctx.lineTo(
+    51,
+    2
+  );
+
+  ctx.lineTo(
+    53,
+    21
+  );
+
   ctx.closePath();
+
   ctx.fill();
 
-  ctx.fillStyle = "#a2a7ad";
+
+  /* INTERNO ORECCHIO */
+
+  ctx.fillStyle =
+  "#a2a7ad";
+
   ctx.beginPath();
-  ctx.moveTo(33, 12);
-  ctx.lineTo(32, 5);
-  ctx.lineTo(38, 13);
+
+  ctx.moveTo(
+    33,
+    12
+  );
+
+  ctx.lineTo(
+    32,
+    5
+  );
+
+  ctx.lineTo(
+    38,
+    13
+  );
+
   ctx.closePath();
+
   ctx.fill();
 
-  /* Muso */
-  ctx.fillStyle = "#aeb4bb";
+
+  /* MUSO */
+
+  ctx.fillStyle =
+  "#aeb4bb";
+
   ctx.beginPath();
-  ctx.moveTo(48, 23);
-  ctx.quadraticCurveTo(59, 23, 58, 32);
-  ctx.lineTo(44, 34);
-  ctx.quadraticCurveTo(42, 28, 48, 23);
+
+  ctx.moveTo(
+    48,
+    23
+  );
+
+  ctx.quadraticCurveTo(
+    59,
+    23,
+    58,
+    32
+  );
+
+  ctx.lineTo(
+    44,
+    34
+  );
+
+  ctx.quadraticCurveTo(
+    42,
+    28,
+    48,
+    23
+  );
+
   ctx.fill();
 
-  /* Naso */
-  ctx.fillStyle = "#08090c";
+
+  /* NASO */
+
+  ctx.fillStyle =
+  "#08090c";
+
   ctx.beginPath();
-  ctx.arc(57, 28, 3, 0, Math.PI * 2);
+
+  ctx.arc(
+    57,
+    28,
+    3,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
 
-  /* Occhio */
+
+  /* OCCHIO ROSSO */
+
   ctx.save();
-  ctx.shadowColor = "#ff3333";
-  ctx.shadowBlur = 9;
-  ctx.fillStyle = "#ff4949";
+
+  ctx.shadowColor =
+  "#ff3333";
+
+  ctx.shadowBlur =
+  9;
+
+  ctx.fillStyle =
+  "#ff4949";
+
   ctx.beginPath();
-  ctx.ellipse(47, 20, 3.5, 2.5, -.1, 0, Math.PI * 2);
+
+  ctx.ellipse(
+    47,
+    20,
+    3.5,
+    2.5,
+    -.1,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
+
   ctx.restore();
 
-  ctx.fillStyle = "#fff";
+
+  ctx.fillStyle =
+  "#fff";
+
   ctx.beginPath();
-  ctx.arc(48, 19.5, 1, 0, Math.PI * 2);
+
+  ctx.arc(
+    48,
+    19.5,
+    1,
+    0,
+    Math.PI * 2
+  );
+
   ctx.fill();
 
-  /* Pelo sul petto */
-  ctx.fillStyle = "#d0d3d6";
+
+  /* PETTO */
+
+  ctx.fillStyle =
+  "#d0d3d6";
+
   ctx.beginPath();
-  ctx.moveTo(39, 31);
-  ctx.lineTo(34, 40);
-  ctx.lineTo(41, 37);
-  ctx.lineTo(43, 43);
-  ctx.lineTo(47, 34);
+
+  ctx.moveTo(
+    39,
+    31
+  );
+
+  ctx.lineTo(
+    34,
+    40
+  );
+
+  ctx.lineTo(
+    41,
+    37
+  );
+
+  ctx.lineTo(
+    43,
+    43
+  );
+
+  ctx.lineTo(
+    47,
+    34
+  );
+
   ctx.closePath();
+
   ctx.fill();
 
+
   ctx.restore();
+
 }
+
+
+/* =====================================================
+   OSTACOLI
+   ===================================================== */
 
 function drawObstacle(obstacle){
-  const x = obstacle.x;
-  const y = obstacle.y;
-  const w = obstacle.w;
-  const h = obstacle.h;
+
+  const x =
+  obstacle.x;
+
+  const y =
+  obstacle.y;
+
+  const w =
+  obstacle.w;
+
+  const h =
+  obstacle.h;
+
 
   ctx.save();
+
 
   if(obstacle.type === "spike"){
-    ctx.fillStyle = "#737c87";
+
+    ctx.fillStyle =
+    "#737c87";
+
     ctx.beginPath();
-    ctx.moveTo(x, y + h);
-    ctx.lineTo(x + w * .5, y);
-    ctx.lineTo(x + w, y + h);
+
+    ctx.moveTo(
+      x,
+      y + h
+    );
+
+    ctx.lineTo(
+      x + w * .5,
+      y
+    );
+
+    ctx.lineTo(
+      x + w,
+      y + h
+    );
+
     ctx.closePath();
+
     ctx.fill();
 
-    ctx.strokeStyle = "#c5cbd1";
-    ctx.lineWidth = 2;
+
+    ctx.strokeStyle =
+    "#c5cbd1";
+
+    ctx.lineWidth =
+    2;
+
     ctx.beginPath();
-    ctx.moveTo(x + w * .5, y + 5);
-    ctx.lineTo(x + w * .28, y + h - 4);
+
+    ctx.moveTo(
+      x + w * .5,
+      y + 5
+    );
+
+    ctx.lineTo(
+      x + w * .28,
+      y + h - 4
+    );
+
     ctx.stroke();
 
-    ctx.fillStyle = "#343b43";
-    ctx.fillRect(x, y + h - 5, w, 5);
+
+    ctx.fillStyle =
+    "#343b43";
+
+    ctx.fillRect(
+      x,
+      y + h - 5,
+      w,
+      5
+    );
+
   }else{
-    ctx.fillStyle = "#343941";
-    roundedRect(x, y, w, h, 4);
+
+    ctx.fillStyle =
+    "#343941";
+
+    roundedRect(
+      x,
+      y,
+      w,
+      h,
+      4
+    );
+
     ctx.fill();
 
-    ctx.strokeStyle = "#a3aab2";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x + 4, y + 4, w - 8, h - 8);
 
-    ctx.strokeStyle = "#6f7781";
+    ctx.strokeStyle =
+    "#a3aab2";
+
+    ctx.lineWidth =
+    2;
+
+    ctx.strokeRect(
+      x + 4,
+      y + 4,
+      w - 8,
+      h - 8
+    );
+
+
+    ctx.strokeStyle =
+    "#6f7781";
+
     ctx.beginPath();
-    ctx.moveTo(x + 5, y + 5);
-    ctx.lineTo(x + w - 5, y + h - 5);
-    ctx.moveTo(x + w - 5, y + 5);
-    ctx.lineTo(x + 5, y + h - 5);
+
+    ctx.moveTo(
+      x + 5,
+      y + 5
+    );
+
+    ctx.lineTo(
+      x + w - 5,
+      y + h - 5
+    );
+
+    ctx.moveTo(
+      x + w - 5,
+      y + 5
+    );
+
+    ctx.lineTo(
+      x + 5,
+      y + h - 5
+    );
+
     ctx.stroke();
+
   }
 
+
   ctx.restore();
+
 }
 
-function drawOverlay(title, subtitle){
+
+/* =====================================================
+   SCHERMATA INIZIALE / GAME OVER
+   ===================================================== */
+
+function drawOverlay(
+  title,
+  subtitle
+){
+
   ctx.save();
-  ctx.fillStyle = "rgba(4,7,12,.68)";
-  ctx.fillRect(20, 210, W - 40, 140);
 
-  ctx.strokeStyle = "#818b99";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(20, 210, W - 40, 140);
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = "900 27px system-ui";
-  ctx.fillText(title, W / 2, 260);
+  ctx.fillStyle =
+  "rgba(4,7,12,.68)";
 
-  ctx.fillStyle = "#d0d6df";
-  ctx.font = "15px system-ui";
-  ctx.fillText(subtitle, W / 2, 291);
+  ctx.fillRect(
+    20,
+    210,
+    W - 40,
+    140
+  );
 
-  ctx.fillStyle = "#aeb6c0";
-  ctx.font = "12px system-ui";
-  ctx.fillText("LISTA LUPO NERO", W / 2, 324);
+
+  ctx.strokeStyle =
+  "#818b99";
+
+  ctx.lineWidth =
+  1;
+
+  ctx.strokeRect(
+    20,
+    210,
+    W - 40,
+    140
+  );
+
+
+  ctx.textAlign =
+  "center";
+
+
+  ctx.fillStyle =
+  "#fff";
+
+  ctx.font =
+  "900 27px system-ui";
+
+  ctx.fillText(
+    title,
+    W / 2,
+    260
+  );
+
+
+  ctx.fillStyle =
+  "#d0d6df";
+
+  ctx.font =
+  "15px system-ui";
+
+  ctx.fillText(
+    subtitle,
+    W / 2,
+    291
+  );
+
+
+  ctx.fillStyle =
+  "#aeb6c0";
+
+  ctx.font =
+  "12px system-ui";
+
+  ctx.fillText(
+    "LISTA LUPO NERO",
+    W / 2,
+    324
+  );
+
+
   ctx.restore();
+
 }
+
+
+/* =====================================================
+   SCENA COMPLETA
+   ===================================================== */
 
 function drawScene(){
-  ctx.clearRect(0, 0, W, H);
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
   drawBackground();
 
-  obstacles.forEach(drawObstacle);
+  obstacles.forEach(
+    drawObstacle
+  );
+
   drawWolf();
 
+
   if(over){
+
     if(distance > 0){
-      drawOverlay("FINE PARTITA", `Hai percorso ${Math.floor(distance)} metri`);
+
+      drawOverlay(
+        "FINE PARTITA",
+        `Hai percorso ${Math.floor(distance)} metri`
+      );
+
     }else{
-      drawOverlay("LUPO RUNNER", "Corri nella notte");
+
+      drawOverlay(
+        "LUPO RUNNER",
+        "Corri nella notte"
+      );
+
     }
+
   }
+
 }
+
+
+/* =====================================================
+   SALTO
+   ===================================================== */
 
 function jump(){
-  /* Toccare il gioco NON avvia una nuova partita */
-  if(!running) return;
+
+  /*
+    IMPORTANTE:
+    se il gioco non è partito,
+    il tap NON avvia la partita.
+  */
+
+  if(!running){
+    return;
+  }
+
 
   if(wolf.onGround){
-    wolf.vy = -13;
-    wolf.onGround = false;
+
+    wolf.vy =
+    -13;
+
+    wolf.onGround =
+    false;
+
   }
+
 }
+
+
+/* =====================================================
+   INIZIO PARTITA
+   ===================================================== */
 
 function start(){
-  if(running) return;
 
-  running = true;
-  over = false;
-  frame = 0;
-  distance = 0;
-  speed = 4;
-  spawnTimer = 0;
-  obstacles = [];
+  if(running){
+    return;
+  }
 
-  wolf.y = GROUND_Y - wolf.h;
-  wolf.vy = 0;
-  wolf.onGround = true;
 
-  document.getElementById("score").textContent = "0 m";
-  document.getElementById("gameMessage").textContent = "Corri, Lupetto! Evita gli ostacoli.";
+  running =
+  true;
+
+  over =
+  false;
+
+  frame =
+  0;
+
+  distance =
+  0;
+
+  speed =
+  4;
+
+  spawnTimer =
+  0;
+
+  obstacles =
+  [];
+
+
+  wolf.y =
+  GROUND_Y - wolf.h;
+
+  wolf.vy =
+  0;
+
+  wolf.onGround =
+  true;
+
+
+  document.getElementById(
+    "score"
+  ).textContent =
+  "0 m";
+
+
+  document.getElementById(
+    "gameMessage"
+  ).textContent =
+  "Corri, Lupetto! Evita gli ostacoli.";
+
+
   drawScene();
-  requestAnimationFrame(loop);
+
+
+  requestAnimationFrame(
+    loop
+  );
+
 }
 
+
+/* =====================================================
+   GAME LOOP
+   ===================================================== */
+
 function loop(){
-  if(!running) return;
+
+  if(!running){
+    return;
+  }
+
 
   frame++;
-  speed = 4 + Math.min(4, distance / 100);
+
+
+  speed =
+  4 + Math.min(
+    4,
+    distance / 100
+  );
+
 
   spawnTimer++;
 
-  if(spawnTimer >= Math.max(42, 83 - speed * 3)){
-    const isSpike = Math.random() < .6;
-    const w = isSpike ? 31 + Math.random() * 10 : 34 + Math.random() * 8;
-    const h = isSpike ? 35 + Math.random() * 17 : 35 + Math.random() * 20;
+
+  if(
+    spawnTimer >=
+    Math.max(
+      42,
+      83 - speed * 3
+    )
+  ){
+
+    const isSpike =
+    Math.random() < .6;
+
+
+    const w =
+    isSpike
+    ? 31 + Math.random() * 10
+    : 34 + Math.random() * 8;
+
+
+    const h =
+    isSpike
+    ? 35 + Math.random() * 17
+    : 35 + Math.random() * 20;
+
 
     obstacles.push({
-      x: W + 15,
-      y: GROUND_Y - h,
-      w,
-      h,
-      type: isSpike ? "spike" : "crate"
+
+      x:W + 15,
+
+      y:GROUND_Y - h,
+
+      w:w,
+
+      h:h,
+
+      type:
+      isSpike
+      ? "spike"
+      : "crate"
+
     });
 
-    spawnTimer = 0;
+
+    spawnTimer =
+    0;
+
   }
 
-  /* Fisica del salto */
+
+  /* FISICA */
+
   wolf.vy += .58;
+
   wolf.y += wolf.vy;
 
-  if(wolf.y >= GROUND_Y - wolf.h){
-    wolf.y = GROUND_Y - wolf.h;
-    wolf.vy = 0;
-    wolf.onGround = true;
+
+  if(
+    wolf.y >=
+    GROUND_Y - wolf.h
+  ){
+
+    wolf.y =
+    GROUND_Y - wolf.h;
+
+    wolf.vy =
+    0;
+
+    wolf.onGround =
+    true;
+
   }
 
-  /* Movimento ostacoli */
-  obstacles.forEach(obstacle => obstacle.x -= speed);
-  obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.w > 0);
 
-  /* Collisioni */
+  /* OSTACOLI */
+
+  obstacles.forEach(
+    obstacle => {
+      obstacle.x -= speed;
+    }
+  );
+
+
+  obstacles =
+  obstacles.filter(
+    obstacle =>
+    obstacle.x + obstacle.w > 0
+  );
+
+
+  /* COLLISIONI */
+
   for(const obstacle of obstacles){
-    const wolfLeft = wolf.x + 8;
-    const wolfRight = wolf.x + wolf.w - 5;
-    const wolfTop = wolf.y + 8;
-    const wolfBottom = wolf.y + wolf.h - 3;
+
+    const wolfLeft =
+    wolf.x + 8;
+
+    const wolfRight =
+    wolf.x + wolf.w - 5;
+
+    const wolfTop =
+    wolf.y + 8;
+
+    const wolfBottom =
+    wolf.y + wolf.h - 3;
+
 
     if(
-      wolfRight > obstacle.x + 3 &&
-      wolfLeft < obstacle.x + obstacle.w - 3 &&
-      wolfBottom > obstacle.y + 4 &&
-      wolfTop < obstacle.y + obstacle.h
+
+      wolfRight >
+      obstacle.x + 3 &&
+
+      wolfLeft <
+      obstacle.x + obstacle.w - 3 &&
+
+      wolfBottom >
+      obstacle.y + 4 &&
+
+      wolfTop <
+      obstacle.y + obstacle.h
+
     ){
+
       endGame();
+
       return;
+
     }
+
   }
 
-  distance += .12;
-  document.getElementById("score").textContent = Math.floor(distance) + " m";
+
+  distance +=
+  .12;
+
+
+  document.getElementById(
+    "score"
+  ).textContent =
+  Math.floor(distance) + " m";
+
 
   drawScene();
-  requestAnimationFrame(loop);
+
+
+  requestAnimationFrame(
+    loop
+  );
+
 }
+
+
+/* =====================================================
+   FINE PARTITA
+   ===================================================== */
 
 function endGame(){
-  running = false;
-  over = true;
 
-  const finalScore = Math.floor(distance);
+  running =
+  false;
+
+  over =
+  true;
+
+
+  const finalScore =
+  Math.floor(distance);
+
 
   if(finalScore > best){
-    best = finalScore;
-    localStorage.setItem("lupoRunnerBest", String(best));
-    document.getElementById("personalBest").textContent = best + " m";
+
+    best =
+    finalScore;
+
+
+    localStorage.setItem(
+      "lupoRunnerBest",
+      String(best)
+    );
+
+
+    document.getElementById(
+      "personalBest"
+    ).textContent =
+    best + " m";
+
   }
 
-  document.getElementById("gameMessage").textContent =
-    `Game over! Hai percorso ${finalScore} m. Inserisci il nickname e invia il record alla classifica.`;
+
+  document.getElementById(
+    "gameMessage"
+  ).textContent =
+  `Game over! Hai percorso ${finalScore} m. Inserisci il nickname e invia il record alla classifica.`;
+
 
   drawScene();
+
 }
 
-document.getElementById("startGame").addEventListener("click", start);
-document.getElementById("jumpGame").addEventListener("click", jump);
 
-canvas.addEventListener("pointerdown", event => {
-  event.preventDefault();
-  jump();
-});
+/* =====================================================
+   PULSANTI
+   ===================================================== */
 
-document.addEventListener("keydown", event => {
-  if(
-    event.code === "Space" &&
-    !["INPUT", "TEXTAREA", "BUTTON"].includes(document.activeElement.tagName)
-  ){
-    event.preventDefault();
-    jump();
+document.getElementById(
+  "startGame"
+).addEventListener(
+  "click",
+  start
+);
+
+
+document.getElementById(
+  "jumpGame"
+).addEventListener(
+  "click",
+  jump
+);
+
+
+/* =====================================================
+   CONTROLLO TOUCH
+   =====================================================
+
+   Questa è la parte che risolve il bug dello scroll.
+
+   - niente preventDefault()
+   - niente touch-action:none
+   - un piccolo movimento verticale = SCROLL
+   - un tap quasi fermo = SALTO
+
+   ===================================================== */
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+
+canvas.addEventListener(
+  "pointerdown",
+  event => {
+
+    if(event.pointerType === "mouse"){
+      return;
+    }
+
+    touchStartX =
+    event.clientX;
+
+    touchStartY =
+    event.clientY;
+
+    touchStartTime =
+    Date.now();
+
+  },
+  {passive:true}
+);
+
+
+canvas.addEventListener(
+  "pointerup",
+  event => {
+
+    if(event.pointerType === "mouse"){
+      return;
+    }
+
+
+    if(!running){
+      return;
+    }
+
+
+    const dx =
+    Math.abs(
+      event.clientX - touchStartX
+    );
+
+
+    const dy =
+    Math.abs(
+      event.clientY - touchStartY
+    );
+
+
+    const duration =
+    Date.now() - touchStartTime;
+
+
+    /*
+      Se il dito si è mosso poco
+      e il gesto è abbastanza veloce,
+      consideriamo l'azione un TAP.
+
+      Se invece il dito si è mosso
+      verticalmente, lasciamo fare
+      completamente lo scroll al browser.
+    */
+
+    if(
+      dx < 18 &&
+      dy < 18 &&
+      duration < 500
+    ){
+
+      jump();
+
+    }
+
+  },
+  {passive:true}
+);
+
+
+/* =====================================================
+   MOUSE
+   ===================================================== */
+
+canvas.addEventListener(
+  "click",
+  event => {
+
+    if(
+      event.pointerType === "mouse" &&
+      running
+    ){
+
+      jump();
+
+    }
+
   }
-});
+);
+
+
+/* =====================================================
+   TASTIERA
+   ===================================================== */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+
+      event.code === "Space" &&
+
+      ![
+        "INPUT",
+        "TEXTAREA",
+        "BUTTON"
+      ].includes(
+        document.activeElement.tagName
+      )
+
+    ){
+
+      event.preventDefault();
+
+      jump();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   DISEGNO INIZIALE
+   ===================================================== */
 
 drawScene();
 
-/* CLASSIFICA ONLINE */
+
+/* =====================================================
+   CLASSIFICA
+   ===================================================== */
+
 async function refreshBoard(){
-  const status = document.getElementById("leaderboardStatus");
-  const body = document.getElementById("leaderboardBody");
+
+  const status =
+  document.getElementById(
+    "leaderboardStatus"
+  );
+
+
+  const body =
+  document.getElementById(
+    "leaderboardBody"
+  );
+
 
   if(
-    !LEADERBOARD_API_URL.startsWith("https://script.google.com/") ||
-    LEADERBOARD_API_URL.includes("INCOLLA_QUI")
+
+    !LEADERBOARD_API_URL.startsWith(
+      "https://script.google.com/"
+    )
+
+    ||
+
+    LEADERBOARD_API_URL.includes(
+      "INCOLLA_QUI"
+    )
+
   ){
-    status.textContent = "Classifica non configurata.";
+
+    status.textContent =
+    "Classifica non configurata.";
+
     return;
+
   }
 
-  status.textContent = "Caricamento…";
+
+  status.textContent =
+  "Caricamento…";
+
 
   try{
-    const response = await fetch(LEADERBOARD_API_URL + "?action=top5");
-    const data = await response.json();
 
-    if(!data.ok) throw new Error(data.error || "Errore");
+    const response =
+    await fetch(
+      LEADERBOARD_API_URL +
+      "?action=top5"
+    );
 
-    const rows = (data.scores || []).slice(0, 5);
 
-    body.innerHTML = rows.length
-      ? rows.map((item, index) => `
-          <tr>
-            <td class="rank">${index + 1}</td>
-            <td>${safeText(item.nickname)}</td>
-            <td>${Number(item.score) || 0} m</td>
-          </tr>
-        `).join("")
-      : '<tr><td colspan="3">Ancora nessun record.</td></tr>';
+    const data =
+    await response.json();
 
-    status.textContent = "Classifica aggiornata.";
+
+    if(!data.ok){
+
+      throw new Error(
+        data.error || "Errore"
+      );
+
+    }
+
+
+    const rows =
+    (data.scores || [])
+    .slice(0,5);
+
+
+    body.innerHTML =
+    rows.length
+
+    ?
+
+    rows.map(
+      (item,index) => `
+
+        <tr>
+
+          <td class="rank">
+            ${index + 1}
+          </td>
+
+          <td>
+            ${safeText(item.nickname)}
+          </td>
+
+          <td>
+            ${Number(item.score) || 0} m
+          </td>
+
+        </tr>
+
+      `
+    ).join("")
+
+    :
+
+    `
+      <tr>
+        <td colspan="3">
+          Ancora nessun record.
+        </td>
+      </tr>
+    `;
+
+
+    status.textContent =
+    "Classifica aggiornata.";
+
+
   }catch(error){
-    status.textContent = "Non riesco a leggere la classifica. Controlla URL e permessi dello script.";
+
+    status.textContent =
+    "Non riesco a leggere la classifica. Controlla URL e permessi dello script.";
+
   }
+
 }
 
-document.getElementById("refreshBoard").addEventListener("click", refreshBoard);
 
-document.getElementById("submitScore").addEventListener("click", async () => {
-  const nickname = document.getElementById("playerName").value.trim();
-  const score = Math.floor(distance);
-  const message = document.getElementById("gameMessage");
+/* =====================================================
+   INVIO RECORD
+   ===================================================== */
 
-  if(!nickname){
-    message.textContent = "Scrivi un nickname prima di inviare il record.";
-    return;
+document.getElementById(
+  "submitScore"
+).addEventListener(
+  "click",
+  async()=>{
+
+    const nickname =
+    document.getElementById(
+      "playerName"
+    ).value.trim();
+
+
+    const score =
+    Math.floor(distance);
+
+
+    const message =
+    document.getElementById(
+      "gameMessage"
+    );
+
+
+    if(!nickname){
+
+      message.textContent =
+      "Scrivi un nickname prima di inviare il record.";
+
+      return;
+
+    }
+
+
+    if(score <= 0){
+
+      message.textContent =
+      "Gioca almeno una partita prima di inviare un punteggio.";
+
+      return;
+
+    }
+
+
+    if(
+
+      !LEADERBOARD_API_URL.startsWith(
+        "https://script.google.com/"
+      )
+
+      ||
+
+      LEADERBOARD_API_URL.includes(
+        "INCOLLA_QUI"
+      )
+
+    ){
+
+      message.textContent =
+      "Classifica online non configurata.";
+
+      return;
+
+    }
+
+
+    try{
+
+      const response =
+      await fetch(
+        LEADERBOARD_API_URL,
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":
+            "text/plain;charset=utf-8"
+          },
+          body:JSON.stringify({
+            nickname,
+            score
+          })
+        }
+      );
+
+
+      const data =
+      await response.json();
+
+
+      if(!data.ok){
+
+        throw new Error(
+          data.error || "Errore"
+        );
+
+      }
+
+
+      message.textContent =
+      "Record inviato!";
+
+
+      refreshBoard();
+
+
+    }catch(error){
+
+      message.textContent =
+      "Invio non riuscito. Verifica URL e autorizzazioni dello script.";
+
+    }
+
   }
+);
 
-  if(score <= 0){
-    message.textContent = "Gioca almeno una partita prima di inviare un punteggio.";
-    return;
-  }
 
-  if(
-    !LEADERBOARD_API_URL.startsWith("https://script.google.com/") ||
-    LEADERBOARD_API_URL.includes("INCOLLA_QUI")
-  ){
-    message.textContent = "Classifica online non configurata.";
-    return;
-  }
+/* =====================================================
+   CARICAMENTO CLASSIFICA
+   ===================================================== */
 
-  try{
-    const response = await fetch(LEADERBOARD_API_URL, {
-      method: "POST",
-      headers: {"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({nickname, score})
-    });
-
-    const data = await response.json();
-
-    if(!data.ok) throw new Error(data.error || "Errore");
-
-    message.textContent = "Record inviato!";
-    refreshBoard();
-  }catch(error){
-    message.textContent = "Invio non riuscito. Verifica URL e autorizzazioni dello script.";
-  }
-});
-
-/* Carica la classifica all'apertura */
 refreshBoard();
+
 </script>
+
 </body>
 </html>
