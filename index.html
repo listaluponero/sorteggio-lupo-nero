@@ -1,246 +1,45 @@
+<!doctype html>
+<html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>🐺 Sorteggio Lupo Nero</title>
-<meta property="og:title" content="🐺 Sorteggio Lupo Nero">
-<meta property="og:description" content="Tenta la sorte con Lista Lupo Nero.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><title>Lista Lupo Nero</title>
 <style>
-:root{color-scheme:light dark;--bg:light-dark(#f7f7f5,#090a09);--surface:light-dark(#fff,#121512);--surface2:light-dark(#f0f1ed,#1b1e1b);--text:light-dark(#151715,#f4f5f1);--muted:light-dark(#646b64,#a7afa7);--border:light-dark(#dfe2dc,#2b302b);--accent:light-dark(#171a17,#d9ded8)}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
-#app{min-height:100vh;background:var(--bg);display:grid;place-items:center;padding:28px 18px;border-radius:0}
-.card{width:min(520px,100%);background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:34px 28px;box-shadow:0 20px 60px rgba(0,0,0,.12);text-align:center}
-.mark{font-size:52px;line-height:1;margin-bottom:12px}
-.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
-.title{font-size:clamp(32px,8vw,54px);letter-spacing:-.05em;margin:8px 0}
-.sub{color:var(--muted);line-height:1.5;margin:0 auto 26px;max-width:390px}
-.box{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:18px;margin:18px 0}
-.chance{font-size:14px;color:var(--muted)}
-.timer{font-variant-numeric:tabular-nums;font-size:38px;font-weight:800;letter-spacing:.02em;margin:4px 0}
-.status{font-size:14px;color:var(--muted)}
-button{width:100%;border:0;border-radius:16px;padding:17px 20px;background:var(--accent);color:light-dark(#fff,#101210);font-size:16px;font-weight:800;cursor:pointer;transition:.15s transform,.15s opacity}
-button:hover:not(:disabled){transform:translateY(-1px)}
-button:disabled{opacity:.42;cursor:not-allowed}
-.result{min-height:26px;margin-top:18px;font-weight:800}
-.win{font-size:24px}
-.note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:24px}
+:root{--bg:#090909;--panel:#151515;--panel2:#1d1d1d;--text:#f5f5f5;--muted:#b8b8b8;--line:#343434;--accent:#d7d7d7;--good:#83d69a;--bad:#ff9696}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at top,#202020 0,#090909 52%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}a{color:#fff}header{padding:26px 16px 18px;text-align:center;border-bottom:1px solid var(--line);background:#080808eF;position:sticky;top:0;z-index:5;backdrop-filter:blur(10px)}.brand{font-weight:900;letter-spacing:.12em;font-size:clamp(1.25rem,4vw,2rem)}.tag{color:var(--muted);font-size:.9rem;margin-top:4px}nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:15px}nav a{font-size:.88rem;text-decoration:none;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:#151515}nav a:hover,button:hover,.btn:hover{background:#333}main{width:min(100% - 28px,900px);margin:26px auto 70px}section{scroll-margin-top:165px;margin:18px 0;padding:clamp(18px,4vw,28px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#191919,#101010);box-shadow:0 12px 35px #0005}h1,h2,h3{line-height:1.15}h1{font-size:clamp(1.6rem,5vw,2.5rem);margin:.2rem 0 12px}h2{margin:0 0 14px;font-size:clamp(1.35rem,4vw,1.8rem)}p{color:#dedede}.muted,.hint{color:var(--muted);font-size:.92rem}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;color:#bdbdbd;font-weight:800}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}input,button,.btn{font:inherit;border-radius:11px;border:1px solid #555;padding:11px 14px}input{background:#090909;color:#fff;min-width:0;flex:1;width:100%}button,.btn{background:#eee;color:#111;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}button.secondary,.btn.secondary{background:#191919;color:#fff}.wide{width:100%}.result{margin-top:16px;padding:16px;border-radius:12px;background:#080808;border:1px solid var(--line);min-height:65px}.result.good{border-color:#39764a}.result.bad{border-color:#814444}.result img{display:block;max-width:210px;max-height:190px;object-fit:contain;margin:10px auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}.event{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#101010}.event img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#222}.event-body{padding:15px}.event h3{margin:0 0 8px}.event .btn{width:100%;margin-top:8px}.empty{border:1px dashed #555;padding:18px;border-radius:12px;color:var(--muted)}.game-wrap{touch-action:pan-y}.game-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.score{font-variant-numeric:tabular-nums;font-weight:800}.game-canvas{display:block;width:100%;height:auto;background:linear-gradient(#151c24,#252525);border:1px solid #555;border-radius:12px;touch-action:none}.game-controls{display:flex;gap:10px;margin-top:12px}.game-controls button{flex:1;min-height:54px}.leaderboard{width:100%;border-collapse:collapse;margin-top:10px}.leaderboard th,.leaderboard td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}.leaderboard th{color:var(--muted);font-size:.8rem}.leaderboard td:last-child,.leaderboard th:last-child{text-align:right}.rank{font-weight:900;width:42px}footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px solid var(--line)}.notice{font-size:.85rem;color:var(--muted)}.hidden{display:none!important} @media(max-width:500px){header{position:relative}section{scroll-margin-top:12px}nav a{font-size:.82rem;padding:6px 9px}.game-controls{flex-direction:column}}
 </style>
 </head>
-
 <body>
-<main id="app">
-<section class="card">
-
-<div class="mark">🐺</div>
-<div class="eyebrow">Lista Lupo Nero</div>
-
-<h1 class="title">Tenta la sorte.</h1>
-
-<p class="sub">
-Ogni 8 ore puoi tentare il sorteggio per vincere un gadget della Lista Lupo Nero.
-</p>
-
-<div class="box">
-<div class="chance">Prossimo tentativo</div>
-<div class="timer" id="timer">00:00:00</div>
-<div class="status" id="status">Puoi tentare adesso.</div>
-</div>
-
-<div id="nicknameBox" style="margin-top:16px">
-<input
-id="nickname"
-maxlength="30"
-placeholder="@tuonickname"
-style="width:100%;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-size:15px"
->
-<div style="font-size:12px;color:var(--muted);margin-top:8px">
-Inserisci il tuo nickname Instagram prima di tentare.
-</div>
-</div>
-
-<button id="tryBtn" style="margin-top:16px">
-🎲 TENTA LA SORTE
-</button>
-
-<div class="result" id="result" aria-live="polite"></div>
-
-<p class="note">
-Hai vinto? Fai uno screenshot del risultato e invialo su Instagram a
-<strong>@ReLupoNero</strong> oppure <strong>@Lista.LupoNero</strong>.
-</p>
-
-</section>
-</main>
-
+<header><div class="brand">🐺 LISTA LUPO NERO</div><div class="tag">Il branco si muove insieme.</div><nav aria-label="Navigazione principale"><a href="#sorteggio">Sorteggio</a><a href="#eventi">Eventi</a><a href="#sostieni">Sostieni il Branco</a><a href="#games">Lupo Games</a></nav></header>
+<main>
+<section id="sorteggio"><div class="eyebrow">Un tentativo ogni 8 ore</div><h1>Il Sorteggio del Branco</h1><p>Inserisci un nickname e tenta la fortuna. Ogni tentativo ha una probabilità teorica di vincita pari a <strong>1 su 1000</strong>. Il risultato viene gestito da questa pagina; non è un sistema di pagamento né una garanzia di premio.</p><label for="nickname"><strong>Il tuo nickname</strong></label><div class="row" style="margin-top:8px"><input id="nickname" maxlength="24" placeholder="Come vuoi farti chiamare?" autocomplete="nickname"><button id="drawBtn">Tenta la sorte</button></div><div id="drawResult" class="result" aria-live="polite">Il prossimo ululato potrebbe essere il tuo…</div><p class="hint">Se vinci, contattaci su <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista</a> oppure su <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Lupo Nero</a>. Il limite di 8 ore viene salvato nel browser e può essere aggirato cancellando i dati del browser: non usarlo per concorsi che richiedono controlli verificabili.</p></section>
+<section id="eventi"><div class="eyebrow">Dove ci incontriamo</div><h2>Eventi</h2><p class="muted">Locandine, dettagli e link ufficiali per acquistare i biglietti.</p><div id="eventsList" class="grid"><div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div></div></section>
+<section id="sostieni"><div class="eyebrow">Aiuta il progetto</div><h2>Sostieni il Branco</h2><p>Se ti va di sostenere le attività e i progetti di Lupo Nero, puoi offrire un contributo volontario tramite PayPal. Il pagamento viene gestito direttamente da PayPal.</p><a class="btn" href="https://paypal.me/reluponero" target="_blank" rel="noopener">Fai una donazione</a><p class="notice">La donazione è facoltativa. Verifica che il link PayPal sia configurato correttamente prima di promuovere la pagina.</p></section>
+<section id="games"><div class="eyebrow">Gioca e supera il tuo record</div><h2>Lupo Games: Lupo Runner</h2><p>Salta gli ostacoli e resisti il più possibile. Su PC usa <strong>Spazio</strong> o il pulsante Salta; su telefono tocca il gioco o il pulsante. La velocità aumenta gradualmente.</p><div class="game-wrap"><div class="game-head"><div>Punteggio: <span id="score" class="score">0 m</span></div><div>Record personale: <span id="personalBest" class="score">0 m</span></div></div><canvas id="gameCanvas" class="game-canvas" width="800" height="260" aria-label="Gioco Lupo Runner"></canvas><div class="game-controls"><button id="startGame">Inizia / Riprova</button><button id="jumpGame" class="secondary">Salta</button></div></div><p id="gameMessage" class="result" aria-live="polite">Premi “Inizia / Riprova” per partire.</p><div class="row" style="margin-top:12px"><input id="playerName" maxlength="20" placeholder="Nickname per la classifica"><button id="submitScore" class="secondary">Invia record</button></div><p class="notice">Il record personale è salvato su questo browser. Per inviare un punteggio alla classifica pubblica, configura l'URL dello script Google Apps Script nel codice di questa pagina. I punteggi inviati dal browser non sono completamente protetti da manomissioni.</p><h3>🏆 Classifica — migliori 5</h3><p id="leaderboardStatus" class="muted">La classifica online non è ancora configurata.</p><table class="leaderboard"><thead><tr><th>#</th><th>Nickname</th><th>Distanza</th></tr></thead><tbody id="leaderboardBody"><tr><td colspan="3" class="muted">Configura lo script per mostrare la Top 5.</td></tr></tbody></table><button id="refreshBoard" class="secondary" style="margin-top:12px">Aggiorna classifica</button></section>
+</main><footer>© <span id="year"></span> Lista Lupo Nero · <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">Instagram Lista</a> · <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Instagram Lupo Nero</a></footer>
+<script src="eventi.js"></script>
 <script>
-
-const KEY='lupo-nero-last-attempt-v1';
-const COOLDOWN=8*60*60*1000;
-
-const SHEET_URL='https://script.google.com/macros/s/AKfycbwnR8ufQskPSC5CqXLD3BuwT8DZtRZuUWbs-UzzUQFyeygNYBO6V3BoESreujhc4vgm/exec';
-
-const LOSING_PHRASES=[
-'Il branco ha ululato… ma non oggi. 🐺',
-'La sorte ti ha visto e ha pensato: “anche no”.',
-'Questa volta il lupo passa oltre. Tu invece puoi riprovare tra 8 ore.',
-'Non era il tuo momento. Ma almeno ci hai provato. 😏',
-'Quasi… ma il destino ha detto no. Con una certa soddisfazione.',
-'Niente gadget stavolta. La fortuna oggi aveva di meglio da fare.',
-'Hai sfidato la sorte. La sorte ha riso.',
-'Il lupo non molla. Tu però smettila di cliccare come un disperato. 🐺',
-'Hai ululato alla fortuna. Lei ha messo il telefono in silenzioso.',
-'Il gadget era lì. Poi ha visto te e si è nascosto.',
-'La fortuna ti sta evitando con una precisione inquietante.',
-'Niente ciccia, lupetto. Torna tra 8 ore.',
-'Oggi il branco ti guarda. E nessuno sa cosa dirti.',
-'Hai perso. Ma con stile. Forse.',
-'La luna non era dalla tua parte. Nemmeno il resto dell’universo, a quanto pare.',
-'La sfortuna si distrae. Magari tra 8 ore.',
-'Il destino ha pescato il tuo nome. Poi l’ha rimesso dentro.',
-'Nope. La zampa della fortuna oggi era occupata.',
-'Hai avuto una possibilità. Hai scelto di sprecarla. Complimenti, campione.',
-'La fortuna ti ha mandato affanculo con educazione.',
-'Hai perso. Non piangere, lupetto: fai più bella figura in silenzio.',
-'Il destino ti ha dato una sberla e tu hai pure detto grazie.',
-'Sei riuscito a perdere anche contro una probabilità microscopica. Applausi. 👏',
-'La fortuna oggi non ti vuole vedere nemmeno col binocolo.',
-'Hai cliccato con convinzione. Hai perso con altrettanta convinzione.',
-'Il gadget non è per te. Almeno oggi. Fattene una ragione.',
-'Che culo… ma al contrario.',
-'Il branco ha deciso: oggi fai da spettatore.',
-'Non sei sfortunato. Oggi sei proprio fuori dal giro.',
-'Hai sfidato il destino e il destino ti ha risposto: “ma levati”.',
-'La fortuna ha visto il tuo nickname e ha chiuso la porta.',
-'Riprova tra 8 ore, genio. Magari nel frattempo impari a vincere.',
-'Hai perso. Il branco ride. Tu fai finta di niente.',
-'Il tuo premio? Altri 8 ore di attesa. Che culo.',
-'La sorte ti ha guardato negli occhi e ha scelto qualcun altro.',
-'La fortuna oggi ti ha visto arrivare e ha cambiato strada.',
-'Hai perso. Ma tranquillo, poteva andare peggio. Forse.',
-'Il destino aveva una sorpresa per te. Era un altro no.',
-'La fortuna non ti odia. Semplicemente non ti considera.',
-'Hai bussato alla porta della fortuna. Nessuno ha aperto.',
-'Il lupo ha fiutato la fortuna. Tu evidentemente no. 🐺',
-'Oggi la sorte non è dalla tua parte. Domani vediamo, forse.',
-'Hai giocato la tua carta. Era quella sbagliata.',
-'La fortuna era vicina. Tu sei riuscito comunque a mancarla.'
-];
-
-const WIN_PREFIX='🐺 HAI VINTO, MIO/A CARO/A LUPETTO/A!';
-const WIN_KEY='lupo-nero-win-code-v1';
-
-const timer=document.querySelector('#timer');
-const status=document.querySelector('#status');
-const btn=document.querySelector('#tryBtn');
-const result=document.querySelector('#result');
-const nicknameBox=document.querySelector('#nicknameBox');
-const nickname=document.querySelector('#nickname');
-
-async function logAttempt(nicknameValue,risultato,codice){
-try{
-await fetch(SHEET_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain;charset=utf-8'},
-body:JSON.stringify({
-nickname:nicknameValue,
-risultato:risultato,
-codice:codice||''
-}),
-mode:'no-cors',
-keepalive:true
-})
-}catch(e){}
-}
-
-function last(){
-const n=Number(localStorage.getItem(KEY));
-return Number.isFinite(n)&&n>0?n:0
-}
-
-function fmt(ms){
-let s=Math.max(0,Math.ceil(ms/1000));
-const h=Math.floor(s/3600);
-s%=3600;
-const m=Math.floor(s/60);
-s%=60;
-
-return [
-h,
-m,
-s
-].map(x=>String(x).padStart(2,'0')).join(':')
-}
-
-function render(){
-
-const l=last();
-const remaining=l?COOLDOWN-(Date.now()-l):0;
-
-if(remaining>0){
-
-timer.textContent=fmt(remaining);
-status.textContent='Prossimo tentativo disponibile tra:';
-btn.disabled=true;
-
-}else{
-
-timer.textContent='00:00:00';
-status.textContent='Puoi tentare adesso.';
-btn.disabled=false;
-
-}
-
-}
-
-btn.addEventListener('click',async()=>{
-
-if(btn.disabled)return;
-
-const n=nickname.value.trim();
-
-if(!n){
-
-result.textContent='Inserisci prima il tuo nickname Instagram.';
-nickname.focus();
-return;
-
-}
-
-localStorage.setItem(KEY,String(Date.now()));
-
-const won=Math.floor(Math.random()*1000)===0;
-
-if(won){
-
-const code=Date.now().toString(36).toUpperCase().slice(-6);
-
-localStorage.setItem(WIN_KEY,code);
-
-result.innerHTML=
-'<span class="win">'+
-WIN_PREFIX+
-'<br><small>CODICE: LN-'+code+'</small>'+
-'</span>';
-
-await logAttempt(n,'Vinto','LN-'+code);
-
-}else{
-
-result.textContent=
-LOSING_PHRASES[Math.floor(Math.random()*LOSING_PHRASES.length)]+' Riprova tra 8 ore.';
-
-await logAttempt(n,'Perso','');
-
-}
-
-render();
-
-});
-
-render();
-setInterval(render,250);
-
+// CONFIGURAZIONE: dopo aver pubblicato lo script Apps Script, incolla qui l'URL che termina in /exec.
+const LEADERBOARD_API_URL = "INCOLLA_QUI_URL_WEB_APP_APPS_SCRIPT";
+const DRAW_COOLDOWN_MS = 8 * 60 * 60 * 1000;
+const WIN_CHANCE = 1 / 1000;
+const drawBtn=document.getElementById('drawBtn'), drawResult=document.getElementById('drawResult');
+document.getElementById('year').textContent=new Date().getFullYear();
+function renderCooldown(){const last=Number(localStorage.getItem('lupoDrawLast')||0),remaining=last+DRAW_COOLDOWN_MS-Date.now();if(remaining>0){drawBtn.disabled=true;drawBtn.textContent=`Riprova tra ${Math.ceil(remaining/60000)} min`; }else{drawBtn.disabled=false;drawBtn.textContent='Tenta la sorte';}}
+function renderResult(text,kind=''){drawResult.className='result '+kind;drawResult.textContent=text;}
+drawBtn.addEventListener('click',()=>{const name=document.getElementById('nickname').value.trim();if(!name){renderResult('Inserisci prima un nickname.','bad');return;}const last=Number(localStorage.getItem('lupoDrawLast')||0);if(Date.now()-last<DRAW_COOLDOWN_MS){renderCooldown();renderResult('Hai già tentato da poco. Il branco ti aspetta tra qualche ora.','bad');return;}localStorage.setItem('lupoDrawLast',String(Date.now()));if(Math.random()<WIN_CHANCE){renderResult(`🐺 ${name}, hai vinto! Contatta @Lista o Lupo Nero su Instagram per verificare il risultato.`,'good');}else{const lines=['Il lupo ulula alla luna… ma oggi la fortuna è altrove.','Non questa volta, lupetto. Il branco ti aspetta al prossimo tentativo.','Il destino ha scelto un altro sentiero. Riprova tra 8 ore.','La notte è lunga: il tuo momento potrebbe arrivare.'];renderResult(lines[Math.floor(Math.random()*lines.length)],'bad');}renderCooldown();});renderCooldown();
+function safeText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderEvents(){const host=document.getElementById('eventsList');if(!Array.isArray(window.eventi)||!window.eventi.length){host.innerHTML='<div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>';return;}host.innerHTML=window.eventi.map(e=>`<article class="event">${e.locandina?`<a href="${safeText(e.linkBiglietti||'#')}" target="_blank" rel="noopener" aria-label="Apri biglietti per ${safeText(e.nome)}"><img src="${safeText(e.locandina)}" alt="Locandina ${safeText(e.nome)}" loading="lazy"></a>`:''}<div class="event-body"><h3>${safeText(e.nome)}</h3><p>${safeText(e.data||'Data da annunciare')}<br>${safeText(e.locale||'Locale da annunciare')}</p>${e.linkBiglietti?`<a class="btn" href="${safeText(e.linkBiglietti)}" target="_blank" rel="noopener">Biglietti</a>`:'<span class="muted">Biglietti non ancora disponibili</span>'}</div></article>`).join('');}renderEvents();
+// Lupo Runner: mini gioco canvas, utilizzabile con tastiera e touch.
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');let running=false,over=true,frame=0,distance=0,speed=4,obstacles=[],wolf={x:75,y:196,w:34,h:42,vy:0,onGround:true};let best=Number(localStorage.getItem('lupoRunnerBest')||0);document.getElementById('personalBest').textContent=best+' m';
+function drawScene(){ctx.clearRect(0,0,canvas.width,canvas.height);const sky=ctx.createLinearGradient(0,0,0,260);sky.addColorStop(0,'#17212b');sky.addColorStop(1,'#242424');ctx.fillStyle=sky;ctx.fillRect(0,0,800,260);ctx.fillStyle='#c9c9c9';ctx.beginPath();ctx.arc(690,44,18,0,Math.PI*2);ctx.fill();ctx.fillStyle='#343434';ctx.fillRect(0,228,800,32);ctx.strokeStyle='#777';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,228);ctx.lineTo(800,228);ctx.stroke();ctx.fillStyle='#ddd';for(let i=0;i<8;i++){let x=((i*120-(frame*speed*.6)%120)+800)%800;ctx.fillRect(x,244,38,3)}obstacles.forEach(o=>{ctx.fillStyle='#777';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillStyle='#aaa';ctx.fillRect(o.x+4,o.y+4,5,o.h-4)}); // lupetto stilizzato temporaneo, non è l'immagine ufficiale
+ctx.fillStyle='#050505';ctx.beginPath();ctx.ellipse(wolf.x+17,wolf.y+22,17,18,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(wolf.x+4,wolf.y+11);ctx.lineTo(wolf.x+4,wolf.y-3);ctx.lineTo(wolf.x+14,wolf.y+6);ctx.fill();ctx.beginPath();ctx.moveTo(wolf.x+20,wolf.y+7);ctx.lineTo(wolf.x+31,wolf.y-3);ctx.lineTo(wolf.x+31,wolf.y+13);ctx.fill();ctx.fillStyle='#eee';ctx.beginPath();ctx.arc(wolf.x+25,wolf.y+17,2.2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#bbb';ctx.fillRect(wolf.x+5,wolf.y+36,9,8);ctx.fillRect(wolf.x+21,wolf.y+36,9,8);if(over){ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 25px system-ui';ctx.fillText(distance>0?'FINE PARTITA':'LUPO RUNNER',400,105);ctx.font='16px system-ui';ctx.fillText(distance>0?'Premi Inizia / Riprova':'Schiva gli ostacoli!',400,133)}}
+function jump(){if(!running){if(over)start();return;}if(wolf.onGround){wolf.vy=-12;wolf.onGround=false;}}
+function start(){running=true;over=false;frame=0;distance=0;speed=4;obstacles=[];wolf.y=196;wolf.vy=0;wolf.onGround=true;document.getElementById('gameMessage').textContent='Corri, Lupetto! Evita gli ostacoli.';loop();}
+function loop(){if(!running)return;frame++;if(frame%75===0)obstacles.push({x:820,y:198,w:22+Math.random()*12,h:30+Math.random()*10});speed=4+Math.min(5,distance/180);wolf.vy+=.55;wolf.y+=wolf.vy;if(wolf.y>=196){wolf.y=196;wolf.vy=0;wolf.onGround=true;}obstacles.forEach(o=>o.x-=speed);obstacles=obstacles.filter(o=>o.x+o.w>0);for(const o of obstacles){if(wolf.x+wolf.w-6>o.x&&wolf.x+6<o.x+o.w&&wolf.y+wolf.h-3>o.y){endGame();return;}}distance+=.12;document.getElementById('score').textContent=Math.floor(distance)+' m';drawScene();requestAnimationFrame(loop);}
+function endGame(){running=false;over=true;const score=Math.floor(distance);if(score>best){best=score;localStorage.setItem('lupoRunnerBest',String(best));document.getElementById('personalBest').textContent=best+' m';}document.getElementById('gameMessage').textContent=`Game over! Hai percorso ${score} m. Inserisci il nickname e invia il record alla classifica.`;drawScene();}
+document.getElementById('startGame').addEventListener('click',start);document.getElementById('jumpGame').addEventListener('click',jump);canvas.addEventListener('pointerdown',e=>{e.preventDefault();jump();});document.addEventListener('keydown',e=>{if(e.code==='Space'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();jump();}});drawScene();
+async function refreshBoard(){const status=document.getElementById('leaderboardStatus'),body=document.getElementById('leaderboardBody');if(!LEADERBOARD_API_URL.startsWith('https://script.google.com/')||LEADERBOARD_API_URL.includes('INCOLLA_QUI')){status.textContent='Classifica non configurata: pubblica lo script Google Apps Script e incolla il suo URL /exec nel codice.';return;}status.textContent='Caricamento…';try{const r=await fetch(LEADERBOARD_API_URL+'?action=top5');const data=await r.json();if(!data.ok)throw new Error(data.error||'Errore');const rows=(data.scores||[]).slice(0,5);body.innerHTML=rows.length?rows.map((s,i)=>`<tr><td class="rank">${i+1}</td><td>${safeText(s.nickname)}</td><td>${Number(s.score)||0} m</td></tr>`).join(''):'<tr><td colspan="3">Ancora nessun record.</td></tr>';status.textContent='Classifica aggiornata.';}catch(e){status.textContent='Non riesco a leggere la classifica. Controlla l’URL dello script e i permessi di pubblicazione.';}}
+document.getElementById('refreshBoard').addEventListener('click',refreshBoard);
+document.getElementById('submitScore').addEventListener('click',async()=>{const nickname=document.getElementById('playerName').value.trim(),score=Math.floor(distance);if(!nickname){document.getElementById('gameMessage').textContent='Scrivi un nickname prima di inviare il record.';return;}if(score<=0){document.getElementById('gameMessage').textContent='Gioca almeno una partita prima di inviare un punteggio.';return;}if(!LEADERBOARD_API_URL.startsWith('https://script.google.com/')||LEADERBOARD_API_URL.includes('INCOLLA_QUI')){document.getElementById('gameMessage').textContent='Classifica online non configurata: il tuo record resta salvato solo su questo browser.';return;}try{const r=await fetch(LEADERBOARD_API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({nickname,score})});const data=await r.json();if(!data.ok)throw new Error(data.error||'Errore');document.getElementById('gameMessage').textContent='Record inviato!';refreshBoard();}catch(e){document.getElementById('gameMessage').textContent='Invio non riuscito. Verifica URL e autorizzazioni dello script.';}});
 </script>
+</body></html>
 
-</body>
-</html>
