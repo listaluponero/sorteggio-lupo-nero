@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="it">
 <head>
@@ -155,21 +156,23 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
     Inserisci un nickname e tenta la fortuna.
     Ogni tentativo ha una probabilità teorica di vincita pari a
     <strong>1 su 1000</strong>.
-    Il risultato viene gestito da questa pagina; non è un sistema di pagamento né una garanzia di premio.
   </p>
+
   <label for="nickname"><strong>Il tuo nickname</strong></label>
   <div class="row" style="margin-top:8px">
     <input id="nickname" maxlength="24" placeholder="Come vuoi farti chiamare?" autocomplete="nickname">
     <button id="drawBtn">Tenta la sorte</button>
   </div>
+
   <div id="drawResult" class="result" aria-live="polite">
     Il prossimo ululato potrebbe essere il tuo…
   </div>
+
   <p class="hint">
     Se vinci, contattaci su
-    <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista</a>
+    <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
     oppure su
-    <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Lupo Nero</a>.
+    <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>.
     Il limite di 8 ore viene salvato nel browser e può essere aggirato cancellando i dati del browser:
     non usarlo per concorsi che richiedono controlli verificabili.
   </p>
@@ -179,6 +182,7 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
   <div class="eyebrow">Dove ci incontriamo</div>
   <h2>Eventi</h2>
   <p class="muted">Locandine, dettagli e link ufficiali per acquistare i biglietti.</p>
+
   <div id="eventsList" class="grid">
     <div class="empty">
       Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.
@@ -189,6 +193,7 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
 <section id="sostieni">
   <div class="eyebrow">Aiuta il progetto</div>
   <h2>Sostieni il Branco</h2>
+
   <div class="result">
     <h3>🚧 WORK IN PROGRESS</h3>
     <p class="muted">
@@ -201,6 +206,7 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
 <section id="games">
   <div class="eyebrow">Sfida il branco</div>
   <h2>Lupo Games: Lupo Runner</h2>
+
   <p>
     Corri nella notte, salta gli ostacoli e supera il tuo record.
     Tocca il gioco o premi <strong>Salta</strong> per saltare.
@@ -235,11 +241,6 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
     <button id="submitScore" class="secondary">Invia record</button>
   </div>
 
-  <p class="notice">
-    Il record personale è salvato su questo browser.
-    I punteggi inviati alla classifica pubblica non sono completamente protetti da manomissioni.
-  </p>
-
   <h3>🏆 Classifica — migliori 5</h3>
   <p id="leaderboardStatus" class="muted">Caricamento della classifica…</p>
 
@@ -251,6 +252,7 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
   </table>
 
   <button id="refreshBoard" class="secondary" style="margin-top:12px">Aggiorna classifica</button>
+
   <p class="game-note">
     Consiglio: prova a saltare poco prima degli ostacoli.
     Più resisti, più aumenta la velocità!
@@ -260,9 +262,9 @@ footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px sol
 
 <footer>
   © <span id="year"></span> Lista Lupo Nero ·
-  <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">Instagram Lista</a>
+  <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
   ·
-  <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">Instagram Lupo Nero</a>
+  <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>
 </footer>
 
 <script src="eventi.js"></script>
@@ -316,7 +318,7 @@ drawBtn.addEventListener("click",()=>{
   localStorage.setItem("lupoDrawLast",String(Date.now()));
 
   if(Math.random() < WIN_CHANCE){
-    renderResult(`🐺 ${name}, hai vinto! Contatta @Lista o Lupo Nero su Instagram per verificare il risultato.`,"good");
+    renderResult(`🐺 ${name}, hai vinto! Contatta @Lista.LupoNero o @ReLupoNero su Instagram per verificare il risultato.`,"good");
   }else{
     const lines = [
       "Il lupo ulula alla luna… ma oggi la fortuna è altrove.",
@@ -329,6 +331,7 @@ drawBtn.addEventListener("click",()=>{
 
   renderCooldown();
 });
+
 renderCooldown();
 
 /* SICUREZZA TESTO */
@@ -364,6 +367,7 @@ function renderEvents(){
     </article>
   `).join("");
 }
+
 renderEvents();
 
 /* LUPO RUNNER */
@@ -548,7 +552,7 @@ function drawWolf(){
   ctx.restore();
 }
 
-/* DISEGNO OSTACOLI: SPUNTONI, CASSE, CUORE, ANGELO, SERPENTE */
+/* DISEGNO OSTACOLI */
 function drawObstacle(o){
   const x=o.x, y=o.y, w=o.w, h=o.h;
   ctx.save();
@@ -574,7 +578,6 @@ function drawObstacle(o){
     ctx.stroke();
 
   }else if(o.type==="heart"){
-    /* Cuore spezzato */
     ctx.fillStyle="#e63946";
     ctx.beginPath();
     ctx.moveTo(x+w/2,y+h);
@@ -593,11 +596,9 @@ function drawObstacle(o){
     ctx.stroke();
 
   }else if(o.type==="angel"){
-    /* Angelo sospeso: si può passare sotto */
     const cx=x+w/2;
     const cy=y+h*.55;
 
-    /* Ali */
     ctx.fillStyle="#e7e9ef";
     ctx.beginPath();
     ctx.ellipse(cx-w*.28,cy,w*.27,h*.19,-.35,0,Math.PI*2);
@@ -610,15 +611,12 @@ function drawObstacle(o){
     ctx.ellipse(cx+w*.28,cy,w*.27,h*.19,.35,0,Math.PI*2);
     ctx.stroke();
 
-    /* Aureola */
     ctx.strokeStyle="#f8e7a5";ctx.lineWidth=3;
     ctx.beginPath();ctx.ellipse(cx,y+6,w*.18,4,0,0,Math.PI*2);ctx.stroke();
 
-    /* Testa */
     ctx.fillStyle="#e7d8c7";
     ctx.beginPath();ctx.arc(cx,y+17,6,0,Math.PI*2);ctx.fill();
 
-    /* Corpo e veste */
     ctx.fillStyle="#f1f1f1";
     ctx.beginPath();
     ctx.moveTo(cx,y+23);
@@ -630,7 +628,6 @@ function drawObstacle(o){
     ctx.beginPath();ctx.moveTo(cx,y+26);ctx.lineTo(cx,y+h-3);ctx.stroke();
 
   }else if(o.type==="snake"){
-    /* Serpente strisciante */
     const wave=performance.now()/120;
     ctx.lineCap="round";
     ctx.lineJoin="round";
@@ -646,15 +643,12 @@ function drawObstacle(o){
     }
     ctx.stroke();
 
-    /* Testa */
     ctx.fillStyle="#a9ce62";
     ctx.beginPath();ctx.ellipse(x+w-2,y+h/2,7,6,0,0,Math.PI*2);ctx.fill();
 
-    /* Occhio */
     ctx.fillStyle="#101010";
     ctx.beginPath();ctx.arc(x+w,y+h/2-2,1.5,0,Math.PI*2);ctx.fill();
 
-    /* Lingua */
     ctx.strokeStyle="#e94b55";ctx.lineWidth=1.5;
     ctx.beginPath();ctx.moveTo(x+w+4,y+h/2+1);
     ctx.lineTo(x+w+8,y+h/2-1);ctx.moveTo(x+w+7,y+h/2-2);
@@ -719,7 +713,7 @@ function start(){
   requestAnimationFrame(loop);
 }
 
-/* GENERAZIONE E MOVIMENTO DEGLI OSTACOLI */
+/* GENERAZIONE E MOVIMENTO OSTACOLI */
 function loop(){
   if(!running)return;
 
@@ -766,18 +760,13 @@ function loop(){
   obstacles.forEach(o=>{o.x-=speed;});
   obstacles=obstacles.filter(o=>o.x+o.w>0);
 
-  /* Collisioni specifiche per tipo */
+  /* Collisioni */
   for(const o of obstacles){
     const wolfLeft=wolf.x+8;
     const wolfRight=wolf.x+wolf.w-5;
     const wolfTop=wolf.y+8;
     const wolfBottom=wolf.y+wolf.h-3;
 
-    /*
-      L'angelo è in alto: il Lupetto può passarci sotto.
-      Per gli altri ostacoli, la collisione è leggermente
-      più stretta della figura per rendere il gioco equo.
-    */
     const marginX=o.type==="angel"?9:3;
     const marginY=o.type==="angel"?7:3;
 
@@ -825,7 +814,7 @@ function endGame(){
 document.getElementById("startGame").addEventListener("click",start);
 document.getElementById("jumpGame").addEventListener("click",jump);
 
-/* CONTROLLO TOUCH: tap per saltare, movimento verticale per scorrere */
+/* CONTROLLO TOUCH */
 let touchStartX=0,touchStartY=0,touchStartTime=0;
 
 canvas.addEventListener("pointerdown",event=>{
@@ -947,4 +936,3 @@ refreshBoard();
 </script>
 </body>
 </html>
-
