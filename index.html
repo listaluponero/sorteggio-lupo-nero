@@ -1,1445 +1,1466 @@
 
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090909">
-<title>Lista Lupo Nero</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Lista Lupo Nero: eventi, sorteggi, Lupo Runner e il mondo del Branco.">
+  <title>Lista Lupo Nero</title>
 
-<style>
-:root{
-  --bg:#090909;
-  --panel:#151515;
-  --panel2:#1d1d1d;
-  --text:#f5f5f5;
-  --muted:#b8b8b8;
-  --line:#343434;
-  --good:#83d69a;
-  --bad:#ff9696;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  background:radial-gradient(ellipse at top,#202020 0,#090909 52%);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  line-height:1.5;
-}
-a{color:#fff}
-header{
-  padding:26px 16px 18px;
-  text-align:center;
-  border-bottom:1px solid var(--line);
-  background:#080808ef;
-  position:sticky;
-  top:0;
-  z-index:5;
-  backdrop-filter:blur(10px);
-}
-.brand{
-  font-weight:900;
-  letter-spacing:.12em;
-  font-size:clamp(1.25rem,4vw,2rem);
-}
-.tag{color:var(--muted);font-size:.9rem;margin-top:4px}
-nav{
-  display:flex;justify-content:center;gap:8px;
-  flex-wrap:wrap;margin-top:15px;
-}
-nav a{
-  font-size:.88rem;text-decoration:none;padding:7px 11px;
-  border:1px solid var(--line);border-radius:999px;background:#151515;
-}
-nav a:hover,button:hover,.btn:hover{background:#333}
-main{width:min(100% - 28px,900px);margin:26px auto 70px}
-section{
-  scroll-margin-top:165px;margin:18px 0;
-  padding:clamp(18px,4vw,28px);
-  border:1px solid var(--line);border-radius:18px;
-  background:linear-gradient(145deg,#191919,#101010);
-  box-shadow:0 12px 35px #0005;
-}
-h1,h2,h3{line-height:1.15}
-h1{font-size:clamp(1.6rem,5vw,2.5rem);margin:.2rem 0 12px}
-h2{margin:0 0 14px;font-size:clamp(1.35rem,4vw,1.8rem)}
-p{color:#dedede}
-.muted,.hint{color:var(--muted);font-size:.92rem}
-.eyebrow{
-  text-transform:uppercase;letter-spacing:.16em;
-  font-size:.72rem;color:#bdbdbd;font-weight:800;
-}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button,.btn{
-  font:inherit;border-radius:11px;border:1px solid #555;padding:11px 14px;
-}
-input{background:#090909;color:#fff;min-width:0;flex:1;width:100%}
-button,.btn{
-  background:#eee;color:#111;font-weight:800;cursor:pointer;
-  text-decoration:none;display:inline-flex;justify-content:center;align-items:center;
-}
-button:disabled{opacity:.55;cursor:not-allowed}
-button.secondary,.btn.secondary{background:#191919;color:#fff}
-.result{
-  margin-top:16px;padding:16px;border-radius:12px;
-  background:#080808;border:1px solid var(--line);min-height:65px;
-}
-.result.good{border-color:#39764a}
-.result.bad{border-color:#814444}
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;
-}
-.event{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#101010}
-.event img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#222}
-.event-body{padding:15px}
-.event h3{margin:0 0 8px}
-.event .btn{width:100%;margin-top:8px}
-.empty{border:1px dashed #555;padding:18px;border-radius:12px;color:var(--muted)}
-.game-wrap{width:100%;touch-action:auto}
-.game-head{
-  display:flex;justify-content:space-between;gap:12px;
-  flex-wrap:wrap;margin-bottom:12px;
-}
-.score{font-variant-numeric:tabular-nums;font-weight:800}
-.game-stage{
-  width:100%;max-width:420px;margin:0 auto;position:relative;overflow:hidden;
-  border:1px solid #525252;border-radius:18px;background:#111;
-  box-shadow:0 0 30px #0009;touch-action:pan-y;
-}
-.game-canvas{
-  display:block;width:100%;height:auto;aspect-ratio:420/620;
-  touch-action:pan-y;user-select:none;-webkit-user-select:none;
-  -webkit-touch-callout:none;
-}
-.game-controls{display:flex;gap:10px;margin:14px auto 0;max-width:420px}
-.game-controls button{flex:1;min-height:58px;font-size:1rem}
-#jumpGame{background:#242424;color:#fff;border-color:#666}
-.game-note{max-width:420px;margin:12px auto 0;color:var(--muted);font-size:.88rem}
-.leaderboard{width:100%;border-collapse:collapse;margin-top:10px}
-.leaderboard th,.leaderboard td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
-.leaderboard th{color:var(--muted);font-size:.8rem}
-.leaderboard td:last-child,.leaderboard th:last-child{text-align:right}
-.rank{font-weight:900;width:42px}
-footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px solid var(--line)}
-.notice{font-size:.85rem;color:var(--muted)}
-@media(max-width:600px){
-  header{position:relative}
-  section{scroll-margin-top:12px}
-  nav a{font-size:.82rem;padding:6px 9px}
-  .game-controls{flex-direction:column}
-  .game-controls button{min-height:56px}
-  .game-stage{border-radius:14px}
-}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-</style>
+  <style>
+    :root {
+      --bg: #090909;
+      --panel: #151515;
+      --panel2: #1d1d1d;
+      --text: #f4f4f4;
+      --muted: #aaa;
+      --accent: #d9d9d9;
+      --border: #333;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 9, .96);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: 1150px;
+      margin: auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: var(--text);
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-decoration: none;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      color: #999;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .main-nav a {
+      padding: 7px 11px;
+      color: #ddd;
+      text-decoration: none;
+      font-size: .88rem;
+      border-radius: 9px;
+      transition: background .2s, color .2s;
+    }
+
+    .main-nav a:hover {
+      background: #292929;
+      color: #fff;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 32px));
+      margin: auto;
+    }
+
+    section {
+      padding: 48px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .hero {
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 65px 15px;
+    }
+
+    .eyebrow {
+      color: #aaa;
+      font-size: .8rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 8vw, 5rem);
+      line-height: 1.05;
+      margin: 12px 0;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      max-width: 650px;
+      color: var(--muted);
+      margin: 0 auto 24px;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      margin-top: 0;
+      margin-bottom: 24px;
+      max-width: 750px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 17px;
+      background: #eee;
+      color: #090909;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .15s, background .15s;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: #eee;
+      border-color: #555;
+    }
+
+    .btn.secondary:hover {
+      background: #242424;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .5;
+      transform: none;
+    }
+
+    .input {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 13px;
+      margin: 8px 0 14px;
+      border: 1px solid #444;
+      border-radius: 9px;
+      background: #090909;
+      color: #fff;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #aaa;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .small {
+      font-size: .88rem;
+    }
+
+    .status {
+      min-height: 28px;
+      margin-top: 14px;
+      color: #ddd;
+      overflow-wrap: anywhere;
+    }
+
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .event-card {
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-image {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      background: #222;
+      display: block;
+    }
+
+    .event-content {
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .event-content p {
+      margin: 4px 0;
+    }
+
+    .event-content .btn {
+      margin-top: 14px;
+    }
+
+    .empty-message {
+      color: var(--muted);
+      padding: 18px;
+      border: 1px dashed #444;
+      border-radius: 12px;
+    }
+
+    .game-wrap {
+      overflow: hidden;
+    }
+
+    .game-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 800 / 360;
+      background: #101218;
+      border: 1px solid #353535;
+      border-radius: 12px;
+      touch-action: manipulation;
+    }
+
+    .game-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0;
+      color: #ddd;
+    }
+
+    .leaderboard {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+    }
+
+    .leaderboard li {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 10px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .leaderboard li:last-child {
+      border-bottom: 0;
+    }
+
+    .footer {
+      max-width: 1100px;
+      margin: auto;
+      padding: 30px 16px 45px;
+      text-align: center;
+      color: #888;
+      font-size: .9rem;
+    }
+
+    .footer a {
+      color: #ddd;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 700px) {
+      .header-inner {
+        justify-content: center;
+      }
+
+      .main-nav {
+        justify-content: center;
+      }
+
+      .main-nav a {
+        font-size: .82rem;
+        padding: 6px 8px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 35px 0;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .game-canvas {
+        aspect-ratio: 800 / 400;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<header>
-  <div class="brand">🐺 LISTA LUPO NERO</div>
-  <div class="tag">Il branco si muove insieme.</div>
-  <nav aria-label="Navigazione principale">
-    <a href="#sorteggio">Sorteggio</a>
-    <a href="#eventi">Eventi</a>
-    <a href="#sostieni">Sostieni il Branco</a>
-    <a href="#games">Lupo Games</a>
-  </nav>
-</header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#home">LISTA <span>LUPO NERO</span></a>
 
-<main>
-<section id="sorteggio">
-  <div class="eyebrow">Un tentativo ogni 8 ore</div>
-  <h1>Il Sorteggio del Branco</h1>
-  <p>
-    Inserisci il nickname di Instagram e tenta la fortuna.
-    
-
-<!doctype html>
-<html lang="it">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090909">
-<title>Lista Lupo Nero</title>
-
-<style>
-:root{
-  --bg:#090909;
-  --panel:#151515;
-  --panel2:#1d1d1d;
-  --text:#f5f5f5;
-  --muted:#b8b8b8;
-  --line:#343434;
-  --good:#83d69a;
-  --bad:#ff9696;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  background:radial-gradient(ellipse at top,#202020 0,#090909 52%);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  line-height:1.5;
-}
-a{color:#fff}
-header{
-  padding:26px 16px 18px;
-  text-align:center;
-  border-bottom:1px solid var(--line);
-  background:#080808ef;
-  position:sticky;
-  top:0;
-  z-index:5;
-  backdrop-filter:blur(10px);
-}
-.brand{
-  font-weight:900;
-  letter-spacing:.12em;
-  font-size:clamp(1.25rem,4vw,2rem);
-}
-.tag{color:var(--muted);font-size:.9rem;margin-top:4px}
-nav{
-  display:flex;justify-content:center;gap:8px;
-  flex-wrap:wrap;margin-top:15px;
-}
-nav a{
-  font-size:.88rem;text-decoration:none;padding:7px 11px;
-  border:1px solid var(--line);border-radius:999px;background:#151515;
-}
-nav a:hover,button:hover,.btn:hover{background:#333}
-main{width:min(100% - 28px,900px);margin:26px auto 70px}
-section{
-  scroll-margin-top:165px;margin:18px 0;
-  padding:clamp(18px,4vw,28px);
-  border:1px solid var(--line);border-radius:18px;
-  background:linear-gradient(145deg,#191919,#101010);
-  box-shadow:0 12px 35px #0005;
-}
-h1,h2,h3{line-height:1.15}
-h1{font-size:clamp(1.6rem,5vw,2.5rem);margin:.2rem 0 12px}
-h2{margin:0 0 14px;font-size:clamp(1.35rem,4vw,1.8rem)}
-p{color:#dedede}
-.muted,.hint{color:var(--muted);font-size:.92rem}
-.eyebrow{
-  text-transform:uppercase;letter-spacing:.16em;
-  font-size:.72rem;color:#bdbdbd;font-weight:800;
-}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,button,.btn{
-  font:inherit;border-radius:11px;border:1px solid #555;padding:11px 14px;
-}
-input{background:#090909;color:#fff;min-width:0;flex:1;width:100%}
-button,.btn{
-  background:#eee;color:#111;font-weight:800;cursor:pointer;
-  text-decoration:none;display:inline-flex;justify-content:center;align-items:center;
-}
-button:disabled{opacity:.55;cursor:not-allowed}
-button.secondary,.btn.secondary{background:#191919;color:#fff}
-.result{
-  margin-top:16px;padding:16px;border-radius:12px;
-  background:#080808;border:1px solid var(--line);min-height:65px;
-}
-.result.good{border-color:#39764a}
-.result.bad{border-color:#814444}
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;
-}
-.event{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#101010}
-.event img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#222}
-.event-body{padding:15px}
-.event h3{margin:0 0 8px}
-.event .btn{width:100%;margin-top:8px}
-.empty{border:1px dashed #555;padding:18px;border-radius:12px;color:var(--muted)}
-.game-wrap{width:100%;touch-action:auto}
-.game-head{
-  display:flex;justify-content:space-between;gap:12px;
-  flex-wrap:wrap;margin-bottom:12px;
-}
-.score{font-variant-numeric:tabular-nums;font-weight:800}
-.game-stage{
-  width:100%;max-width:420px;margin:0 auto;position:relative;overflow:hidden;
-  border:1px solid #525252;border-radius:18px;background:#111;
-  box-shadow:0 0 30px #0009;touch-action:pan-y;
-}
-.game-canvas{
-  display:block;width:100%;height:auto;aspect-ratio:420/620;
-  touch-action:pan-y;user-select:none;-webkit-user-select:none;
-  -webkit-touch-callout:none;
-}
-.game-controls{display:flex;gap:10px;margin:14px auto 0;max-width:420px}
-.game-controls button{flex:1;min-height:58px;font-size:1rem}
-#jumpGame{background:#242424;color:#fff;border-color:#666}
-.game-note{max-width:420px;margin:12px auto 0;color:var(--muted);font-size:.88rem}
-.leaderboard{width:100%;border-collapse:collapse;margin-top:10px}
-.leaderboard th,.leaderboard td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
-.leaderboard th{color:var(--muted);font-size:.8rem}
-.leaderboard td:last-child,.leaderboard th:last-child{text-align:right}
-.rank{font-weight:900;width:42px}
-footer{text-align:center;padding:25px 14px;color:var(--muted);border-top:1px solid var(--line)}
-.notice{font-size:.85rem;color:var(--muted)}
-@media(max-width:600px){
-  header{position:relative}
-  section{scroll-margin-top:12px}
-  nav a{font-size:.82rem;padding:6px 9px}
-  .game-controls{flex-direction:column}
-  .game-controls button{min-height:56px}
-  .game-stage{border-radius:14px}
-}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-</style>
-</head>
-
-<body>
-<header>
-  <div class="brand">🐺 LISTA LUPO NERO</div>
-  <div class="tag">Il branco si muove insieme.</div>
-  <nav aria-label="Navigazione principale">
-    <a href="#sorteggio">Sorteggio</a>
-    <a href="#eventi">Eventi</a>
-    <a href="#sostieni">Sostieni il Branco</a>
-    <a href="#games">Lupo Games</a>
-  </nav>
-</header>
-
-<main>
-<section id="sorteggio">
-  <div class="eyebrow">Un tentativo ogni 8 ore</div>
-  <h1>Il Sorteggio del Branco</h1>
-  <p>
-    
-  </p>
-
-  <label for="nickname"><strong>Il tuo nickname</strong></label>
-  <div class="row" style="margin-top:8px">
-    <input id="nickname" maxlength="24" placeholder="Come vuoi farti chiamare?" autocomplete="nickname">
-    <button id="drawBtn">Tenta la sorte</button>
-  </div>
-
-  <div id="drawResult" class="result" aria-live="polite">
-    Il prossimo ululato potrebbe essere il tuo…
-  </div>
-
-  <p class="hint">
-    Se vinci, contattaci su
-    <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
-    oppure su
-    <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>.
-
-  </p>
-</section>
-
-<section id="eventi">
-  <div class="eyebrow">Dove ci incontriamo</div>
-  <h2>Eventi</h2>
-  <p class="muted">Locandine, dettagli e link ufficiali per acquistare i biglietti.</p>
-
-  <div id="eventsList" class="grid">
-    <div class="empty">
-      Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.
+      <nav class="main-nav" aria-label="Navigazione principale">
+        <a href="#home">Home</a>
+        <a href="#eventi">Eventi</a>
+        <a href="#sorteggio">Sorteggio</a>
+        <a href="#games">Lupo Games</a>
+        <a href="sezioni/dj.html">DJ</a>
+        <a href="sezioni/merch.html">Merch</a>
+        <a href="sezioni/gallery.html">Gallery</a>
+        <a href="sezioni/youtube.html">YouTube</a>
+        <a href="sezioni/partner.html">Partner</a>
+        <a href="#sostieni">Sostieni</a>
+        <a href="sezioni/volontariato.html">Volontariato</a>
+      </nav>
     </div>
-  </div>
-</section>
+  </header>
 
-<section id="sostieni">
-  <div class="eyebrow">Aiuta il progetto</div>
-  <h2>Sostieni il Branco</h2>
+  <main>
+    <!-- HOME -->
+    <section class="hero" id="home">
+      <div class="eyebrow">Benvenuti nel Branco</div>
+      <h1>LISTA LUPO NERO</h1>
+      <p class="subtitle">
+        Eventi, musica, esperienze e iniziative. Un branco fatto di persone,
+        libertà e voglia di vivere la notte insieme.
+      </p>
 
-  <div class="result">
-    <h3>🚧 WORK IN PROGRESS</h3>
-    <p class="muted">
-      La sezione donazioni è attualmente in lavorazione.
-      Torna presto per scoprire le novità!
-    </p>
-  </div>
-</section>
-
-<section id="games">
-  <div class="eyebrow">Sfida il branco</div>
-  <h2>Lupo Games: Lupo Runner</h2>
-
-  <p>
-    Corri nella notte, salta gli ostacoli e supera il tuo record.
-    Tocca il gioco o premi <strong>Salta</strong> per saltare.
-    Su PC puoi usare la barra spaziatrice.
-  </p>
-
-  <div class="game-wrap">
-    <div class="game-head">
-      <div>Punteggio: <span id="score" class="score">0 m</span></div>
-      <div>Record personale: <span id="personalBest" class="score">0 m</span></div>
-    </div>
-
-    <div class="game-stage">
-      <canvas id="gameCanvas" class="game-canvas" width="420" height="620"
-        aria-label="Gioco verticale Lupo Runner">
-        Il tuo browser non supporta il gioco canvas.
-      </canvas>
-    </div>
-
-    <div class="game-controls">
-      <button id="startGame">▶ Inizia / Riprova</button>
-      <button id="jumpGame" class="secondary">🐺 Salta</button>
-    </div>
-  </div>
-
-  <p id="gameMessage" class="result" aria-live="polite">
-    Premi “Inizia / Riprova” per partire.
-  </p>
-
-  <div class="row" style="margin-top:12px">
-    <input id="playerName" maxlength="20" placeholder="Nickname per la classifica">
-    <button id="submitScore" class="secondary">Invia record</button>
-  </div>
-
-  <h3>🏆 Classifica — migliori 5</h3>
-  <p id="leaderboardStatus" class="muted">Caricamento della classifica…</p>
-
-  <table class="leaderboard">
-    <thead><tr><th>#</th><th>Nickname</th><th>Distanza</th></tr></thead>
-    <tbody id="leaderboardBody">
-      <tr><td colspan="3" class="muted">Caricamento…</td></tr>
-    </tbody>
-  </table>
-
-  <button id="refreshBoard" class="secondary" style="margin-top:12px">Aggiorna classifica</button>
-
-  <p class="game-note">
-    Consiglio: prova a saltare poco prima degli ostacoli.
-    Più resisti, più aumenta la velocità!
-  </p>
-</section>
-</main>
-
-<footer>
-  © <span id="year"></span> Lista Lupo Nero ·
-  <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
-  ·
-  <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>
-</footer>
-
-<script src="eventi.js"></script>
-<script>
-/* CONFIGURAZIONE */
-const LEADERBOARD_API_URL =
-"https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
-const DRAW_COOLDOWN_MS = 8 * 60 * 60 * 1000;
-const WIN_CHANCE = 1 / 1000;
-
-document.getElementById("year").textContent = new Date().getFullYear();
-
-/* SORTEGGIO */
-const drawBtn = document.getElementById("drawBtn");
-const drawResult = document.getElementById("drawResult");
-
-function renderCooldown(){
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
-  const remaining = last + DRAW_COOLDOWN_MS - Date.now();
-
-  if(remaining > 0){
-    drawBtn.disabled = true;
-    drawBtn.textContent = `Riprova tra ${Math.ceil(remaining / 60000)} min`;
-  }else{
-    drawBtn.disabled = false;
-    drawBtn.textContent = "Tenta la sorte";
-  }
-}
-
-function renderResult(text, kind=""){
-  drawResult.className = "result " + kind;
-  drawResult.textContent = text;
-}
-
-drawBtn.addEventListener("click",()=>{
-  const name = document.getElementById("nickname").value.trim();
-
-  if(!name){
-    renderResult("Inserisci prima un nickname.","bad");
-    return;
-  }
-
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
-
-  if(Date.now() - last < DRAW_COOLDOWN_MS){
-    renderCooldown();
-    renderResult("Hai già tentato da poco. Il branco ti aspetta tra qualche ora.","bad");
-    return;
-  }
-
-  localStorage.setItem("lupoDrawLast",String(Date.now()));
-
-  if(Math.random() < WIN_CHANCE){
-    renderResult(`🐺 ${name}, hai vinto! Contatta @Lista.LupoNero o @ReLupoNero su Instagram per verificare il risultato.`,"good");
-  }else{
-    const lines = [
-      "Il lupo ulula alla luna… ma oggi la fortuna è altrove.",
-      "Non questa volta, lupetto. Il branco ti aspetta al prossimo tentativo.",
-      "Il destino ha scelto un altro sentiero. Riprova tra 8 ore.",
-      "La notte è lunga: il tuo momento potrebbe arrivare."
-    ];
-    renderResult(lines[Math.floor(Math.random() * lines.length)],"bad");
-  }
-
-  renderCooldown();
-});
-
-renderCooldown();
-
-/* SICUREZZA TESTO */
-function safeText(value){
-  return String(value ?? "").replace(/[&<>"']/g,char=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[char]));
-}
-
-/* EVENTI */
-function renderEvents(){
-  const host = document.getElementById("eventsList");
-
-  if(!Array.isArray(window.eventi) || !window.eventi.length){
-    host.innerHTML = '<div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>';
-    return;
-  }
-
-  host.innerHTML = window.eventi.map(event=>`
-    <article class="event">
-      ${event.locandina ? `
-        <a href="${safeText(event.linkBiglietti || "#")}" target="_blank" rel="noopener"
-          aria-label="Apri biglietti per ${safeText(event.nome)}">
-          <img src="${safeText(event.locandina)}" alt="Locandina ${safeText(event.nome)}" loading="lazy">
-        </a>` : ""}
-      <div class="event-body">
-        <h3>${safeText(event.nome)}</h3>
-        <p>${safeText(event.data || "Data da annunciare")}<br>${safeText(event.locale || "Locale da annunciare")}</p>
-        ${event.linkBiglietti
-          ? `<a class="btn" href="${safeText(event.linkBiglietti)}" target="_blank" rel="noopener">Biglietti</a>`
-          : '<span class="muted">Biglietti non ancora disponibili</span>'}
+      <div class="button-row">
+        <a class="btn" href="#eventi">Scopri gli eventi</a>
+        <a class="btn secondary" href="#sorteggio">Prova il sorteggio</a>
+        <a class="btn secondary" href="#games">Gioca a Lupo Runner</a>
       </div>
-    </article>
-  `).join("");
-}
+    </section>
 
-renderEvents();
+    <!-- EVENTI -->
+    <section id="eventi">
+      <h2>Eventi del Branco</h2>
+      <p class="section-intro">
+        Scopri gli appuntamenti, consulta le informazioni e raggiungi il link
+        per i biglietti quando disponibile.
+      </p>
 
-/* LUPO RUNNER */
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const W = canvas.width;
-const H = canvas.height;
-const GROUND_Y = 510;
-
-let running = false;
-let over = true;
-let frame = 0;
-let distance = 0;
-let speed = 4;
-let spawnTimer = 0;
-let obstacles = [];
-
-const wolf = {
-  x:68, y:GROUND_Y-62, w:58, h:62, vy:0, onGround:true
-};
-
-let best = Number(localStorage.getItem("lupoRunnerBest") || 0);
-document.getElementById("personalBest").textContent = best + " m";
-
-/* UTILITY GRAFICA */
-function roundedRect(x,y,width,height,radius){
-  ctx.beginPath();
-  ctx.roundRect(x,y,width,height,radius);
-}
-
-/* SFONDO */
-function drawBackground(){
-  const sky = ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,"#080d19");
-  sky.addColorStop(.48,"#172435");
-  sky.addColorStop(1,"#292b31");
-  ctx.fillStyle = sky;
-  ctx.fillRect(0,0,W,H);
-
-  /* Luna */
-  ctx.save();
-  ctx.shadowColor = "#d8e4ff";
-  ctx.shadowBlur = 24;
-  ctx.fillStyle = "#e7e6dc";
-  ctx.beginPath();
-  ctx.arc(315,95,37,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.fillStyle = "#c6c8c9";
-  ctx.beginPath();
-  ctx.arc(303,84,5,0,Math.PI*2);
-  ctx.arc(328,108,7,0,Math.PI*2);
-  ctx.arc(326,78,3,0,Math.PI*2);
-  ctx.fill();
-
-  /* Stelle */
-  for(let i=0;i<36;i++){
-    const x = (i*79+23)%W;
-    const y = (i*47+19)%285;
-    ctx.fillStyle = i%3===0 ? "#dce4f0" : "#77899e";
-    ctx.beginPath();
-    ctx.arc(x,y,i%4===0?2:1,0,Math.PI*2);
-    ctx.fill();
-  }
-
-  /* Montagne lontane */
-  ctx.fillStyle = "#202c3a";
-  ctx.beginPath();
-  ctx.moveTo(0,355);ctx.lineTo(60,267);ctx.lineTo(120,334);
-  ctx.lineTo(194,240);ctx.lineTo(273,333);ctx.lineTo(341,276);
-  ctx.lineTo(420,345);ctx.lineTo(420,GROUND_Y);ctx.lineTo(0,GROUND_Y);
-  ctx.closePath();ctx.fill();
-
-  /* Montagne vicine */
-  ctx.fillStyle = "#131c27";
-  ctx.beginPath();
-  ctx.moveTo(0,406);ctx.lineTo(62,333);ctx.lineTo(127,390);
-  ctx.lineTo(221,315);ctx.lineTo(310,397);ctx.lineTo(369,344);
-  ctx.lineTo(420,391);ctx.lineTo(420,GROUND_Y);ctx.lineTo(0,GROUND_Y);
-  ctx.closePath();ctx.fill();
-
-  /* Alberi */
-  for(let i=0;i<9;i++){
-    const x = ((i*71-frame*speed*.12)%500+500)%500-40;
-    const base = GROUND_Y-5;
-    const height = 55+(i%3)*19;
-    ctx.fillStyle = "#0b1219";
-    ctx.fillRect(x-4,base-height*.35,8,height*.55);
-    ctx.beginPath();
-    ctx.moveTo(x,base-height);
-    ctx.lineTo(x-25,base-height*.43);
-    ctx.lineTo(x-12,base-height*.43);
-    ctx.lineTo(x-31,base-height*.12);
-    ctx.lineTo(x+31,base-height*.12);
-    ctx.lineTo(x+12,base-height*.43);
-    ctx.lineTo(x+25,base-height*.43);
-    ctx.closePath();ctx.fill();
-  }
-
-  /* Terreno */
-  ctx.fillStyle = "#111315";
-  ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
-  ctx.strokeStyle = "#777f88";
-  ctx.lineWidth = 2;
-  ctx.beginPath();ctx.moveTo(0,GROUND_Y);ctx.lineTo(W,GROUND_Y);ctx.stroke();
-
-  ctx.fillStyle = "#5d6369";
-  for(let i=0;i<12;i++){
-    const x = ((i*51-frame*speed*1.4)%(W+20)+W+20)%(W+20);
-    ctx.fillRect(x,GROUND_Y+20+(i%3)*15,17,2);
-  }
-
-  ctx.strokeStyle = "#4b5b4e";
-  ctx.lineWidth = 2;
-  for(let i=0;i<12;i++){
-    const x = ((i*43-frame*speed*.8)%(W+20)+W+20)%(W+20);
-    ctx.beginPath();
-    ctx.moveTo(x,GROUND_Y+2);ctx.lineTo(x-4,GROUND_Y-7);
-    ctx.moveTo(x,GROUND_Y+2);ctx.lineTo(x+5,GROUND_Y-5);
-    ctx.stroke();
-  }
-}
-
-/* LUPETTO */
-function drawWolf(){
-  const x = wolf.x, y = wolf.y;
-  const bob = running && wolf.onGround ? Math.sin(frame*.35)*2 : 0;
-  ctx.save();
-  ctx.translate(x,y+bob);
-
-  /* Coda */
-  ctx.fillStyle = "#17191e";
-  ctx.beginPath();
-  ctx.moveTo(13,37);ctx.quadraticCurveTo(-2,28,1,17);
-  ctx.quadraticCurveTo(5,27,20,29);ctx.closePath();ctx.fill();
-  ctx.fillStyle = "#9299a2";
-  ctx.beginPath();ctx.moveTo(2,19);ctx.lineTo(0,11);ctx.lineTo(9,20);ctx.closePath();ctx.fill();
-
-  /* Zampe */
-  ctx.fillStyle = "#242832";
-
-  </p>
-
-  <label for="nickname"><strong>Il tuo nickname</strong></label>
-  <div class="row" style="margin-top:8px">
-    <input id="nickname" maxlength="24" placeholder="Come vuoi farti chiamare?" autocomplete="nickname">
-    <button id="drawBtn">Tenta la sorte</button>
-  </div>
-
-  <div id="drawResult" class="result" aria-live="polite">
-    Il prossimo ululato potrebbe essere il tuo…
-  </div>
-
-  <p class="hint">
-    Se vinci, contattaci su
-    <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
-    oppure su
-    <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>.
-    Il limite di 8 ore viene salvato nel browser e può essere aggirato cancellando i dati del browser:
-    non usarlo per concorsi che richiedono controlli verificabili.
-  </p>
-</section>
-
-<section id="eventi">
-  <div class="eyebrow">Dove ci incontriamo</div>
-  <h2>Eventi</h2>
-  <p class="muted">Locandine, dettagli e link ufficiali per acquistare i biglietti.</p>
-
-  <div id="eventsList" class="grid">
-    <div class="empty">
-      Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.
-    </div>
-  </div>
-</section>
-
-<section id="sostieni">
-  <div class="eyebrow">Aiuta il progetto</div>
-  <h2>Sostieni il Branco</h2>
-
-  <div class="result">
-    <h3>🚧 WORK IN PROGRESS</h3>
-    <p class="muted">
-      La sezione donazioni è attualmente in lavorazione.
-      Torna presto per scoprire le novità!
-    </p>
-  </div>
-</section>
-
-<section id="games">
-  <div class="eyebrow">Sfida il branco</div>
-  <h2>Lupo Games: Lupo Runner</h2>
-
-  <p>
-    Corri nella notte, salta gli ostacoli e supera il tuo record.
-    Tocca il gioco o premi <strong>Salta</strong> per saltare.
-    Su PC puoi usare la barra spaziatrice.
-  </p>
-
-  <div class="game-wrap">
-    <div class="game-head">
-      <div>Punteggio: <span id="score" class="score">0 m</span></div>
-      <div>Record personale: <span id="personalBest" class="score">0 m</span></div>
-    </div>
-
-    <div class="game-stage">
-      <canvas id="gameCanvas" class="game-canvas" width="420" height="620"
-        aria-label="Gioco verticale Lupo Runner">
-        Il tuo browser non supporta il gioco canvas.
-      </canvas>
-    </div>
-
-    <div class="game-controls">
-      <button id="startGame">▶ Inizia / Riprova</button>
-      <button id="jumpGame" class="secondary">🐺 Salta</button>
-    </div>
-  </div>
-
-  <p id="gameMessage" class="result" aria-live="polite">
-    Premi “Inizia / Riprova” per partire.
-  </p>
-
-  <div class="row" style="margin-top:12px">
-    <input id="playerName" maxlength="20" placeholder="Nickname per la classifica">
-    <button id="submitScore" class="secondary">Invia record</button>
-  </div>
-
-  <h3>🏆 Classifica — migliori 5</h3>
-  <p id="leaderboardStatus" class="muted">Caricamento della classifica…</p>
-
-  <table class="leaderboard">
-    <thead><tr><th>#</th><th>Nickname</th><th>Distanza</th></tr></thead>
-    <tbody id="leaderboardBody">
-      <tr><td colspan="3" class="muted">Caricamento…</td></tr>
-    </tbody>
-  </table>
-
-  <button id="refreshBoard" class="secondary" style="margin-top:12px">Aggiorna classifica</button>
-
-  <p class="game-note">
-    Consiglio: prova a saltare poco prima degli ostacoli.
-    Più resisti, più aumenta la velocità!
-  </p>
-</section>
-</main>
-
-<footer>
-  © <span id="year"></span> Lista Lupo Nero ·
-  <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener">@Lista.LupoNero</a>
-  ·
-  <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener">@ReLupoNero</a>
-</footer>
-
-<script src="eventi.js"></script>
-<script>
-/* CONFIGURAZIONE */
-const LEADERBOARD_API_URL =
-"https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
-const DRAW_COOLDOWN_MS = 8 * 60 * 60 * 1000;
-const WIN_CHANCE = 1 / 1000;
-
-document.getElementById("year").textContent = new Date().getFullYear();
-
-/* SORTEGGIO */
-const drawBtn = document.getElementById("drawBtn");
-const drawResult = document.getElementById("drawResult");
-
-function renderCooldown(){
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
-  const remaining = last + DRAW_COOLDOWN_MS - Date.now();
-
-  if(remaining > 0){
-    drawBtn.disabled = true;
-    drawBtn.textContent = `Riprova tra ${Math.ceil(remaining / 60000)} min`;
-  }else{
-    drawBtn.disabled = false;
-    drawBtn.textContent = "Tenta la sorte";
-  }
-}
-
-function renderResult(text, kind=""){
-  drawResult.className = "result " + kind;
-  drawResult.textContent = text;
-}
-
-drawBtn.addEventListener("click",()=>{
-  const name = document.getElementById("nickname").value.trim();
-
-  if(!name){
-    renderResult("Inserisci prima un nickname.","bad");
-    return;
-  }
-
-  const last = Number(localStorage.getItem("lupoDrawLast") || 0);
-
-  if(Date.now() - last < DRAW_COOLDOWN_MS){
-    renderCooldown();
-    renderResult("Hai già tentato da poco. Il branco ti aspetta tra qualche ora.","bad");
-    return;
-  }
-
-  localStorage.setItem("lupoDrawLast",String(Date.now()));
-
-  if(Math.random() < WIN_CHANCE){
-    renderResult(`🐺 ${name}, hai vinto! Contatta @Lista.LupoNero o @ReLupoNero su Instagram per verificare il risultato.`,"good");
-  }else{
-    const lines = [
-      "Il lupo ulula alla luna… ma oggi la fortuna è altrove.",
-      "Non questa volta, lupetto. Il branco ti aspetta al prossimo tentativo.",
-      "Il destino ha scelto un altro sentiero. Riprova tra 8 ore.",
-      "La notte è lunga: il tuo momento potrebbe arrivare."
-    ];
-    renderResult(lines[Math.floor(Math.random() * lines.length)],"bad");
-  }
-
-  renderCooldown();
-});
-
-renderCooldown();
-
-/* SICUREZZA TESTO */
-function safeText(value){
-  return String(value ?? "").replace(/[&<>"']/g,char=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[char]));
-}
-
-/* EVENTI */
-function renderEvents(){
-  const host = document.getElementById("eventsList");
-
-  if(!Array.isArray(window.eventi) || !window.eventi.length){
-    host.innerHTML = '<div class="empty">Nessun evento inserito al momento. Aggiungi gli eventi nel file <code>eventi.js</code>.</div>';
-    return;
-  }
-
-  host.innerHTML = window.eventi.map(event=>`
-    <article class="event">
-      ${event.locandina ? `
-        <a href="${safeText(event.linkBiglietti || "#")}" target="_blank" rel="noopener"
-          aria-label="Apri biglietti per ${safeText(event.nome)}">
-          <img src="${safeText(event.locandina)}" alt="Locandina ${safeText(event.nome)}" loading="lazy">
-        </a>` : ""}
-      <div class="event-body">
-        <h3>${safeText(event.nome)}</h3>
-        <p>${safeText(event.data || "Data da annunciare")}<br>${safeText(event.locale || "Locale da annunciare")}</p>
-        ${event.linkBiglietti
-          ? `<a class="btn" href="${safeText(event.linkBiglietti)}" target="_blank" rel="noopener">Biglietti</a>`
-          : '<span class="muted">Biglietti non ancora disponibili</span>'}
+      <div id="eventi-container" class="event-grid">
+        <p class="empty-message">Caricamento degli eventi in corso...</p>
       </div>
-    </article>
-  `).join("");
-}
+    </section>
 
-renderEvents();
+    <!-- SORTEGGIO -->
+    <section id="sorteggio">
+      <h2>Il Sorteggio del Lupo</h2>
+      <p class="section-intro">
+        Inserisci il tuo nickname Instagram e tenta la fortuna.
+        Ogni tentativo ha una probabilità di vincita di 1 su 1000.
+      </p>
 
-/* LUPO RUNNER */
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const W = canvas.width;
-const H = canvas.height;
-const GROUND_Y = 510;
+      <div class="grid">
+        <div class="panel">
+          <h3>🐺 Tenta la fortuna</h3>
 
-let running = false;
-let over = true;
-let frame = 0;
-let distance = 0;
-let speed = 4;
-let spawnTimer = 0;
-let obstacles = [];
+          <label for="instagram-nickname">Nickname Instagram</label>
+          <input
+            class="input"
+            id="instagram-nickname"
+            type="text"
+            maxlength="30"
+            placeholder="@tuonickname"
+            autocomplete="nickname"
+          >
 
-const wolf = {
-  x:68, y:GROUND_Y-62, w:58, h:62, vy:0, onGround:true
-};
+          <button class="btn" id="draw-button" type="button">
+            Tenta il sorteggio
+          </button>
 
-let best = Number(localStorage.getItem("lupoRunnerBest") || 0);
-document.getElementById("personalBest").textContent = best + " m";
+          <div class="status" id="draw-status" role="status" aria-live="polite">
+            Hai a disposizione un tentativo ogni 8 ore su questo browser.
+          </div>
 
-/* UTILITY GRAFICA */
-function roundedRect(x,y,width,height,radius){
-  ctx.beginPath();
-  ctx.roundRect(x,y,width,height,radius);
-}
+          <p class="muted small">
+            Il sorteggio è una funzione promozionale del sito. Il risultato
+            viene generato nel browser e non costituisce una verifica
+            indipendente o certificata del concorso.
+          </p>
+        </div>
 
-/* SFONDO */
-function drawBackground(){
-  const sky = ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,"#080d19");
-  sky.addColorStop(.48,"#172435");
-  sky.addColorStop(1,"#292b31");
-  ctx.fillStyle = sky;
-  ctx.fillRect(0,0,W,H);
+        <div class="panel">
+          <h3>Come funziona</h3>
+          <p>1. Inserisci il tuo nickname Instagram.</p>
+          <p>2. Premi il pulsante per tentare la fortuna.</p>
+          <p>3. Se vinci, segui le istruzioni mostrate sul sito.</p>
 
-  /* Luna */
-  ctx.save();
-  ctx.shadowColor = "#d8e4ff";
-  ctx.shadowBlur = 24;
-  ctx.fillStyle = "#e7e6dc";
-  ctx.beginPath();
-  ctx.arc(315,95,37,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
+          <div class="button-row" style="justify-content:flex-start">
+            <a
+              class="btn secondary"
+              href="https://www.instagram.com/Lista.LupoNero/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Instagram Lista</a>
 
-  ctx.fillStyle = "#c6c8c9";
-  ctx.beginPath();
-  ctx.arc(303,84,5,0,Math.PI*2);
-  ctx.arc(328,108,7,0,Math.PI*2);
-  ctx.arc(326,78,3,0,Math.PI*2);
-  ctx.fill();
+            <a
+              class="btn secondary"
+              href="https://www.instagram.com/ReLupoNero/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Instagram DJ</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  /* Stelle */
-  for(let i=0;i<36;i++){
-    const x = (i*79+23)%W;
-    const y = (i*47+19)%285;
-    ctx.fillStyle = i%3===0 ? "#dce4f0" : "#77899e";
-    ctx.beginPath();
-    ctx.arc(x,y,i%4===0?2:1,0,Math.PI*2);
-    ctx.fill();
-  }
+    <!-- LUPO RUNNER -->
+    <section id="games">
+      <h2>Lupo Games: Lupo Runner</h2>
+      <p class="section-intro">
+        Salta gli ostacoli, raccogli i bonus e prova a raggiungere il record.
+        Su computer puoi usare la barra spaziatrice o la freccia in alto;
+        su telefono puoi toccare il gioco.
+      </p>
 
-  /* Montagne lontane */
-  ctx.fillStyle = "#202c3a";
-  ctx.beginPath();
-  ctx.moveTo(0,355);ctx.lineTo(60,267);ctx.lineTo(120,334);
-  ctx.lineTo(194,240);ctx.lineTo(273,333);ctx.lineTo(341,276);
-  ctx.lineTo(420,345);ctx.lineTo(420,GROUND_Y);ctx.lineTo(0,GROUND_Y);
-  ctx.closePath();ctx.fill();
+      <div class="panel game-wrap">
+        <div class="game-stats">
+          <span>Punteggio: <strong id="game-score">0</strong></span>
+          <span>Record personale: <strong id="game-best">0</strong></span>
+          <span>Stato: <strong id="game-state">Pronto</strong></span>
+        </div>
 
-  /* Montagne vicine */
-  ctx.fillStyle = "#131c27";
-  ctx.beginPath();
-  ctx.moveTo(0,406);ctx.lineTo(62,333);ctx.lineTo(127,390);
-  ctx.lineTo(221,315);ctx.lineTo(310,397);ctx.lineTo(369,344);
-  ctx.lineTo(420,391);ctx.lineTo(420,GROUND_Y);ctx.lineTo(0,GROUND_Y);
-  ctx.closePath();ctx.fill();
+        <canvas
+          class="game-canvas"
+          id="runner-canvas"
+          width="800"
+          height="360"
+          aria-label="Gioco Lupo Runner. Salta per evitare gli ostacoli."
+        ></canvas>
 
-  /* Alberi */
-  for(let i=0;i<9;i++){
-    const x = ((i*71-frame*speed*.12)%500+500)%500-40;
-    const base = GROUND_Y-5;
-    const height = 55+(i%3)*19;
-    ctx.fillStyle = "#0b1219";
-    ctx.fillRect(x-4,base-height*.35,8,height*.55);
-    ctx.beginPath();
-    ctx.moveTo(x,base-height);
-    ctx.lineTo(x-25,base-height*.43);
-    ctx.lineTo(x-12,base-height*.43);
-    ctx.lineTo(x-31,base-height*.12);
-    ctx.lineTo(x+31,base-height*.12);
-    ctx.lineTo(x+12,base-height*.43);
-    ctx.lineTo(x+25,base-height*.43);
-    ctx.closePath();ctx.fill();
-  }
+        <div class="game-controls">
+          <button class="btn" id="game-start" type="button">Inizia partita</button>
+          <button class="btn secondary" id="game-jump" type="button">Salta</button>
+          <button class="btn secondary" id="game-restart" type="button">Ricomincia</button>
+        </div>
 
-  /* Terreno */
-  ctx.fillStyle = "#111315";
-  ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
-  ctx.strokeStyle = "#777f88";
-  ctx.lineWidth = 2;
-  ctx.beginPath();ctx.moveTo(0,GROUND_Y);ctx.lineTo(W,GROUND_Y);ctx.stroke();
+        <p class="muted small">
+          Comandi: SPAZIO, freccia SU, clic o tocco sul gioco. Evita gli
+          ostacoli e raccogli i bonus per aumentare il punteggio.
+        </p>
+      </div>
 
-  ctx.fillStyle = "#5d6369";
-  for(let i=0;i<12;i++){
-    const x = ((i*51-frame*speed*1.4)%(W+20)+W+20)%(W+20);
-    ctx.fillRect(x,GROUND_Y+20+(i%3)*15,17,2);
-  }
+      <div class="grid" style="margin-top:18px">
+        <div class="panel">
+          <h3>🏆 Classifica online</h3>
+          <p class="muted small">
+            I migliori punteggi vengono richiesti al servizio di classifica.
+          </p>
+          <ol class="leaderboard" id="leaderboard">
+            <li><span>Caricamento classifica...</span><span>—</span></li>
+          </ol>
+          <button class="btn secondary" id="refresh-leaderboard" type="button" style="margin-top:15px">
+            Aggiorna classifica
+          </button>
+          <div class="status" id="leaderboard-status" role="status" aria-live="polite"></div>
+        </div>
 
-  ctx.strokeStyle = "#4b5b4e";
-  ctx.lineWidth = 2;
-  for(let i=0;i<12;i++){
-    const x = ((i*43-frame*speed*.8)%(W+20)+W+20)%(W+20);
-    ctx.beginPath();
-    ctx.moveTo(x,GROUND_Y+2);ctx.lineTo(x-4,GROUND_Y-7);
-    ctx.moveTo(x,GROUND_Y+2);ctx.lineTo(x+5,GROUND_Y-5);
-    ctx.stroke();
-  }
-}
+        <div class="panel">
+          <h3>Invia il tuo punteggio</h3>
+          <p class="muted small">
+            Dopo aver concluso una partita, puoi provare a inviare il risultato
+            alla classifica online.
+          </p>
 
-/* LUPETTO */
-function drawWolf(){
-  const x = wolf.x, y = wolf.y;
-  const bob = running && wolf.onGround ? Math.sin(frame*.35)*2 : 0;
-  ctx.save();
-  ctx.translate(x,y+bob);
+          <label for="leaderboard-nickname">Nickname per la classifica</label>
+          <input
+            class="input"
+            id="leaderboard-nickname"
+            type="text"
+            maxlength="20"
+            placeholder="Il tuo nickname"
+            autocomplete="nickname"
+          >
 
-  /* Coda */
-  ctx.fillStyle = "#17191e";
-  ctx.beginPath();
-  ctx.moveTo(13,37);ctx.quadraticCurveTo(-2,28,1,17);
-  ctx.quadraticCurveTo(5,27,20,29);ctx.closePath();ctx.fill();
-  ctx.fillStyle = "#9299a2";
-  ctx.beginPath();ctx.moveTo(2,19);ctx.lineTo(0,11);ctx.lineTo(9,20);ctx.closePath();ctx.fill();
+          <button class="btn" id="submit-score" type="button" disabled>
+            Invia punteggio
+          </button>
 
-  /* Zampe */
-  ctx.fillStyle = "#242832";
-  const legSwing = running && wolf.onGround ? Math.sin(frame*.35)*5 : 0;
-  roundedRect(12,43+legSwing*.3,12,17-legSwing*.3,4);ctx.fill();
-  roundedRect(36,43-legSwing*.3,12,17+legSwing*.3,4);ctx.fill();
-  ctx.fillStyle = "#b4bac1";
-  roundedRect(10,55+legSwing*.3,15,7,3);ctx.fill();
-  roundedRect(35,55-legSwing*.3,15,7,3);ctx.fill();
+          <div class="status" id="submit-status" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
 
-  /* Corpo */
-  ctx.fillStyle = "#242831";
-  ctx.beginPath();ctx.ellipse(29,37,25,18,-.08,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle = "#727b87";ctx.lineWidth = 3;
-  ctx.beginPath();ctx.moveTo(12,28);ctx.quadraticCurveTo(27,13,42,28);ctx.stroke();
+    <!-- SOSTIENI -->
+    <section id="sostieni">
+      <h2>Sostieni il Branco</h2>
+      <p class="section-intro">
+        La Lista Lupo Nero cresce grazie alle persone che partecipano,
+        condividono le iniziative e contribuiscono a creare nuove esperienze.
+      </p>
 
-  /* Testa */
-  ctx.fillStyle = "#343a45";
-  ctx.beginPath();ctx.ellipse(43,26,15,15,-.2,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle = "#454c59";
-  ctx.beginPath();ctx.moveTo(32,18);ctx.lineTo(29,0);ctx.lineTo(42,12);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(43,15);ctx.lineTo(51,2);ctx.lineTo(53,21);ctx.closePath();ctx.fill();
+      <div class="grid">
+        <div class="panel">
+          <h3>Entra in contatto</h3>
+          <p class="muted">
+            Per informazioni sulle liste, sugli eventi e sulle iniziative,
+            scrivici sui nostri canali social.
+          </p>
+          <a
+            class="btn"
+            href="https://www.instagram.com/Lista.LupoNero/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Contatta Lista Lupo Nero</a>
+        </div>
 
-  ctx.fillStyle = "#a2a7ad";
-  ctx.beginPath();ctx.moveTo(33,12);ctx.lineTo(32,5);ctx.lineTo(38,13);ctx.closePath();ctx.fill();
+        <div class="panel">
+          <h3>Condividi il progetto</h3>
+          <p class="muted">
+            Condividi la pagina con gli amici e aiutaci a far conoscere il
+            Branco e le sue attività.
+          </p>
+          <button class="btn secondary" id="share-site" type="button">
+            Condividi il sito
+          </button>
+          <div class="status" id="share-status" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  /* Muso */
-  ctx.fillStyle = "#aeb4bb";
-  ctx.beginPath();ctx.moveTo(48,23);ctx.quadraticCurveTo(59,23,58,32);
-  ctx.lineTo(44,34);ctx.quadraticCurveTo(42,28,48,23);ctx.fill();
+  <footer class="footer">
+    <p><strong>LISTA LUPO NERO</strong></p>
+    <p>Il Branco si costruisce insieme.</p>
+    <p>
+      <a href="https://www.instagram.com/Lista.LupoNero/" target="_blank" rel="noopener noreferrer">Instagram Lista</a>
+      ·
+      <a href="https://www.instagram.com/ReLupoNero/" target="_blank" rel="noopener noreferrer">Re Lupo Nero</a>
+    </p>
+    <p>© <span id="current-year"></span> Lista Lupo Nero</p>
+  </footer>
 
-  ctx.fillStyle = "#08090c";
-  ctx.beginPath();ctx.arc(57,28,3,0,Math.PI*2);ctx.fill();
+  <!-- File degli eventi: deve rimanere nella cartella principale -->
+  <script src="eventi.js"></script>
 
-  /* Occhio rosso */
-  ctx.save();ctx.shadowColor="#ff3333";ctx.shadowBlur=9;ctx.fillStyle="#ff4949";
-  ctx.beginPath();ctx.ellipse(47,20,3.5,2.5,-.1,0,Math.PI*2);ctx.fill();ctx.restore();
-  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(48,19.5,1,0,Math.PI*2);ctx.fill();
+  <script>
+    "use strict";
 
-  /* Petto */
-  ctx.fillStyle="#d0d3d6";
-  ctx.beginPath();ctx.moveTo(39,31);ctx.lineTo(34,40);ctx.lineTo(41,37);
-  ctx.lineTo(43,43);ctx.lineTo(47,34);ctx.closePath();ctx.fill();
-  ctx.restore();
-}
+    /* =========================================================
+       CONFIGURAZIONE CLASSIFICA ONLINE
+       ========================================================= */
 
-/* DISEGNO OSTACOLI */
-function drawObstacle(o){
-  const x=o.x, y=o.y, w=o.w, h=o.h;
-  ctx.save();
+    const LEADERBOARD_API =
+      "https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
 
-  if(o.type==="spike"){
-    ctx.fillStyle="#737c87";
-    ctx.beginPath();
-    ctx.moveTo(x,y+h);ctx.lineTo(x+w*.5,y);ctx.lineTo(x+w,y+h);
-    ctx.closePath();ctx.fill();
-    ctx.strokeStyle="#c5cbd1";ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(x+w*.5,y+5);ctx.lineTo(x+w*.28,y+h-4);ctx.stroke();
-    ctx.fillStyle="#343b43";ctx.fillRect(x,y+h-5,w,5);
+    /* =========================================================
+       UTILITÀ GENERALI
+       ========================================================= */
 
-  }else if(o.type==="crate"){
-    ctx.fillStyle="#343941";
-    roundedRect(x,y,w,h,4);ctx.fill();
-    ctx.strokeStyle="#a3aab2";ctx.lineWidth=2;
-    ctx.strokeRect(x+4,y+4,w-8,h-8);
-    ctx.strokeStyle="#6f7781";
-    ctx.beginPath();
-    ctx.moveTo(x+5,y+5);ctx.lineTo(x+w-5,y+h-5);
-    ctx.moveTo(x+w-5,y+5);ctx.lineTo(x+5,y+h-5);
-    ctx.stroke();
+    const $ = (selector) => document.querySelector(selector);
 
-  }else if(o.type==="heart"){
-    ctx.fillStyle="#e63946";
-    ctx.beginPath();
-    ctx.moveTo(x+w/2,y+h);
-    ctx.bezierCurveTo(x+w*.1,y+h*.72,x-w*.08,y+h*.3,x+w*.24,y+h*.13);
-    ctx.bezierCurveTo(x+w*.4,y-h*.04,x+w*.5,y+h*.18,x+w*.5,y+h*.29);
-    ctx.bezierCurveTo(x+w*.65,y-h*.04,x+w*.96,y+h*.12,x+w*.84,y+h*.47);
-    ctx.bezierCurveTo(x+w*.77,y+h*.72,x+w*.62,y+h*.9,x+w/2,y+h);
-    ctx.closePath();ctx.fill();
-
-    ctx.strokeStyle="#fff";ctx.lineWidth=2;
-    ctx.beginPath();
-    ctx.moveTo(x+w*.57,y+h*.18);
-    ctx.lineTo(x+w*.43,y+h*.48);
-    ctx.lineTo(x+w*.58,y+h*.52);
-    ctx.lineTo(x+w*.39,y+h*.82);
-    ctx.stroke();
-
-  }else if(o.type==="angel"){
-    const cx=x+w/2;
-    const cy=y+h*.55;
-
-    ctx.fillStyle="#e7e9ef";
-    ctx.beginPath();
-    ctx.ellipse(cx-w*.28,cy,w*.27,h*.19,-.35,0,Math.PI*2);
-    ctx.ellipse(cx+w*.28,cy,w*.27,h*.19,.35,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.strokeStyle="#aeb8c8";ctx.lineWidth=1.5;
-    ctx.beginPath();
-    ctx.ellipse(cx-w*.28,cy,w*.27,h*.19,-.35,0,Math.PI*2);
-    ctx.ellipse(cx+w*.28,cy,w*.27,h*.19,.35,0,Math.PI*2);
-    ctx.stroke();
-
-    ctx.strokeStyle="#f8e7a5";ctx.lineWidth=3;
-    ctx.beginPath();ctx.ellipse(cx,y+6,w*.18,4,0,0,Math.PI*2);ctx.stroke();
-
-    ctx.fillStyle="#e7d8c7";
-    ctx.beginPath();ctx.arc(cx,y+17,6,0,Math.PI*2);ctx.fill();
-
-    ctx.fillStyle="#f1f1f1";
-    ctx.beginPath();
-    ctx.moveTo(cx,y+23);
-    ctx.lineTo(cx-w*.24,y+h);
-    ctx.lineTo(cx+w*.24,y+h);
-    ctx.closePath();ctx.fill();
-
-    ctx.strokeStyle="#b8c1d0";ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(cx,y+26);ctx.lineTo(cx,y+h-3);ctx.stroke();
-
-  }else if(o.type==="snake"){
-    const wave=performance.now()/120;
-    ctx.lineCap="round";
-    ctx.lineJoin="round";
-    ctx.strokeStyle="#a9ce62";
-    ctx.lineWidth=6;
-    ctx.beginPath();
-
-    for(let i=0;i<=12;i++){
-      const px=x+(w-7)*i/12;
-      const py=y+h/2+Math.sin(i*.9+wave)*2.5;
-      if(i===0)ctx.moveTo(px,py);
-      else ctx.lineTo(px,py);
-    }
-    ctx.stroke();
-
-    ctx.fillStyle="#a9ce62";
-    ctx.beginPath();ctx.ellipse(x+w-2,y+h/2,7,6,0,0,Math.PI*2);ctx.fill();
-
-    ctx.fillStyle="#101010";
-    ctx.beginPath();ctx.arc(x+w,y+h/2-2,1.5,0,Math.PI*2);ctx.fill();
-
-    ctx.strokeStyle="#e94b55";ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(x+w+4,y+h/2+1);
-    ctx.lineTo(x+w+8,y+h/2-1);ctx.moveTo(x+w+7,y+h/2-2);
-    ctx.lineTo(x+w+8,y+h/2-1);ctx.lineTo(x+w+7,y+h/2+1);ctx.stroke();
-  }
-
-  ctx.restore();
-}
-
-/* SCHERMATA INIZIALE / GAME OVER */
-function drawOverlay(title,subtitle){
-  ctx.save();
-  ctx.fillStyle="rgba(4,7,12,.68)";
-  ctx.fillRect(20,210,W-40,140);
-  ctx.strokeStyle="#818b99";ctx.lineWidth=1;
-  ctx.strokeRect(20,210,W-40,140);
-  ctx.textAlign="center";ctx.fillStyle="#fff";
-  ctx.font="900 27px system-ui";ctx.fillText(title,W/2,260);
-  ctx.fillStyle="#d0d6df";ctx.font="15px system-ui";
-  ctx.fillText(subtitle,W/2,291);
-  ctx.fillStyle="#aeb6c0";ctx.font="12px system-ui";
-  ctx.fillText("LISTA LUPO NERO",W/2,324);
-  ctx.restore();
-}
-
-/* SCENA COMPLETA */
-function drawScene(){
-  ctx.clearRect(0,0,W,H);
-  drawBackground();
-  obstacles.forEach(drawObstacle);
-  drawWolf();
-
-  if(over){
-    if(distance>0){
-      drawOverlay("FINE PARTITA",`Hai percorso ${Math.floor(distance)} metri`);
-    }else{
-      drawOverlay("LUPO RUNNER","Corri nella notte");
-    }
-  }
-}
-
-/* SALTO */
-function jump(){
-  if(!running)return;
-  if(wolf.onGround){
-    wolf.vy=-13;
-    wolf.onGround=false;
-  }
-}
-
-/* INIZIO PARTITA */
-function start(){
-  if(running)return;
-  running=true;over=false;frame=0;distance=0;speed=4;spawnTimer=0;
-  obstacles=[];
-  wolf.y=GROUND_Y-wolf.h;
-  wolf.vy=0;
-  wolf.onGround=true;
-  document.getElementById("score").textContent="0 m";
-  document.getElementById("gameMessage").textContent="Corri, Lupetto! Evita gli ostacoli.";
-  drawScene();
-  requestAnimationFrame(loop);
-}
-
-/* GENERAZIONE E MOVIMENTO OSTACOLI */
-function loop(){
-  if(!running)return;
-
-  frame++;
-  speed=4+Math.min(4,distance/100);
-  spawnTimer++;
-
-  if(spawnTimer>=Math.max(42,83-speed*3)){
-    const roll=Math.random();
-    let type,w,h,y;
-
-    if(roll<.30){
-      type="spike";w=31+Math.random()*10;h=35+Math.random()*17;
-      y=GROUND_Y-h;
-    }else if(roll<.50){
-      type="crate";w=34+Math.random()*8;h=35+Math.random()*20;
-      y=GROUND_Y-h;
-    }else if(roll<.68){
-      type="heart";w=32;h=30;
-      y=GROUND_Y-h;
-    }else if(roll<.84){
-      type="angel";w=42;h=48;
-      y=GROUND_Y-112;
-    }else{
-      type="snake";w=46;h=16;
-      y=GROUND_Y-h;
+    function setText(selector, message) {
+      const element = $(selector);
+      if (element) element.textContent = message;
     }
 
-    obstacles.push({type,x:W+15,y,w,h});
-    spawnTimer=0;
-  }
-
-  /* Fisica del lupo */
-  wolf.vy+=.58;
-  wolf.y+=wolf.vy;
-
-  if(wolf.y>=GROUND_Y-wolf.h){
-    wolf.y=GROUND_Y-wolf.h;
-    wolf.vy=0;
-    wolf.onGround=true;
-  }
-
-  /* Movimento ostacoli */
-  obstacles.forEach(o=>{o.x-=speed;});
-  obstacles=obstacles.filter(o=>o.x+o.w>0);
-
-  /* Collisioni */
-  for(const o of obstacles){
-    const wolfLeft=wolf.x+8;
-    const wolfRight=wolf.x+wolf.w-5;
-    const wolfTop=wolf.y+8;
-    const wolfBottom=wolf.y+wolf.h-3;
-
-    const marginX=o.type==="angel"?9:3;
-    const marginY=o.type==="angel"?7:3;
-
-    const obstacleLeft=o.x+marginX;
-    const obstacleRight=o.x+o.w-marginX;
-    const obstacleTop=o.y+marginY;
-    const obstacleBottom=o.y+o.h-marginY;
-
-    if(
-      wolfRight>obstacleLeft &&
-      wolfLeft<obstacleRight &&
-      wolfBottom>obstacleTop &&
-      wolfTop<obstacleBottom
-    ){
-      endGame();
-      return;
+    function safeText(value, fallback = "") {
+      if (value === undefined || value === null) return fallback;
+      return String(value);
     }
-  }
 
-  distance+=.12;
-  document.getElementById("score").textContent=Math.floor(distance)+" m";
-  drawScene();
-  requestAnimationFrame(loop);
-}
+    $("#current-year").textContent = new Date().getFullYear();
 
-/* FINE PARTITA */
-function endGame(){
-  running=false;
-  over=true;
-  const finalScore=Math.floor(distance);
+    /* =========================================================
+       EVENTI
+       Legge i dati dal file eventi.js.
+       Formato atteso: window.eventi = [{nome, locandina,
+       linkBiglietti, data, locale}, ...]
+       ========================================================= */
 
-  if(finalScore>best){
-    best=finalScore;
-    localStorage.setItem("lupoRunnerBest",String(best));
-    document.getElementById("personalBest").textContent=best+" m";
-  }
+    function renderEvents() {
+      const container = $("#eventi-container");
+      if (!container) return;
 
-  document.getElementById("gameMessage").textContent=
-    `Game over! Hai percorso ${finalScore} m. Inserisci il nickname e invia il record alla classifica.`;
+      const events = Array.isArray(window.eventi) ? window.eventi : [];
 
-  drawScene();
-}
+      if (events.length === 0) {
+        container.innerHTML = "";
+        const message = document.createElement("p");
+        message.className = "empty-message";
+        message.textContent =
+          "Al momento non ci sono eventi da mostrare. Torna presto per i prossimi appuntamenti!";
+        container.appendChild(message);
+        return;
+      }
 
-/* PULSANTI */
-document.getElementById("startGame").addEventListener("click",start);
-document.getElementById("jumpGame").addEventListener("click",jump);
+      container.innerHTML = "";
 
-/* CONTROLLO TOUCH */
-let touchStartX=0,touchStartY=0,touchStartTime=0;
+      events.forEach((event) => {
+        const card = document.createElement("article");
+        card.className = "event-card";
 
-canvas.addEventListener("pointerdown",event=>{
-  if(event.pointerType==="mouse")return;
-  touchStartX=event.clientX;
-  touchStartY=event.clientY;
-  touchStartTime=Date.now();
-},{passive:true});
+        const imageUrl = safeText(event.locandina).trim();
+        if (imageUrl) {
+          const image = document.createElement("img");
+          image.className = "event-image";
+          image.src = imageUrl;
+          image.alt = "Locandina " + safeText(event.nome, "evento");
+          image.loading = "lazy";
+          image.onerror = () => {
+            image.removeAttribute("src");
+            image.alt = "Locandina non disponibile";
+          };
+          card.appendChild(image);
+        }
 
-canvas.addEventListener("pointerup",event=>{
-  if(event.pointerType==="mouse"||!running)return;
+        const content = document.createElement("div");
+        content.className = "event-content";
 
-  const dx=Math.abs(event.clientX-touchStartX);
-  const dy=Math.abs(event.clientY-touchStartY);
-  const duration=Date.now()-touchStartTime;
+        const title = document.createElement("h3");
+        title.textContent = safeText(event.nome, "Evento");
+        content.appendChild(title);
 
-  if(dx<18&&dy<18&&duration<500)jump();
-},{passive:true});
+        if (event.data) {
+          const date = document.createElement("p");
+          date.textContent = "📅 " + safeText(event.data);
+          content.appendChild(date);
+        }
 
-/* Mouse */
-canvas.addEventListener("click",event=>{
-  if(event.pointerType==="mouse"&&running)jump();
-});
+        if (event.locale) {
+          const venue = document.createElement("p");
+          venue.textContent = "📍 " + safeText(event.locale);
+          content.appendChild(venue);
+        }
 
-/* Tastiera */
-document.addEventListener("keydown",event=>{
-  if(
-    event.code==="Space"&&
-    !["INPUT","TEXTAREA","BUTTON"].includes(document.activeElement.tagName)
-  ){
-    event.preventDefault();
-    jump();
-  }
-});
+        const ticketUrl = safeText(event.linkBiglietti).trim();
 
-/* Disegno iniziale */
-drawScene();
+        if (ticketUrl && /^https?:\/\//i.test(ticketUrl)) {
+          const link = document.createElement("a");
+          link.className = "btn";
+          link.href = ticketUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Info e biglietti";
+          content.appendChild(link);
+        }
 
-/* CLASSIFICA */
-async function refreshBoard(){
-  const status=document.getElementById("leaderboardStatus");
-  const body=document.getElementById("leaderboardBody");
+        card.appendChild(content);
+        container.appendChild(card);
+      });
+    }
 
-  if(
-    !LEADERBOARD_API_URL.startsWith("https://script.google.com/")||
-    LEADERBOARD_API_URL.includes("INCOLLA_QUI")
-  ){
-    status.textContent="Classifica non configurata.";
-    return;
-  }
+    renderEvents();
 
-  status.textContent="Caricamento…";
+    /* =========================================================
+       SORTEGGIO
+       Probabilità: 1 su 1000 per tentativo.
+       Intervallo: 8 ore sul browser corrente.
+       ========================================================= */
 
-  try{
-    const response=await fetch(LEADERBOARD_API_URL+"?action=top5");
-    const data=await response.json();
-    if(!data.ok)throw new Error(data.error||"Errore");
+    const DRAW_COOLDOWN = 8 * 60 * 60 * 1000;
+    const DRAW_STORAGE_KEY = "lupoDrawLast";
+    const DRAW_PROBABILITY = 1 / 1000;
 
-    const rows=(data.scores||[]).slice(0,5);
-    body.innerHTML=rows.length
-      ? rows.map((item,index)=>`
-        <tr>
-          <td class="rank">${index+1}</td>
-          <td>${safeText(item.nickname)}</td>
-          <td>${Number(item.score)||0} m</td>
-        </tr>
-      `).join("")
-      : '<tr><td colspan="3">Ancora nessun record.</td></tr>';
+    function getLastDrawTime() {
+      try {
+        const value = Number(localStorage.getItem(DRAW_STORAGE_KEY));
+        return Number.isFinite(value) ? value : 0;
+      } catch (error) {
+        return 0;
+      }
+    }
 
-    status.textContent="Classifica aggiornata.";
-  }catch(error){
-    status.textContent="Non riesco a leggere la classifica. Controlla URL e permessi dello script.";
-  }
-}
+    function updateDrawButton() {
+      const button = $("#draw-button");
+      const status = $("#draw-status");
+      if (!button || !status) return;
 
-/* INVIO RECORD */
-document.getElementById("submitScore").addEventListener("click",async()=>{
-  const nickname=document.getElementById("playerName").value.trim();
-  const score=Math.floor(distance);
-  const message=document.getElementById("gameMessage");
+      const remaining = DRAW_COOLDOWN - (Date.now() - getLastDrawTime());
 
-  if(!nickname){
-    message.textContent="Scrivi un nickname prima di inviare il record.";
-    return;
-  }
+      if (remaining > 0) {
+        button.disabled = true;
 
-  if(score<=0){
-    message.textContent="Gioca almeno una partita prima di inviare un punteggio.";
-    return;
-  }
+        const hours = Math.floor(remaining / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
 
-  if(
-    !LEADERBOARD_API_URL.startsWith("https://script.google.com/")||
-    LEADERBOARD_API_URL.includes("INCOLLA_QUI")
-  ){
-    message.textContent="Classifica online non configurata.";
-    return;
-  }
+        status.textContent =
+          "Prossimo tentativo disponibile tra " +
+          hours + "h " + minutes + "m " + seconds + "s.";
+      } else {
+        button.disabled = false;
+        status.textContent =
+          "Puoi tentare la fortuna. Probabilità indicativa: 1 su 1000.";
+      }
+    }
 
-  try{
-    const response=await fetch(LEADERBOARD_API_URL,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({nickname,score})
+    $("#draw-button").addEventListener("click", () => {
+      const nicknameInput = $("#instagram-nickname");
+      const nickname = nicknameInput.value.trim();
+      const status = $("#draw-status");
+
+      if (!nickname) {
+        status.textContent = "Inserisci prima il tuo nickname Instagram.";
+        nicknameInput.focus();
+        return;
+      }
+
+      const remaining = DRAW_COOLDOWN - (Date.now() - getLastDrawTime());
+
+      if (remaining > 0) {
+        updateDrawButton();
+        return;
+      }
+
+      try {
+        localStorage.setItem(DRAW_STORAGE_KEY, String(Date.now()));
+      } catch (error) {
+        status.textContent =
+          "Non è stato possibile salvare il tentativo nel browser.";
+        return;
+      }
+
+      const won = Math.random() < DRAW_PROBABILITY;
+
+      if (won) {
+        status.textContent =
+          "🐺 Complimenti, " + nickname +
+          "! Il sorteggio indica una vincita. Contatta @Lista.LupoNero su Instagram per verificare il risultato e ricevere le istruzioni.";
+      } else {
+        status.textContent =
+          "🐺 Questa volta niente fortuna, " + nickname +
+          ". Il Branco ti aspetta al prossimo tentativo disponibile!";
+      }
+
+      updateDrawButton();
     });
 
-    const data=await response.json();
-    if(!data.ok)throw new Error(data.error||"Errore");
+    updateDrawButton();
 
-    message.textContent="Record inviato!";
-    refreshBoard();
-  }catch(error){
-    message.textContent="Invio non riuscito. Verifica URL e autorizzazioni dello script.";
-  }
-});
+    /* =========================================================
+       CONDIVISIONE DEL SITO
+       ========================================================= */
 
-document.getElementById("refreshBoard").addEventListener("click",refreshBoard);
-refreshBoard();
-</script>
+    $("#share-site").addEventListener("click", async () => {
+      const status = $("#share-status");
+      const shareData = {
+        title: "Lista Lupo Nero",
+        text: "Scopri il mondo della Lista Lupo Nero!",
+        url: window.location.href
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          status.textContent = "Condivisione avviata.";
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(window.location.href);
+          status.textContent = "Link del sito copiato.";
+        } else {
+          status.textContent = "Copia il link dalla barra degli indirizzi del browser.";
+        }
+      } catch (error) {
+        if (error && error.name !== "AbortError") {
+          status.textContent = "Non è stato possibile condividere il link.";
+        }
+      }
+    });
+
+    /* =========================================================
+       LUPO RUNNER
+       ========================================================= */
+
+    const canvas = $("#runner-canvas");
+    const ctx = canvas.getContext("2d");
+
+    const game = {
+      running: false,
+      over: false,
+      score: 0,
+      best: 0,
+      speed: 5,
+      frame: 0,
+      lastTime: 0,
+      obstacles: [],
+      particles: [],
+      groundY: 300,
+      nextObstacle: 70,
+      lastSubmittedScore: 0
+    };
+
+    const wolf = {
+      x: 95,
+      y: 0,
+      width: 48,
+      height: 48,
+      vy: 0,
+      onGround: true
+    };
+
+    const GRAVITY = 0.65;
+    const JUMP_FORCE = -13.5;
+    const BEST_KEY = "lupoRunnerBest";
+
+    try {
+      game.best = Number(localStorage.getItem(BEST_KEY)) || 0;
+    } catch (error) {
+      game.best = 0;
+    }
+
+    wolf.y = game.groundY - wolf.height;
+    setText("#game-best", game.best);
+
+    function roundedRect(x, y, width, height, radius, fill) {
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, radius);
+      ctx.fill();
+    }
+
+    function drawBackground() {
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, "#111621");
+      gradient.addColorStop(1, "#252832");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Luna
+      ctx.fillStyle = "#d8dbe0";
+      ctx.beginPath();
+      ctx.arc(680, 65, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#111621";
+      ctx.beginPath();
+      ctx.arc(690, 56, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Stelle
+      ctx.fillStyle = "#e7e7e7";
+      for (let i = 0; i < 30; i++) {
+        const x = (i * 83 + 29) % canvas.width;
+        const y = (i * 47 + 19) % 155;
+        ctx.globalAlpha = 0.25 + ((i % 4) * 0.15);
+        ctx.fillRect(x, y, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+
+      // Sagome di montagne
+      ctx.fillStyle = "#202530";
+      ctx.beginPath();
+      ctx.moveTo(0, 245);
+      for (let x = 0; x <= canvas.width; x += 100) {
+        ctx.lineTo(x + 50, 190 + ((x * 7) % 50));
+        ctx.lineTo(x + 100, 245);
+      }
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.lineTo(0, canvas.height);
+      ctx.closePath();
+      ctx.fill();
+
+      // Terreno
+      ctx.fillStyle = "#141414";
+      ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
+
+      ctx.fillStyle = "#8e929a";
+      ctx.fillRect(0, game.groundY, canvas.width, 2);
+
+      // Linee del terreno
+      ctx.strokeStyle = "#353943";
+      ctx.lineWidth = 2;
+
+      for (let i = 0; i < 18; i++) {
+        const x = ((i * 67) - (game.frame * game.speed * 0.8) % 67 + 67) % canvas.width;
+        ctx.beginPath();
+        ctx.moveTo(x, game.groundY + 18);
+        ctx.lineTo(x - 22, game.groundY + 18);
+        ctx.stroke();
+      }
+    }
+
+    function drawWolf() {
+      const x = wolf.x;
+      const y = wolf.y;
+
+      // Ombra
+      ctx.fillStyle = "rgba(0,0,0,.3)";
+      ctx.beginPath();
+      ctx.ellipse(x + 24, game.groundY + 2, 28, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Coda
+      ctx.strokeStyle = "#777e89";
+      ctx.lineWidth = 9;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(x + 8, y + 31);
+      ctx.quadraticCurveTo(x - 12, y + 22, x - 7, y + 11);
+      ctx.stroke();
+
+      // Corpo
+      roundedRect(x + 5, y + 18, 35, 25, 9, "#555c68");
+
+      // Zampe
+      ctx.fillStyle = "#242832";
+      const legOffset = game.running && wolf.onGround
+        ? Math.sin(game.frame * 0.45) * 5
+        : 0;
+
+      roundedRect(x + 10, y + 36, 9, 14 + legOffset, 4, "#242832");
+      roundedRect(x + 29, y + 36, 9, 14 - legOffset, 4, "#242832");
+
+      // Testa
+      ctx.fillStyle = "#737b88";
+      ctx.beginPath();
+      ctx.moveTo(x + 24, y + 3);
+      ctx.lineTo(x + 46, y + 9);
+      ctx.lineTo(x + 45, y + 27);
+      ctx.lineTo(x + 34, y + 34);
+      ctx.lineTo(x + 20, y + 25);
+      ctx.lineTo(x + 15, y + 12);
+      ctx.closePath();
+      ctx.fill();
+
+      // Orecchie
+      ctx.fillStyle = "#515864";
+      ctx.beginPath();
+      ctx.moveTo(x + 17, y + 12);
+      ctx.lineTo(x + 13, y - 2);
+      ctx.lineTo(x + 27, y + 8);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(x + 31, y + 9);
+      ctx.lineTo(x + 40, y - 3);
+      ctx.lineTo(x + 41, y + 15);
+      ctx.closePath();
+      ctx.fill();
+
+      // Muso
+      ctx.fillStyle = "#b7bbc2";
+      ctx.beginPath();
+      ctx.moveTo(x + 35, y + 20);
+      ctx.lineTo(x + 49, y + 23);
+      ctx.lineTo(x + 37, y + 30);
+      ctx.closePath();
+      ctx.fill();
+
+      // Occhio
+      ctx.fillStyle = "#f5f5f5";
+      ctx.beginPath();
+      ctx.arc(x + 34, y + 16, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#080808";
+      ctx.beginPath();
+      ctx.arc(x + 35, y + 16, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Naso
+      ctx.fillStyle = "#080808";
+      ctx.beginPath();
+      ctx.arc(x + 46, y + 23, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function createObstacle() {
+      const types = ["spike", "crate", "heart", "angel", "snake"];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      const isBonus = type === "heart" || type === "angel";
+
+      game.obstacles.push({
+        x: canvas.width + 20,
+        y: isBonus ? game.groundY - 75 - Math.random() * 45 : game.groundY - 35,
+        width: type === "crate" ? 34 : 30,
+        height: type === "crate" ? 35 : 32,
+        type,
+        passed: false
+      });
+    }
+
+    function drawObstacle(obstacle) {
+      const x = obstacle.x;
+      const y = obstacle.y;
+
+      if (obstacle.type === "spike") {
+        ctx.fillStyle = "#b8bec8";
+        ctx.beginPath();
+        ctx.moveTo(x, y + obstacle.height);
+        ctx.lineTo(x + obstacle.width / 2, y);
+        ctx.lineTo(x + obstacle.width, y + obstacle.height);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#777e89";
+        ctx.fillRect(x, y + obstacle.height - 5, obstacle.width, 5);
+      } else if (obstacle.type === "crate") {
+        roundedRect(x, y, obstacle.width, obstacle.height, 4, "#79553c");
+
+        ctx.strokeStyle = "#bd9874";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x + 5, y + 5, obstacle.width - 10, obstacle.height - 10);
+
+        ctx.beginPath();
+        ctx.moveTo(x + 6, y + 6);
+        ctx.lineTo(x + obstacle.width - 6, y + obstacle.height - 6);
+        ctx.moveTo(x + obstacle.width - 6, y + 6);
+        ctx.lineTo(x + 6, y + obstacle.height - 6);
+        ctx.stroke();
+      } else if (obstacle.type === "heart") {
+        ctx.fillStyle = "#e2e2e2";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("♥", x + obstacle.width / 2, y + 28);
+      } else if (obstacle.type === "angel") {
+        ctx.fillStyle = "#dedede";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("✦", x + obstacle.width / 2, y + 27);
+      } else if (obstacle.type === "snake") {
+        ctx.strokeStyle = "#8b929d";
+        ctx.lineWidth = 7;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x, y + 25);
+        ctx.quadraticCurveTo(x + 8, y + 4, x + 16, y + 23);
+        ctx.quadraticCurveTo(x + 23, y + 39, x + 30, y + 15);
+        ctx.stroke();
+
+        ctx.fillStyle = "#d8d8d8";
+        ctx.beginPath();
+        ctx.arc(x + 30, y + 14, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.textAlign = "start";
+    }
+
+    function drawOverlay(title, subtitle) {
+      ctx.fillStyle = "rgba(0,0,0,.58)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 34px Arial";
+      ctx.fillText(title, canvas.width / 2, canvas.height / 2 - 12);
+
+      ctx.fillStyle = "#d1d1d1";
+      ctx.font = "16px Arial";
+      ctx.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 22);
+      ctx.textAlign = "start";
+    }
+
+    function drawScene() {
+      drawBackground();
+
+      for (const obstacle of game.obstacles) {
+        drawObstacle(obstacle);
+      }
+
+      drawWolf();
+
+      if (!game.running && !game.over) {
+        drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA per giocare");
+      }
+
+      if (game.over) {
+        drawOverlay("GAME OVER", "Punteggio: " + Math.floor(game.score) + " — Premi RICOMINCIA");
+      }
+    }
+
+    function jump() {
+      if (!game.running) {
+        if (!game.over) startGame();
+        return;
+      }
+
+      if (wolf.onGround) {
+        wolf.vy = JUMP_FORCE;
+        wolf.onGround = false;
+      }
+    }
+
+    function startGame() {
+      game.running = true;
+      game.over = false;
+      game.score = 0;
+      game.speed = 5;
+      game.frame = 0;
+      game.lastTime = 0;
+      game.obstacles = [];
+      game.particles = [];
+      game.nextObstacle = 65;
+      wolf.y = game.groundY - wolf.height;
+      wolf.vy = 0;
+      wolf.onGround = true;
+      game.lastSubmittedScore = 0;
+
+      setText("#game-score", "0");
+      setText("#game-state", "In corso");
+      setText("#submit-status", "");
+      $("#submit-score").disabled = true;
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+      game.running = false;
+      game.over = true;
+
+      const finalScore = Math.floor(game.score);
+      setText("#game-state", "Terminata");
+
+      if (finalScore > game.best) {
+        game.best = finalScore;
+        setText("#game-best", game.best);
+
+        try {
+          localStorage.setItem(BEST_KEY, String(game.best));
+        } catch (error) {
+          // Il record rimane disponibile per la partita corrente.
+        }
+      }
+
+      game.lastSubmittedScore = finalScore;
+      $("#submit-score").disabled = finalScore <= 0;
+
+      drawScene();
+    }
+
+    function overlaps(a, b) {
+      const padding = 7;
+
+      return (
+        a.x + padding < b.x + b.width &&
+        a.x + a.width - padding > b.x &&
+        a.y + padding < b.y + b.height &&
+        a.y + a.height - padding > b.y
+      );
+    }
+
+    function gameLoop(timestamp) {
+      if (!game.running) return;
+
+      if (!game.lastTime) game.lastTime = timestamp;
+
+      const delta = Math.min((timestamp - game.lastTime) / 16.67, 2);
+      game.lastTime = timestamp;
+
+      game.frame += delta;
+      game.score += 0.12 * delta;
+      game.speed = Math.min(11, 5 + game.score / 180);
+
+      // Fisica del salto
+      wolf.vy += GRAVITY * delta;
+      wolf.y += wolf.vy * delta;
+
+      if (wolf.y >= game.groundY - wolf.height) {
+        wolf.y = game.groundY - wolf.height;
+        wolf.vy = 0;
+        wolf.onGround = true;
+      }
+
+      // Creazione degli ostacoli e dei bonus
+      game.nextObstacle -= delta;
+
+      if (game.nextObstacle <= 0) {
+        createObstacle();
+        game.nextObstacle = Math.max(36, 80 - game.speed * 3) + Math.random() * 35;
+      }
+
+      // Movimento e collisioni
+      const wolfBox = {
+        x: wolf.x + 3,
+        y: wolf.y + 4,
+        width: wolf.width - 7,
+        height: wolf.height - 5
+      };
+
+      for (const obstacle of game.obstacles) {
+        obstacle.x -= game.speed * delta;
+
+        if (overlaps(wolfBox, obstacle)) {
+          if (obstacle.type === "heart" || obstacle.type === "angel") {
+            obstacle.passed = true;
+            obstacle.x = -100;
+            game.score += obstacle.type === "heart" ? 25 : 50;
+          } else {
+            endGame();
+            return;
+          }
+        }
+      }
+
+      game.obstacles = game.obstacles.filter(
+        (obstacle) => obstacle.x + obstacle.width > -10 && !obstacle.passed
+      );
+
+      setText("#game-score", String(Math.floor(game.score)));
+
+      drawScene();
+      requestAnimationFrame(gameLoop);
+    }
+
+    $("#game-start").addEventListener("click", () => {
+      if (!game.running) startGame();
+    });
+
+    $("#game-jump").addEventListener("click", jump);
+
+    $("#game-restart").addEventListener("click", startGame);
+
+    canvas.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      jump();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const tag = event.target && event.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (event.code === "Space" || event.code === "ArrowUp") {
+        event.preventDefault();
+        jump();
+      }
+    });
+
+    drawScene();
+
+    /* =========================================================
+       CLASSIFICA ONLINE
+       ========================================================= */
+
+    async function refreshLeaderboard() {
+      const list = $("#leaderboard");
+      const status = $("#leaderboard-status");
+
+      list.innerHTML = "";
+      const loading = document.createElement("li");
+      loading.textContent = "Caricamento classifica...";
+      list.appendChild(loading);
+      status.textContent = "";
+
+      try {
+        const response = await fetch(
+          LEADERBOARD_API + "?action=top5&t=" + Date.now(),
+          { method: "GET", cache: "no-store" }
+        );
+
+        if (!response.ok) {
+          throw new Error("Risposta del servizio non valida.");
+        }
+
+        const data = await response.json();
+
+        let scores = [];
+
+        if (Array.isArray(data)) {
+          scores = data;
+        } else if (data && Array.isArray(data.top5)) {
+          scores = data.top5;
+        } else if (data && Array.isArray(data.scores)) {
+          scores = data.scores;
+        } else if (data && Array.isArray(data.data)) {
+          scores = data.data;
+        }
+
+        list.innerHTML = "";
+
+        if (scores.length === 0) {
+          const item = document.createElement("li");
+          item.textContent = "Nessun punteggio disponibile.";
+          list.appendChild(item);
+          return;
+        }
+
+        scores.slice(0, 5).forEach((entry, index) => {
+          const item = document.createElement("li");
+
+          const nickname = document.createElement("span");
+          const score = document.createElement("strong");
+
+          const name =
+            entry.nickname ??
+            entry.nome ??
+            entry.name ??
+            entry.player ??
+            "Lupo anonimo";
+
+          const points =
+            entry.score ??
+            entry.punteggio ??
+            entry.points ??
+            0;
+
+          nickname.textContent = (index + 1) + ". " + String(name);
+          score.textContent = String(points);
+
+          item.appendChild(nickname);
+          item.appendChild(score);
+          list.appendChild(item);
+        });
+      } catch (error) {
+        list.innerHTML = "";
+
+        const item = document.createElement("li");
+        item.textContent = "Classifica momentaneamente non disponibile.";
+        list.appendChild(item);
+
+        status.textContent =
+          "Controlla che il servizio Apps Script sia pubblicato e accessibile.";
+      }
+    }
+
+    $("#refresh-leaderboard").addEventListener("click", refreshLeaderboard);
+
+    async function submitScore() {
+      const nickname = $("#leaderboard-nickname").value.trim();
+      const status = $("#submit-status");
+      const button = $("#submit-score");
+      const score = Math.floor(game.lastSubmittedScore);
+
+      if (!nickname) {
+        status.textContent = "Inserisci un nickname per la classifica.";
+        $("#leaderboard-nickname").focus();
+        return;
+      }
+
+      if (score <= 0) {
+        status.textContent = "Completa una partita prima di inviare il punteggio.";
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = "Invio del punteggio in corso...";
+
+      try {
+        const response = await fetch(LEADERBOARD_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            nickname: nickname.slice(0, 20),
+            score: score
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Invio non riuscito.");
+        }
+
+        status.textContent = "Richiesta di invio completata. Aggiorno la classifica...";
+        await refreshLeaderboard();
+      } catch (error) {
+        status.textContent =
+          "Non è stato possibile inviare il punteggio. Verifica il servizio Apps Script.";
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    $("#submit-score").addEventListener("click", submitScore);
+
+    refreshLeaderboard();
+  </script>
 </body>
 </html>
