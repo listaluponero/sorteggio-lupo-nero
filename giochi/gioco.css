@@ -1,1 +1,84 @@
-/* Stili del gioco Lupo Runner */
+```css
+:root {
+  --bg: #090909;
+  --panel: #151515;
+  --panel-light: #202020;
+  --text: #f4f4f4;
+  --muted: #aaa;
+  --border: #333;
+  --accent: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #090909;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.game-header {
+  padding: 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+ 
