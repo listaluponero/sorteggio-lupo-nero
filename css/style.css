@@ -1,0 +1,22 @@
+
+/* LISTA LUPO NERO
+   Grafica generale del sito
+*/
+
+:root {
+  --sfondo: #090909;
+  --pannello: #151515;
+  --testo: #ffffff;
+  --accento: #b8b8b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: Arial, sans-serif;
+}
