@@ -1,24 +1,32 @@
-```html
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090909">
-  <meta name="description" content="Lista Lupo Nero: eventi, musica, giochi e il mondo del Branco.">
-  <title>Lista Lupo Nero</title>
+  <meta name="description" content="Lista Lupo Nero: eventi, biglietti, musica, merchandising e iniziative del Branco.">
+  <title>Lista Lupo Nero | Il Branco</title>
 
   <style>
     :root {
       --bg: #090909;
-      --panel: #151515;
-      --text: #f4f4f4;
-      --muted: #aaa;
-      --border: #333;
+      --panel: #141414;
+      --panel-hover: #202020;
+      --text: #f5f5f5;
+      --muted: #b9b9b9;
+      --border: #303030;
+      --accent: #ffffff;
+      --radius: 16px;
+      --max-width: 1120px;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -34,195 +42,420 @@
       text-decoration: none;
     }
 
+    a:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 4px;
+    }
+
+    .container {
+      width: min(100% - 32px, var(--max-width));
+      margin-inline: auto;
+    }
+
+    /* MENU SUPERIORE */
+
     .site-header {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: rgba(9, 9, 9, .97);
+      background: rgba(9, 9, 9, 0.96);
       border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
     }
 
-    .header-inner {
-      max-width: 1150px;
-      margin: auto;
-      padding: 16px 20px;
+    .nav-wrap {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 20px;
-      flex-wrap: wrap;
+      padding-block: 14px;
     }
 
     .brand {
+      flex-shrink: 0;
+      font-size: 17px;
       font-weight: 900;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      line-height: 1.2;
     }
 
     .brand span {
-      color: #999;
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 4px;
+      margin-top: 4px;
     }
 
-    .main-nav {
+    .nav-links {
       display: flex;
       flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 6px;
     }
 
-    .main-nav a {
+    .nav-links a {
       padding: 7px 10px;
       border-radius: 8px;
-      font-size: .88rem;
-      color: #ddd;
+      color: var(--muted);
+      font-size: 13px;
+      transition: background 0.2s, color 0.2s;
     }
 
-    .main-nav a:hover {
-      background: #292929;
-      color: white;
+    .nav-links a:hover {
+      color: var(--text);
+      background: var(--panel-hover);
     }
 
-    main {
-      width: min(1100px, calc(100% - 32px));
-      margin: auto;
-    }
+    /* INTRODUZIONE */
 
     .hero {
-      min-height: 470px;
-      padding: 80px 15px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 90px 0 70px;
       text-align: center;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse at 50% 0%, #242424 0%, transparent 60%),
+        var(--bg);
     }
 
     .eyebrow {
-      color: #aaa;
-      font-size: .8rem;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
       letter-spacing: 4px;
       text-transform: uppercase;
     }
 
-    h1 {
-      font-size: clamp(2.5rem, 8vw, 5.5rem);
-      line-height: 1.05;
-      letter-spacing: 2px;
-      margin: 18px 0;
+    .hero h1 {
+      margin: 16px 0 18px;
+      font-size: clamp(42px, 8vw, 82px);
+      line-height: 1;
+      letter-spacing: 3px;
+      font-weight: 900;
     }
 
-    .subtitle {
-      max-width: 680px;
+    .hero h1 span {
+      display: block;
+      margin-top: 8px;
+      color: #a8a8a8;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 0 auto;
       color: var(--muted);
-      margin: 0 auto 28px;
+      font-size: clamp(16px, 2vw, 19px);
     }
 
-    .buttons {
+    .hero-actions {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 12px;
+      margin-top: 30px;
     }
 
-    .btn {
-      display: inline-block;
-      padding: 12px 18px;
-      border: 1px solid #eee;
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: #eee;
-      color: #090909;
-      font-weight: 800;
-      transition: .2s;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.2s;
     }
 
-    .btn:hover {
-      background: white;
+    .button:hover {
+      background: var(--panel-hover);
       transform: translateY(-2px);
     }
 
-    .btn.secondary {
-      color: #eee;
-      background: transparent;
-      border-color: #555;
+    .button-primary {
+      background: var(--text);
+      border-color: var(--text);
+      color: #090909;
     }
 
-    .btn.secondary:hover {
-      background: #222;
+    .button-primary:hover {
+      background: #d9d9d9;
     }
+
+    /* CONTENUTO */
 
     .section {
-      padding: 42px 0;
-      border-top: 1px solid #222;
+      padding: 58px 0;
     }
 
-    .section h2 {
-      font-size: clamp(1.5rem, 4vw, 2.2rem);
-      margin: 0 0 10px;
+    .section-heading {
+      margin-bottom: 24px;
     }
 
-    .section p {
+    .section-heading h2 {
+      margin: 0 0 8px;
+      font-size: clamp(25px, 4vw, 34px);
+      line-height: 1.2;
+    }
+
+    .section-heading p {
+      margin: 0;
       color: var(--muted);
-      max-width: 720px;
     }
 
-    .cards {
+    .featured {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .featured-main,
+    .featured-side,
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .featured-main {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: clamp(24px, 5vw, 42px);
+      background:
+        radial-gradient(ellipse at 100% 0%, #292929 0%, transparent 65%),
+        var(--panel);
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .featured-main h3 {
+      margin: 12px 0;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.15;
+    }
+
+    .featured-main p {
+      max-width: 530px;
+      margin: 0 0 22px;
+      color: var(--muted);
+    }
+
+    .featured-side {
+      display: grid;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .side-link {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 23px;
+      transition: background 0.2s;
+    }
+
+    .side-link + .side-link {
+      border-top: 1px solid var(--border);
+    }
+
+    .side-link:hover {
+      background: var(--panel-hover);
+    }
+
+    .side-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 44px;
+      height: 44px;
+      border: 1px solid #414141;
+      border-radius: 12px;
+      font-size: 21px;
+    }
+
+    .side-link h3 {
+      margin: 0 0 4px;
+      font-size: 17px;
+    }
+
+    .side-link p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      margin-left: auto;
+      padding-left: 6px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    /* MONDO DEL BRANCO */
+
+    .world-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-top: 24px;
     }
 
     .card {
-      display: block;
-      padding: 22px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      transition: border-color .2s, transform .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 205px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
     }
 
     .card:hover {
-      border-color: #888;
+      border-color: #777;
       transform: translateY(-3px);
+    }
+
+    .card-icon {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      background: #252525;
+      font-size: 23px;
     }
 
     .card h3 {
       margin: 0 0 8px;
+      font-size: 19px;
     }
 
     .card p {
-      margin-bottom: 0;
-      font-size: .92rem;
+      flex: 1;
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    footer {
-      padding: 30px 16px;
-      text-align: center;
-      color: #888;
-      font-size: .9rem;
-      border-top: 1px solid #222;
+    .card-link {
+      font-size: 13px;
+      font-weight: bold;
     }
 
-    footer a {
-      color: #ddd;
+    .card-link span {
+      margin-left: 5px;
     }
 
-    @media (max-width: 700px) {
-      .header-inner {
-        justify-content: center;
+    /* FOOTER */
+
+    .site-footer {
+      padding: 30px 0;
+      border-top: 1px solid var(--border);
+      background: #070707;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-brand {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .footer-note {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* SCHERMI PICCOLI */
+
+    @media (max-width: 850px) {
+      .nav-wrap {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
       }
 
-      .main-nav {
-        justify-content: center;
+      .nav-links {
+        justify-content: flex-start;
       }
 
-      .main-nav a {
-        font-size: .82rem;
-        padding: 6px 8px;
+      .featured {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: min(100% - 24px, var(--max-width));
       }
 
       .hero {
-        min-height: 390px;
-        padding: 55px 8px;
+        padding: 64px 0 52px;
+      }
+
+      .hero h1 {
+        letter-spacing: 1px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .section {
+        padding: 42px 0;
+      }
+
+      .world-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: auto;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -230,12 +463,15 @@
 
 <body>
   <header class="site-header">
-    <div class="header-inner">
-      <a class="brand" href="index.html">LISTA <span>LUPO NERO</span></a>
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Lista Lupo Nero, Home">
+        LISTA LUPO NERO
+        <span>IL BRANCO</span>
+      </a>
 
-      <nav class="main-nav" aria-label="Navigazione principale">
+      <nav class="nav-links" aria-label="Navigazione principale">
         <a href="index.html">Home</a>
-        <a href="sezioni/eventi.html">Eventi</a>
+        <a href="sezioni/eventi.html">Eventi e biglietti</a>
         <a href="sezioni/sorteggio.html">Sorteggio</a>
         <a href="giochi/index.html">Lupo Games</a>
         <a href="sezioni/dj.html">DJ</a>
@@ -251,96 +487,149 @@
 
   <main>
     <section class="hero">
-      <div class="eyebrow">Benvenuti nel Branco</div>
+      <div class="container">
+        <div class="eyebrow">Libertà · Musica · Branco</div>
 
-      <h1>LISTA<br>LUPO NERO</h1>
+        <h1>
+          LISTA
+          <span>LUPO NERO</span>
+        </h1>
 
-      <p class="subtitle">
-        Eventi, musica, esperienze e nuove iniziative.
-        Un branco fatto di persone, libertà e voglia di vivere
-        la notte insieme.
-      </p>
+        <p>
+          Eventi, musica, esperienze e nuove iniziative.
+          Un branco fatto di persone, libertà e voglia di vivere
+          la notte insieme.
+        </p>
 
-      <div class="buttons">
-        <a class="btn" href="sezioni/eventi.html">Scopri gli eventi</a>
-        <a class="btn secondary" href="sezioni/sorteggio.html">Tenta la sorte</a>
-        <a class="btn secondary" href="giochi/index.html">Entra in Lupo Games</a>
+        <div class="hero-actions">
+          <a class="button button-primary" href="sezioni/eventi.html">
+            Scopri eventi e biglietti →
+          </a>
+          <a class="button" href="sezioni/sorteggio.html">
+            🐺 Tenta la sorte
+          </a>
+          <a class="button" href="giochi/index.html">
+            🎮 Entra in Lupo Games
+          </a>
+        </div>
       </div>
     </section>
 
-    <section class="section">
-      <h2>Il mondo del Branco</h2>
-      <p>
-        La Lista Lupo Nero è un progetto indipendente che unisce
-        persone, musica e iniziative. Qui puoi scoprire le attività
-        del Branco e trovare tutti i nostri collegamenti.
-      </p>
+    <section class="section" id="attivita">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Vivi il mondo del Branco</h2>
+          <p>
+            Trova la tua prossima serata, scopri le iniziative
+            e partecipa alle attività della Lista Lupo Nero.
+          </p>
+        </div>
 
-      <div class="cards">
-        <a class="card" href="sezioni/eventi.html">
-          <h3>🌑 Eventi</h3>
-          <p>Scopri serate, appuntamenti e informazioni sui biglietti.</p>
-        </a>
+        <div class="featured">
+          <article class="featured-main">
+            <div class="section-label">Le prossime serate</div>
+            <h3>La notte comincia da qui.</h3>
+            <p>
+              Scopri gli eventi in programma, consulta le informazioni
+              disponibili e raggiungi il collegamento per acquistare
+              i biglietti online. Quando previste, troverai anche
+              le indicazioni sulle agevolazioni per la lista.
+            </p>
+            <a class="button button-primary" href="sezioni/eventi.html">
+              Eventi e biglietti →
+            </a>
+          </article>
 
-        <a class="card" href="sezioni/sorteggio.html">
-          <h3>🐺 Sorteggio del Lupo</h3>
-          <p>Visita la pagina dedicata ai tentativi e alle iniziative promozionali.</p>
-        </a>
+          <div class="featured-side">
+            <a class="side-link" href="sezioni/sorteggio.html">
+              <div class="side-icon" aria-hidden="true">🐺</div>
+              <div>
+                <h3>Sorteggio del Lupo</h3>
+                <p>
+                  Scopri le iniziative promozionali e prova la sorte.
+                </p>
+              </div>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
 
-        <a class="card" href="giochi/index.html">
-          <h3>🎮 Lupo Games</h3>
-          <p>Entra nel mondo dei giochi del Branco e prova a battere il record.</p>
-        </a>
-
-        <a class="card" href="sezioni/dj.html">
-          <h3>🎧 DJ</h3>
-          <p>Musica, set e progetti legati al mondo del Lupo Nero.</p>
-        </a>
-
-        <a class="card" href="sezioni/merch.html">
-          <h3>🐺 Merch ufficiale</h3>
-          <p>Scopri i prodotti ufficiali della Lista Lupo Nero.</p>
-        </a>
-
-        <a class="card" href="sezioni/partner.html">
-          <h3>🤝 Partner</h3>
-          <p>Le collaborazioni e le realtà che sostengono il progetto.</p>
-        </a>
+            <a class="side-link" href="giochi/index.html">
+              <div class="side-icon" aria-hidden="true">🎮</div>
+              <div>
+                <h3>Lupo Games</h3>
+                <p>
+                  Entra nei giochi del Branco e prova a battere i record.
+                </p>
+              </div>
+              <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="section">
-      <h2>Il Branco cresce insieme</h2>
-      <p>
-        Partecipa, condividi le iniziative e aiutaci a costruire
-        nuove esperienze. Per informazioni e collaborazioni,
-        contattaci su Instagram.
-      </p>
+    <section class="section" id="branco">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Il mondo del Branco</h2>
+          <p>
+            Musica, prodotti ufficiali e collaborazioni:
+            scopri le altre realtà di Lupo Nero.
+          </p>
+        </div>
 
-      <div class="buttons">
-        <a class="btn" href="https://www.instagram.com/Lista.LupoNero/"
-           target="_blank" rel="noopener noreferrer">
-          Instagram Lista Lupo Nero
-        </a>
+        <div class="world-grid">
+          <a class="card" href="sezioni/dj.html">
+            <div class="card-icon" aria-hidden="true">🎧</div>
+            <h3>DJ e musica</h3>
+            <p>
+              Set, progetti musicali e il percorso di ReLupoNero.
+            </p>
+            <span class="card-link">Scopri di più <span>→</span></span>
+          </a>
 
-        <a class="btn secondary" href="https://www.instagram.com/ReLupoNero/"
-           target="_blank" rel="noopener noreferrer">
-          Instagram ReLupoNero
-        </a>
+          <a class="card" href="sezioni/merch.html">
+            <div class="card-icon" aria-hidden="true">🐺</div>
+            <h3>Merch ufficiale</h3>
+            <p>
+              Scopri il merchandising ufficiale della Lista Lupo Nero.
+            </p>
+            <span class="card-link">Scopri i prodotti <span>→</span></span>
+          </a>
+
+          <a class="card" href="sezioni/partner.html">
+            <div class="card-icon" aria-hidden="true">🤝</div>
+            <h3>Partner e collaborazioni</h3>
+            <p>
+              Le realtà e le collaborazioni legate al progetto.
+            </p>
+            <span class="card-link">Scopri i partner <span>→</span></span>
+          </a>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer>
-    <p><strong>LISTA LUPO NERO</strong></p>
-    <p>Il Branco si costruisce insieme.</p>
-    <p>© <span id="current-year"></span> Lista Lupo Nero</p>
-  </footer>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <div class="footer-brand">LISTA LUPO NERO</div>
+        <p class="footer-note">
+          Un branco, tante storie. Ci vediamo sotto cassa.
+        </p>
+      </div>
 
-  <script>
-    document.getElementById("current-year").textContent =
-      new Date().getFullYear();
-  </script>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/Lista.LupoNero/"
+           target="_blank" rel="noopener noreferrer">
+          Instagram Lista
+        </a>
+        <a href="https://www.instagram.com/ReLupoNero/"
+           target="_blank" rel="noopener noreferrer">
+          Instagram DJ
+        </a>
+        <a href="sezioni/eventi.html">Eventi e biglietti</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
-```
