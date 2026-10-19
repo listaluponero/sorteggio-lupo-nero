@@ -28,11 +28,8 @@ const W = canvas.width;
 const H = canvas.height;
 const groundY = H - 80;
 
-// Velocità e difficoltà
 const START_SPEED = 4;
 const MAX_SPEED = 8;
-const MIN_SPEED_FACTOR = 0.91;
-const MAX_SPEED_FACTOR = 1.09;
 
 let running = false;
 let paused = false;
@@ -51,6 +48,12 @@ let spawnTimer = 0;
 let nextObstacle = 1450;
 let obstacles = [];
 let particles = [];
+
+// Stato del tocco sul canvas
+let pointerStartX = 0;
+let pointerStartY = 0;
+let pointerMoved = false;
+let pointerIsDown = false;
 
 function loadBest() {
   try {
@@ -105,7 +108,6 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // Luna
   ctx.fillStyle = "#e9e3d6";
   ctx.beginPath();
   ctx.arc(320, 95, 26, 0, Math.PI * 2);
@@ -116,7 +118,6 @@ function drawBackground() {
   ctx.arc(311, 88, 23, 0, Math.PI * 2);
   ctx.fill();
 
-  // Montagne lontane
   ctx.fillStyle = "#252334";
   ctx.beginPath();
   ctx.moveTo(0, 350);
@@ -131,7 +132,6 @@ function drawBackground() {
   ctx.closePath();
   ctx.fill();
 
-  // Montagne vicine
   ctx.fillStyle = "#171923";
   ctx.beginPath();
   ctx.moveTo(0, 410);
@@ -144,7 +144,6 @@ function drawBackground() {
   ctx.closePath();
   ctx.fill();
 
-  // Alberi
   const offset = (distance * 0.4) % 100;
 
   for (let i = -1; i < 7; i++) {
@@ -166,7 +165,6 @@ function drawBackground() {
     ctx.fill();
   }
 
-  // Terreno
   ctx.fillStyle = "#101014";
   ctx.fillRect(0, groundY, W, H - groundY);
 
@@ -199,10 +197,17 @@ function drawWolf() {
 
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
-  ctx.ellipse(x + 23, groundY + 5, player.grounded ? 25 : 16, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    x + 23,
+    groundY + 5,
+    player.grounded ? 25 : 16,
+    5,
+    0,
+    0,
+    Math.PI * 2
+  );
   ctx.fill();
 
-  // Coda
   ctx.strokeStyle = "#242832";
   ctx.lineWidth = 8;
   ctx.lineCap = "round";
@@ -211,7 +216,6 @@ function drawWolf() {
   ctx.quadraticCurveTo(x - 2, y + 24, x + 3, y + 17);
   ctx.stroke();
 
-  // Corpo
   ctx.fillStyle = "#171a21";
   ctx.beginPath();
   ctx.ellipse(x + 22, y + 31, 19, 13, -0.08, 0, Math.PI * 2);
@@ -222,12 +226,10 @@ function drawWolf() {
   ctx.ellipse(x + 22, y + 25, 17, 10, -0.1, Math.PI, Math.PI * 2);
   ctx.fill();
 
-  // Zampe
   ctx.fillStyle = "#08090d";
   ctx.fillRect(x + 10, y + 35, 8, 10 + run);
   ctx.fillRect(x + 28, y + 35, 8, 10 - run);
 
-  // Orecchie
   ctx.fillStyle = "#252a33";
   ctx.beginPath();
   ctx.moveTo(x + 6, y + 19);
@@ -258,13 +260,11 @@ function drawWolf() {
   ctx.closePath();
   ctx.fill();
 
-  // Testa
   ctx.fillStyle = "#343944";
   ctx.beginPath();
   ctx.ellipse(x + 24, y + 22, 19, 17, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Muso
   ctx.fillStyle = "#777d88";
   ctx.beginPath();
   ctx.moveTo(x + 29, y + 23);
@@ -274,7 +274,6 @@ function drawWolf() {
   ctx.closePath();
   ctx.fill();
 
-  // Occhio
   ctx.fillStyle = "#f0e7d6";
   ctx.beginPath();
   ctx.arc(x + 30, y + 19, 3.2, 0, Math.PI * 2);
@@ -285,7 +284,6 @@ function drawWolf() {
   ctx.arc(x + 31, y + 19, 1.7, 0, Math.PI * 2);
   ctx.fill();
 
-  // Naso
   ctx.fillStyle = "#070709";
   ctx.beginPath();
   ctx.arc(x + 44, y + 29, 2.8, 0, Math.PI * 2);
@@ -574,26 +572,22 @@ function drawParticles() {
 // ======================================
 
 function updateSpeed(dt) {
-  // La velocità di base cresce lentamente con la distanza.
-  // Il tetto impedisce accelerazioni ingestibili.
   const progress = Math.min(distance / 18000, 1);
   baseSpeed = START_SPEED + progress * (MAX_SPEED - START_SPEED);
 
-  // Ogni tanto scegliamo casualmente una nuova velocità.
   speedChangeTimer += dt * 16.667;
 
   if (speedChangeTimer >= nextSpeedChange) {
     speedChangeTimer = 0;
     nextSpeedChange = 2500 + Math.random() * 2500;
 
-    // Le variazioni diventano un po' più evidenti col progredire,
-    // ma rimangono sempre entro limiti controllati.
     const difficulty = Math.min(distance / 12000, 1);
     const variation = 0.06 + difficulty * 0.03;
-    speedFactor = 1 + (Math.random() * 2 - 1) * variation;
+
+    speedFactor =
+      1 + (Math.random() * 2 - 1) * variation;
   }
 
-  // Piccolo ritorno graduale verso la velocità normale.
   speedFactor += (1 - speedFactor) * 0.004 * dt;
 
   speed = Math.max(
@@ -603,7 +597,7 @@ function updateSpeed(dt) {
 }
 
 // ======================================
-// SALTO, PAUSA E AVVIO
+// SALTO E PAUSA
 // ======================================
 
 function jump() {
@@ -625,6 +619,7 @@ function togglePause() {
 
     messageElement.textContent =
       "Partita in pausa. Premi RIPRENDI per continuare.";
+
     updatePauseButton();
     drawGame();
     return;
@@ -634,6 +629,7 @@ function togglePause() {
     paused = false;
     running = true;
     lastTime = 0;
+
     messageElement.textContent = "Si riparte, Lupetto!";
     updatePauseButton();
     animationId = requestAnimationFrame(gameLoop);
@@ -641,7 +637,6 @@ function togglePause() {
 }
 
 function startGame() {
-  // Non riavvia una partita attiva o in pausa.
   if (running || paused) return;
 
   running = true;
@@ -679,11 +674,9 @@ if (pauseButton) {
   pauseButton.addEventListener("click", togglePause);
 }
 
-canvas.addEventListener("pointerdown", event => {
-  if (!running || paused) return;
-  event.preventDefault();
-  jump();
-});
+// ======================================
+// CONTROLLI TASTIERA
+// ======================================
 
 document.addEventListener("keydown", event => {
   if (!["Space", "ArrowUp", "KeyW"].includes(event.code)) return;
@@ -705,6 +698,60 @@ document.addEventListener("keydown", event => {
   } else if (!running && !paused && !gameOver) {
     startGame();
   }
+});
+
+// ======================================
+// CONTROLLI TOUCH DEL CANVAS
+// Un tocco breve salta.
+// Un trascinamento permette di scorrere.
+// ======================================
+
+canvas.addEventListener("pointerdown", event => {
+  if (!running || paused) return;
+
+  // Memorizza il punto iniziale senza bloccare lo scroll del browser.
+  pointerStartX = event.clientX;
+  pointerStartY = event.clientY;
+  pointerMoved = false;
+  pointerIsDown = true;
+});
+
+canvas.addEventListener("pointermove", event => {
+  if (!pointerIsDown) return;
+
+  const dx = Math.abs(event.clientX - pointerStartX);
+  const dy = Math.abs(event.clientY - pointerStartY);
+
+  // Anche un piccolo trascinamento annulla il salto.
+  if (dx > 10 || dy > 10) {
+    pointerMoved = true;
+  }
+});
+
+canvas.addEventListener("pointerup", event => {
+  if (!pointerIsDown) return;
+
+  pointerIsDown = false;
+
+  if (!running || paused) return;
+
+  const dx = Math.abs(event.clientX - pointerStartX);
+  const dy = Math.abs(event.clientY - pointerStartY);
+
+  if (!pointerMoved && dx <= 10 && dy <= 10) {
+    jump();
+  }
+});
+
+canvas.addEventListener("pointercancel", () => {
+  // Il browser spesso invia pointercancel quando l'utente scorre.
+  // In quel caso annulliamo il salto.
+  pointerIsDown = false;
+  pointerMoved = true;
+});
+
+canvas.addEventListener("contextmenu", event => {
+  event.preventDefault();
 });
 
 // ======================================
@@ -734,7 +781,6 @@ function updateGame(dt) {
   score = Math.floor(distance / 10);
   updateScoreboard();
 
-  // Salto
   player.vy += player.gravity * dt;
   player.y += player.vy * dt;
 
@@ -744,8 +790,6 @@ function updateGame(dt) {
     player.grounded = true;
   }
 
-  // Ostacoli: con la distanza aumentano gradualmente,
-  // senza rendere il tempo di reazione troppo breve.
   spawnTimer += dt * 16.667;
 
   const difficulty = Math.min(distance / 18000, 1);
@@ -779,7 +823,7 @@ function updateGame(dt) {
 }
 
 // ======================================
-// DISEGNO
+// DISEGNO E OVERLAY
 // ======================================
 
 function drawGame() {
@@ -856,7 +900,8 @@ function endGame() {
       "NUOVO RECORD! Hai totalizzato " + finalScore + " metri!";
   } else {
     messageElement.textContent =
-      "Partita terminata. Hai totalizzato " + finalScore + " metri. Riprova!";
+      "Partita terminata. Hai totalizzato " +
+      finalScore + " metri. Riprova!";
   }
 
   updateScoreboard();
@@ -880,9 +925,12 @@ async function loadLeaderboard() {
       { method: "GET", cache: "no-store" }
     );
 
-    if (!response.ok) throw new Error("HTTP " + response.status);
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
 
     const data = await response.json();
+
     if (data.ok === false) {
       throw new Error(data.message || "Classifica non disponibile");
     }
@@ -904,8 +952,12 @@ async function loadLeaderboard() {
         const points = document.createElement("td");
 
         position.textContent = String(index + 1);
-        name.textContent = String(entry.nickname || entry.nome || "Lupetto");
-        points.textContent = String(Number(entry.score ?? entry.punteggio ?? 0));
+        name.textContent = String(
+          entry.nickname || entry.nome || "Lupetto"
+        );
+        points.textContent = String(
+          Number(entry.score ?? entry.punteggio ?? 0)
+        );
 
         row.append(position, name, points);
         leaderboardBody.appendChild(row);
@@ -931,7 +983,8 @@ async function submitScore() {
   const nickname = playerNameInput.value.trim();
 
   if (!nickname) {
-    leaderboardStatus.textContent = "Inserisci il tuo nickname Instagram.";
+    leaderboardStatus.textContent =
+      "Inserisci il tuo nickname Instagram.";
     playerNameInput.focus();
     return;
   }
@@ -943,7 +996,8 @@ async function submitScore() {
   }
 
   if (finalScore <= 0) {
-    leaderboardStatus.textContent = "Il punteggio deve essere maggiore di zero.";
+    leaderboardStatus.textContent =
+      "Il punteggio deve essere maggiore di zero.";
     return;
   }
 
@@ -953,14 +1007,18 @@ async function submitScore() {
   try {
     const response = await fetch(LEADERBOARD_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
       body: JSON.stringify({
         nickname,
         score: finalScore
       })
     });
 
-    if (!response.ok) throw new Error("HTTP " + response.status);
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
 
     const result = await response.json();
 
@@ -997,3 +1055,4 @@ updateScoreboard();
 updatePauseButton();
 drawGame();
 loadLeaderboard();
+
