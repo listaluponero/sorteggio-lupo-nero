@@ -28,6 +28,12 @@ const W = canvas.width;
 const H = canvas.height;
 const groundY = H - 80;
 
+// Velocità e difficoltà
+const START_SPEED = 4;
+const MAX_SPEED = 8;
+const MIN_SPEED_FACTOR = 0.91;
+const MAX_SPEED_FACTOR = 1.09;
+
 let running = false;
 let paused = false;
 let gameOver = false;
@@ -36,9 +42,13 @@ let lastTime = 0;
 let distance = 0;
 let score = 0;
 let finalScore = 0;
-let speed = 4;
+let speed = START_SPEED;
+let baseSpeed = START_SPEED;
+let speedFactor = 1;
+let speedChangeTimer = 0;
+let nextSpeedChange = 3000;
 let spawnTimer = 0;
-let nextObstacle = 1000;
+let nextObstacle = 1450;
 let obstacles = [];
 let particles = [];
 
@@ -54,7 +64,7 @@ function saveBest(value) {
   try {
     localStorage.setItem(BEST_KEY, String(value));
   } catch {
-    // Il gioco continua anche se localStorage non è disponibile.
+    // Il gioco funziona anche senza memoria locale.
   }
 }
 
@@ -63,7 +73,7 @@ let best = loadBest();
 const player = {
   x: 75,
   y: groundY - 46,
-  w: 46,
+  w: 42,
   h: 46,
   vy: 0,
   gravity: 0.72,
@@ -78,7 +88,6 @@ function updateScoreboard() {
 
 function updatePauseButton() {
   if (!pauseButton) return;
-
   pauseButton.textContent = paused ? "RIPRENDI" : "PAUSA";
   pauseButton.disabled = !running && !paused;
 }
@@ -102,7 +111,7 @@ function drawBackground() {
   ctx.arc(320, 95, 26, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "rgba(9,11,20,0.22)";
+  ctx.fillStyle = "rgba(9,11,20,0.25)";
   ctx.beginPath();
   ctx.arc(311, 88, 23, 0, Math.PI * 2);
   ctx.fill();
@@ -135,13 +144,13 @@ function drawBackground() {
   ctx.closePath();
   ctx.fill();
 
-  // Alberi in movimento
+  // Alberi
   const offset = (distance * 0.4) % 100;
 
   for (let i = -1; i < 7; i++) {
     const x = i * 100 - offset;
-
     ctx.fillStyle = "#0d1017";
+
     ctx.beginPath();
     ctx.moveTo(x, groundY);
     ctx.lineTo(x + 28, groundY - 95);
@@ -176,7 +185,7 @@ function drawBackground() {
 }
 
 // ======================================
-// LUPETTO - PERSONAGGIO
+// LUPETTO
 // ======================================
 
 function drawWolf() {
@@ -188,18 +197,9 @@ function drawWolf() {
 
   ctx.save();
 
-  // Ombra
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
-  ctx.ellipse(
-    x + 23,
-    groundY + 5,
-    player.grounded ? 25 : 16,
-    5,
-    0,
-    0,
-    Math.PI * 2
-  );
+  ctx.ellipse(x + 23, groundY + 5, player.grounded ? 25 : 16, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Coda
@@ -217,7 +217,6 @@ function drawWolf() {
   ctx.ellipse(x + 22, y + 31, 19, 13, -0.08, 0, Math.PI * 2);
   ctx.fill();
 
-  // Schiena
   ctx.fillStyle = "#2b3039";
   ctx.beginPath();
   ctx.ellipse(x + 22, y + 25, 17, 10, -0.1, Math.PI, Math.PI * 2);
@@ -228,7 +227,7 @@ function drawWolf() {
   ctx.fillRect(x + 10, y + 35, 8, 10 + run);
   ctx.fillRect(x + 28, y + 35, 8, 10 - run);
 
-  // Orecchie appuntite
+  // Orecchie
   ctx.fillStyle = "#252a33";
   ctx.beginPath();
   ctx.moveTo(x + 6, y + 19);
@@ -244,7 +243,6 @@ function drawWolf() {
   ctx.closePath();
   ctx.fill();
 
-  // Interno orecchie
   ctx.fillStyle = "#711f34";
   ctx.beginPath();
   ctx.moveTo(x + 10, y + 14);
@@ -266,7 +264,7 @@ function drawWolf() {
   ctx.ellipse(x + 24, y + 22, 19, 17, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Guancia e muso
+  // Muso
   ctx.fillStyle = "#777d88";
   ctx.beginPath();
   ctx.moveTo(x + 29, y + 23);
@@ -331,17 +329,14 @@ function drawHeart(o) {
 
   ctx.save();
 
-  // Ombra scura
   ctx.fillStyle = "rgba(0,0,0,0.5)";
   ctx.beginPath();
   ctx.ellipse(x + 18, y + 33, 17, 4, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Vasi sanguigni
   ctx.strokeStyle = "#6f0d20";
   ctx.lineWidth = 3;
   ctx.lineCap = "round";
-
   ctx.beginPath();
   ctx.moveTo(x + 17, y + 12);
   ctx.lineTo(x + 12, y + 3);
@@ -355,7 +350,6 @@ function drawHeart(o) {
   ctx.lineTo(x + 32, y + 28);
   ctx.stroke();
 
-  // Forma anatomica stilizzata
   ctx.fillStyle = "#651020";
   ctx.beginPath();
   ctx.moveTo(x + 18, y + 31);
@@ -366,7 +360,6 @@ function drawHeart(o) {
   ctx.closePath();
   ctx.fill();
 
-  // Muscolo interno
   ctx.fillStyle = "#b51f36";
   ctx.beginPath();
   ctx.ellipse(x + 14, y + 13, 5, 7, -0.5, 0, Math.PI * 2);
@@ -377,7 +370,6 @@ function drawHeart(o) {
   ctx.ellipse(x + 24, y + 16, 5, 7, 0.4, 0, Math.PI * 2);
   ctx.fill();
 
-  // Solco centrale
   ctx.strokeStyle = "#300711";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -385,7 +377,6 @@ function drawHeart(o) {
   ctx.lineTo(x + 18, y + 25);
   ctx.stroke();
 
-  // Goccia di sangue
   ctx.fillStyle = "#e12c42";
   ctx.beginPath();
   ctx.moveTo(x + 30, y + 27);
@@ -402,17 +393,6 @@ function drawAngel(o) {
 
   ctx.save();
 
-  // Alone nero
-  const glow = ctx.createRadialGradient(
-    x + 20, y + 20, 2,
-    x + 20, y + 20, 30
-  );
-  glow.addColorStop(0, "rgba(0,0,0,0.5)");
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(x - 12, y - 12, 64, 64);
-
-  // Ali nere
   ctx.fillStyle = "#050507";
   ctx.beginPath();
   ctx.moveTo(x + 17, y + 18);
@@ -428,7 +408,6 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
-  // Veste scura
   ctx.fillStyle = "#08080a";
   ctx.beginPath();
   ctx.moveTo(x + 13, y + 18);
@@ -438,26 +417,14 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
-  // Testa nera
   ctx.fillStyle = "#020203";
   ctx.beginPath();
   ctx.arc(x + 20, y + 12, 8, 0, Math.PI * 2);
   ctx.fill();
 
-  // Occhi rossi
   ctx.fillStyle = "#c51e39";
   ctx.fillRect(x + 15, y + 11, 3, 2);
   ctx.fillRect(x + 22, y + 11, 3, 2);
-
-  // Piccoli dettagli sulle ali
-  ctx.strokeStyle = "#343039";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x + 14, y + 20);
-  ctx.lineTo(x + 4, y + 11);
-  ctx.moveTo(x + 26, y + 20);
-  ctx.lineTo(x + 36, y + 11);
-  ctx.stroke();
 
   ctx.restore();
 }
@@ -468,50 +435,30 @@ function drawSnake(o) {
   const wiggle = Math.sin(distance * 0.12 + o.phase) * 3;
 
   ctx.save();
-
-  // Corpo verde sinuoso
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#315d35";
   ctx.lineWidth = 11;
+
   ctx.beginPath();
   ctx.moveTo(x + 2, y + 19);
-  ctx.bezierCurveTo(
-    x + 10, y + 1 + wiggle,
-    x + 19, y + 29 - wiggle,
-    x + 28, y + 15
-  );
-  ctx.bezierCurveTo(
-    x + 36, y + 2 + wiggle,
-    x + 42, y + 25,
-    x + 49, y + 10
-  );
+  ctx.bezierCurveTo(x + 10, y + 1 + wiggle, x + 19, y + 29 - wiggle, x + 28, y + 15);
+  ctx.bezierCurveTo(x + 36, y + 2 + wiggle, x + 42, y + 25, x + 49, y + 10);
   ctx.stroke();
 
-  // Dorso più chiaro
   ctx.strokeStyle = "#72a94e";
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(x + 3, y + 17);
-  ctx.bezierCurveTo(
-    x + 11, y + 3 + wiggle,
-    x + 19, y + 26 - wiggle,
-    x + 28, y + 14
-  );
-  ctx.bezierCurveTo(
-    x + 36, y + 5 + wiggle,
-    x + 42, y + 22,
-    x + 48, y + 10
-  );
+  ctx.bezierCurveTo(x + 11, y + 3 + wiggle, x + 19, y + 26 - wiggle, x + 28, y + 14);
+  ctx.bezierCurveTo(x + 36, y + 5 + wiggle, x + 42, y + 22, x + 48, y + 10);
   ctx.stroke();
 
-  // Testa
   ctx.fillStyle = "#477d39";
   ctx.beginPath();
   ctx.ellipse(x + 47, y + 9, 7, 5, -0.25, 0, Math.PI * 2);
   ctx.fill();
 
-  // Occhio
   ctx.fillStyle = "#f2e8bc";
   ctx.beginPath();
   ctx.arc(x + 49, y + 7, 2.2, 0, Math.PI * 2);
@@ -522,7 +469,6 @@ function drawSnake(o) {
   ctx.arc(x + 50, y + 7, 1, 0, Math.PI * 2);
   ctx.fill();
 
-  // Lingua biforcuta
   ctx.strokeStyle = "#d72c4d";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -547,7 +493,6 @@ function drawObstacle(o) {
     ctx.lineTo(o.x + o.w, groundY);
     ctx.closePath();
     ctx.fill();
-
     ctx.strokeStyle = "#777985";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -556,11 +501,9 @@ function drawObstacle(o) {
   if (o.type === "crate") {
     ctx.fillStyle = "#70472f";
     ctx.fillRect(o.x, o.y, o.w, o.h);
-
     ctx.strokeStyle = "#bd9062";
     ctx.lineWidth = 3;
     ctx.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
-
     ctx.beginPath();
     ctx.moveTo(o.x + 5, o.y + 5);
     ctx.lineTo(o.x + o.w - 5, o.y + o.h - 5);
@@ -627,7 +570,40 @@ function drawParticles() {
 }
 
 // ======================================
-// SALTO, PAUSA E COMANDI
+// VELOCITÀ VARIABILE
+// ======================================
+
+function updateSpeed(dt) {
+  // La velocità di base cresce lentamente con la distanza.
+  // Il tetto impedisce accelerazioni ingestibili.
+  const progress = Math.min(distance / 18000, 1);
+  baseSpeed = START_SPEED + progress * (MAX_SPEED - START_SPEED);
+
+  // Ogni tanto scegliamo casualmente una nuova velocità.
+  speedChangeTimer += dt * 16.667;
+
+  if (speedChangeTimer >= nextSpeedChange) {
+    speedChangeTimer = 0;
+    nextSpeedChange = 2500 + Math.random() * 2500;
+
+    // Le variazioni diventano un po' più evidenti col progredire,
+    // ma rimangono sempre entro limiti controllati.
+    const difficulty = Math.min(distance / 12000, 1);
+    const variation = 0.06 + difficulty * 0.03;
+    speedFactor = 1 + (Math.random() * 2 - 1) * variation;
+  }
+
+  // Piccolo ritorno graduale verso la velocità normale.
+  speedFactor += (1 - speedFactor) * 0.004 * dt;
+
+  speed = Math.max(
+    START_SPEED * 0.85,
+    Math.min(MAX_SPEED, baseSpeed * speedFactor)
+  );
+}
+
+// ======================================
+// SALTO, PAUSA E AVVIO
 // ======================================
 
 function jump() {
@@ -648,7 +624,7 @@ function togglePause() {
     }
 
     messageElement.textContent =
-      "Partita in pausa. Premi RIPRENDI quando vuoi continuare.";
+      "Partita in pausa. Premi RIPRENDI per continuare.";
     updatePauseButton();
     drawGame();
     return;
@@ -658,15 +634,14 @@ function togglePause() {
     paused = false;
     running = true;
     lastTime = 0;
-    messageElement.textContent =
-      "Si riparte, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
+    messageElement.textContent = "Si riparte, Lupetto!";
     updatePauseButton();
     animationId = requestAnimationFrame(gameLoop);
   }
 }
 
 function startGame() {
-  // Non riavviare mai una partita già attiva o in pausa.
+  // Non riavvia una partita attiva o in pausa.
   if (running || paused) return;
 
   running = true;
@@ -675,9 +650,13 @@ function startGame() {
   distance = 0;
   score = 0;
   finalScore = 0;
-  speed = 4;
+  speed = START_SPEED;
+  baseSpeed = START_SPEED;
+  speedFactor = 1;
+  speedChangeTimer = 0;
+  nextSpeedChange = 3000;
   spawnTimer = 0;
-  nextObstacle = 1000;
+  nextObstacle = 1450;
   obstacles = [];
   particles = [];
 
@@ -690,9 +669,6 @@ function startGame() {
 
   updateScoreboard();
   updatePauseButton();
-
-  if (startButton) startButton.textContent = "Inizia partita";
-
   animationId = requestAnimationFrame(gameLoop);
 }
 
@@ -703,7 +679,6 @@ if (pauseButton) {
   pauseButton.addEventListener("click", togglePause);
 }
 
-// Toccare o cliccare il campo di gioco fa saltare Lupetto.
 canvas.addEventListener("pointerdown", event => {
   if (!running || paused) return;
   event.preventDefault();
@@ -711,13 +686,7 @@ canvas.addEventListener("pointerdown", event => {
 });
 
 document.addEventListener("keydown", event => {
-  if (
-    event.code !== "Space" &&
-    event.code !== "ArrowUp" &&
-    event.code !== "KeyW"
-  ) {
-    return;
-  }
+  if (!["Space", "ArrowUp", "KeyW"].includes(event.code)) return;
 
   if (
     event.target instanceof HTMLElement &&
@@ -759,13 +728,13 @@ function gameLoop(timestamp) {
 }
 
 function updateGame(dt) {
-  distance += speed * dt;
-  speed = Math.min(10, 4 + distance / 1800);
-  score = Math.floor(distance / 10);
+  updateSpeed(dt);
 
+  distance += speed * dt;
+  score = Math.floor(distance / 10);
   updateScoreboard();
 
-  // Fisica del salto
+  // Salto
   player.vy += player.gravity * dt;
   player.y += player.vy * dt;
 
@@ -775,21 +744,27 @@ function updateGame(dt) {
     player.grounded = true;
   }
 
-  // Generazione ostacoli
+  // Ostacoli: con la distanza aumentano gradualmente,
+  // senza rendere il tempo di reazione troppo breve.
   spawnTimer += dt * 16.667;
+
+  const difficulty = Math.min(distance / 18000, 1);
+  const minInterval = 1250 - difficulty * 150;
+  const maxInterval = 1850 - difficulty * 200;
 
   if (spawnTimer >= nextObstacle) {
     createObstacle();
     spawnTimer = 0;
-    nextObstacle = 900 + Math.random() * 700;
+    nextObstacle =
+      minInterval + Math.random() * (maxInterval - minInterval);
   }
 
-  // Movimento ostacoli, oscillazione angelo e collisioni
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
     if (obstacle.type === "angel") {
-      obstacle.y = obstacle.baseY +
+      obstacle.y =
+        obstacle.baseY +
         Math.sin(distance * 0.035 + obstacle.phase) * 10;
     }
 
@@ -804,7 +779,7 @@ function updateGame(dt) {
 }
 
 // ======================================
-// DISEGNO E MESSAGGI
+// DISEGNO
 // ======================================
 
 function drawGame() {
@@ -820,9 +795,8 @@ function drawGame() {
   ctx.fillStyle = "#fff";
   ctx.font = "bold 18px Arial";
   ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
   ctx.fillText("LUPO RUNNER", 18, 32);
-  ctx.fillText("Punti: " + score, 18, 58);
+  ctx.fillText("Metri: " + score, 18, 58);
 
   if (!running && !paused && !gameOver) {
     drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA");
@@ -833,7 +807,7 @@ function drawGame() {
   }
 
   if (gameOver) {
-    drawOverlay("GAME OVER", "Punteggio: " + finalScore);
+    drawOverlay("GAME OVER", "Distanza: " + finalScore + " m");
   }
 }
 
@@ -844,7 +818,6 @@ function drawOverlay(title, subtitle) {
   ctx.fillRect(0, 0, W, H);
 
   ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#fff";
   ctx.font = "bold 32px Arial";
   ctx.fillText(title, W / 2, H / 2 - 15);
@@ -857,7 +830,7 @@ function drawOverlay(title, subtitle) {
 }
 
 // ======================================
-// FINE PARTITA
+// GAME OVER
 // ======================================
 
 function endGame() {
@@ -880,12 +853,10 @@ function endGame() {
     best = finalScore;
     saveBest(best);
     messageElement.textContent =
-      "NUOVO RECORD! Hai totalizzato " + finalScore + " punti!";
+      "NUOVO RECORD! Hai totalizzato " + finalScore + " metri!";
   } else {
     messageElement.textContent =
-      "Partita terminata. Hai totalizzato " +
-      finalScore +
-      " punti. Riprova!";
+      "Partita terminata. Hai totalizzato " + finalScore + " metri. Riprova!";
   }
 
   updateScoreboard();
@@ -903,31 +874,20 @@ async function loadLeaderboard() {
   leaderboardStatus.textContent = "Caricamento classifica...";
   leaderboardBody.replaceChildren();
 
-  const loadingRow = document.createElement("tr");
-  const loadingCell = document.createElement("td");
-  loadingCell.colSpan = 3;
-  loadingCell.textContent = "Caricamento...";
-  loadingRow.appendChild(loadingCell);
-  leaderboardBody.appendChild(loadingRow);
-
   try {
     const response = await fetch(
       LEADERBOARD_API_URL + "?action=top5",
       { method: "GET", cache: "no-store" }
     );
 
-    if (!response.ok) {
-      throw new Error("Risposta HTTP " + response.status);
-    }
+    if (!response.ok) throw new Error("HTTP " + response.status);
 
     const data = await response.json();
-
     if (data.ok === false) {
-      throw new Error(data.message || "Classifica non disponibile.");
+      throw new Error(data.message || "Classifica non disponibile");
     }
 
     const scores = Array.isArray(data.scores) ? data.scores : [];
-    leaderboardBody.replaceChildren();
 
     if (scores.length === 0) {
       const row = document.createElement("tr");
@@ -939,36 +899,29 @@ async function loadLeaderboard() {
     } else {
       scores.slice(0, 5).forEach((entry, index) => {
         const row = document.createElement("tr");
-        const positionCell = document.createElement("td");
-        const nameCell = document.createElement("td");
-        const scoreCell = document.createElement("td");
+        const position = document.createElement("td");
+        const name = document.createElement("td");
+        const points = document.createElement("td");
 
-        positionCell.textContent = String(index + 1);
-        nameCell.textContent = String(
-          entry.nickname || entry.nome || "Lupetto"
-        );
-        scoreCell.textContent = String(
-          Number(entry.score ?? entry.punteggio ?? 0)
-        );
+        position.textContent = String(index + 1);
+        name.textContent = String(entry.nickname || entry.nome || "Lupetto");
+        points.textContent = String(Number(entry.score ?? entry.punteggio ?? 0));
 
-        row.append(positionCell, nameCell, scoreCell);
+        row.append(position, name, points);
         leaderboardBody.appendChild(row);
       });
     }
 
     leaderboardStatus.textContent = "Classifica aggiornata.";
   } catch (error) {
-    console.error("Errore caricamento classifica:", error);
-
+    console.error("Errore classifica:", error);
     leaderboardStatus.textContent =
-      "Impossibile caricare la classifica. Verifica la connessione e riprova.";
-
-    leaderboardBody.replaceChildren();
+      "Classifica non disponibile. Riprova più tardi.";
 
     const row = document.createElement("tr");
     const cell = document.createElement("td");
     cell.colSpan = 3;
-    cell.textContent = "Classifica momentaneamente non disponibile.";
+    cell.textContent = "Errore nel caricamento della classifica.";
     row.appendChild(cell);
     leaderboardBody.appendChild(row);
   }
@@ -978,8 +931,7 @@ async function submitScore() {
   const nickname = playerNameInput.value.trim();
 
   if (!nickname) {
-    leaderboardStatus.textContent =
-      "Inserisci prima il tuo nickname Instagram.";
+    leaderboardStatus.textContent = "Inserisci il tuo nickname Instagram.";
     playerNameInput.focus();
     return;
   }
@@ -991,45 +943,39 @@ async function submitScore() {
   }
 
   if (finalScore <= 0) {
-    leaderboardStatus.textContent =
-      "Il punteggio deve essere maggiore di zero.";
+    leaderboardStatus.textContent = "Il punteggio deve essere maggiore di zero.";
     return;
   }
 
   submitScoreButton.disabled = true;
-  leaderboardStatus.textContent = "Invio del punteggio in corso...";
+  leaderboardStatus.textContent = "Invio punteggio...";
 
   try {
     const response = await fetch(LEADERBOARD_API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({
         nickname,
         score: finalScore
       })
     });
 
-    if (!response.ok) {
-      throw new Error("Risposta HTTP " + response.status);
-    }
+    if (!response.ok) throw new Error("HTTP " + response.status);
 
     const result = await response.json();
 
     if (result.ok === false) {
-      throw new Error(result.message || "Invio non riuscito.");
+      throw new Error(result.message || "Invio non riuscito");
     }
 
     leaderboardStatus.textContent =
-      "Punteggio inviato! " + finalScore + " punti per " + nickname + ".";
+      "Punteggio inviato: " + finalScore + " metri.";
 
     await loadLeaderboard();
   } catch (error) {
     console.error("Errore invio punteggio:", error);
     leaderboardStatus.textContent =
-      "Non è stato possibile inviare il punteggio. " +
-      "Controlla che Apps Script sia pubblicato correttamente.";
+      "Invio non riuscito. Verifica la pubblicazione di Apps Script.";
   } finally {
     submitScoreButton.disabled = false;
   }
