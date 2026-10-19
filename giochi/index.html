@@ -1,92 +1,255 @@
-```html
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090909">
-  <title>Lupo Games | Lista Lupo Nero</title>
-  <link rel="stylesheet" href="gioco.css">
-  <script src="gioco.js" defer></script>
-</head>
-<body>
-  <header class="game-header">
-    <a href="../index.html" class="back-link">← Torna alla Home</a>
-    <h1>LUPO GAMES</h1>
-    <p>Benvenuto nel branco. Quanto riuscirai a resistere?</p>
-  </header>
+```css
+:root {
+  --bg: #090909;
+  --panel: #151515;
+  --panel-light: #202020;
+  --text: #f4f4f4;
+  --muted: #aaa;
+  --border: #333;
+  --accent: #fff;
+}
 
-  <main class="game-container">
-    <section class="game-panel">
-      <h2>Lupo Runner</h2>
-      <p>Salta gli ostacoli e cerca di stabilire il tuo record!</p>
+* {
+  box-sizing: border-box;
+}
 
-      <div class="canvas-wrapper">
-        <canvas id="gameCanvas" width="420" height="620">
-          Il tuo browser non supporta il canvas.
-        </canvas>
-      </div>
+html {
+  scroll-behavior: smooth;
+}
 
-      <div class="game-buttons">
-        <button id="startGame" type="button">Inizia partita</button>
-        <button id="jumpGame" type="button">SALTA</button>
-      </div>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
 
-      <div class="scoreboard">
-        <p>Punteggio: <strong id="score">0</strong></p>
-        <p>Record personale: <strong id="personalBest">0</strong></p>
-      </div>
+a {
+  color: var(--text);
+}
 
-      <p id="gameMessage" role="status" aria-live="polite">
-        Premi «Inizia partita» per giocare.
-      </p>
-    </section>
+button,
+input {
+  font: inherit;
+}
 
-    <section class="game-panel leaderboard-panel">
-      <h2>Classifica del branco</h2>
-      <p>Inserisci il tuo nickname Instagram per inviare il punteggio.</p>
+button {
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #090909;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
 
-      <label for="playerName">Nickname Instagram</label>
-      <input
-        id="playerName"
-        type="text"
-        maxlength="30"
-        placeholder="@tuonickname"
-        autocomplete="nickname"
-      >
+button:hover {
+  opacity: 0.85;
+}
 
-      <button id="submitScore" type="button">Invia punteggio</button>
-      <button id="refreshBoard" type="button">Aggiorna classifica</button>
+button:active {
+  transform: scale(0.98);
+}
 
-      <p id="leaderboardStatus" role="status" aria-live="polite">
-        Caricamento classifica...
-      </p>
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Pos.</th>
-              <th>Nickname</th>
-              <th>Punteggio</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody">
-            <tr>
-              <td colspan="3">Classifica in caricamento...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+.game-header {
+  padding: 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
 
-  <footer class="game-footer">
-    <p>Lista Lupo Nero · Il branco gioca insieme.</p>
-    <a href="https://www.instagram.com/Lista.LupoNero/" target="_blank" rel="noopener noreferrer">
-      Instagram Lista Lupo Nero
-    </a>
-  </footer>
-</body>
-</html>
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: 4px;
+}
+
+.game-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 24px 16px;
+  align-items: start;
+}
+
+.game-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.game-panel h2 {
+  margin-top: 0;
+}
+
+.game-panel > p {
+  color: var(--muted);
+}
+
+.canvas-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  overflow: hidden;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #101010;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+}
+
+.game-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+#jumpGame {
+  background: #252525;
+  color: #fff;
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--panel-light);
+}
+
+.scoreboard p {
+  margin: 0;
+}
+
+#gameMessage {
+  min-height: 48px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.leaderboard-panel label {
+  display: block;
+  margin: 18px 0 6px;
+  font-weight: 700;
+}
+
+#playerName {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #090909;
+  color: var(--text);
+}
+
+#submitScore,
+#refreshBoard {
+  margin: 4px 4px 4px 0;
+}
+
+#refreshBoard {
+  border-color: var(--border);
+  background: var(--panel-light);
+  color: var(--text);
+}
+
+#leaderboardStatus {
+  min-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.game-footer {
+  padding: 24px 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+}
+
+.game-footer a {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 16px 12px;
+  }
+
+  .game-panel {
+    padding: 16px;
+  }
+
+  .game-header h1 {
+    letter-spacing: 2px;
+  }
+
+  .scoreboard {
+    flex-direction: column;
+  }
+}
 ```
