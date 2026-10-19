@@ -1,4 +1,4 @@
-```javascript
+
 "use strict";
 
 // ======================================
@@ -725,4 +725,4 @@ async function submitScore() {
 
 // Carica la classifica appena si apre la pagina.
 refreshBoard();
-```
+
