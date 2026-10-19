@@ -10,7 +10,6 @@ const LEADERBOARD_API_URL =
 
 const BEST_KEY = "lupoRunnerBest";
 
-// Elementi HTML
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -19,14 +18,12 @@ const jumpButton = document.getElementById("jumpGame");
 const scoreElement = document.getElementById("score");
 const bestElement = document.getElementById("personalBest");
 const messageElement = document.getElementById("gameMessage");
-
 const playerNameInput = document.getElementById("playerName");
 const submitScoreButton = document.getElementById("submitScore");
 const refreshBoardButton = document.getElementById("refreshBoard");
 const leaderboardBody = document.getElementById("leaderboardBody");
 const leaderboardStatus = document.getElementById("leaderboardStatus");
 
-// Stato del gioco
 const W = canvas.width;
 const H = canvas.height;
 const groundY = H - 80;
@@ -44,6 +41,22 @@ let nextObstacle = 1000;
 let obstacles = [];
 let particles = [];
 
+function loadBest() {
+  try {
+    return Number(localStorage.getItem(BEST_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveBest(value) {
+  try {
+    localStorage.setItem(BEST_KEY, String(value));
+  } catch {
+    // Il gioco funziona anche se localStorage non è disponibile.
+  }
+}
+
 let best = loadBest();
 
 const player = {
@@ -57,34 +70,14 @@ const player = {
   grounded: true
 };
 
-// --------------------------------------
-// Record personale
-// --------------------------------------
-
-function loadBest() {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function saveBest(value) {
-  try {
-    localStorage.setItem(BEST_KEY, String(value));
-  } catch {
-    // Il gioco continua anche se lo storage non è disponibile.
-  }
-}
-
 function updateScoreboard() {
   scoreElement.textContent = String(score);
   bestElement.textContent = String(best);
 }
 
-// --------------------------------------
-// Disegno dello scenario
-// --------------------------------------
+// ======================================
+// SFONDO
+// ======================================
 
 function drawBackground() {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
@@ -129,13 +122,14 @@ function drawBackground() {
   ctx.closePath();
   ctx.fill();
 
-  // Alberi
+  // Alberi in movimento
   const offset = (distance * 0.4) % 100;
 
   for (let i = -1; i < 7; i++) {
     const x = i * 100 - offset;
 
     ctx.fillStyle = "#10131a";
+
     ctx.beginPath();
     ctx.moveTo(x, groundY);
     ctx.lineTo(x + 28, groundY - 95);
@@ -169,9 +163,9 @@ function drawBackground() {
   }
 }
 
-// --------------------------------------
-// Disegno del lupetto
-// --------------------------------------
+// ======================================
+// LUPO GIOCATORE
+// ======================================
 
 function drawWolf() {
   const x = player.x;
@@ -201,15 +195,16 @@ function drawWolf() {
 
   // Zampe
   ctx.fillStyle = "#090a0d";
-  const legOffset = running && player.grounded
-    ? Math.sin(distance * 0.2) * 5
-    : 0;
+
+  const legOffset =
+    running && player.grounded ? Math.sin(distance * 0.2) * 5 : 0;
 
   ctx.fillRect(x + 8, y + 38, 9, 9 + legOffset);
   ctx.fillRect(x + 27, y + 38, 9, 9 - legOffset);
 
   // Orecchie
   ctx.fillStyle = "#22252c";
+
   ctx.beginPath();
   ctx.moveTo(x + 8, y + 20);
   ctx.lineTo(x + 9, y + 1);
@@ -259,9 +254,9 @@ function drawWolf() {
   ctx.restore();
 }
 
-// --------------------------------------
-// Ostacoli
-// --------------------------------------
+// ======================================
+// OSTACOLI
+// ======================================
 
 function createObstacle() {
   const types = ["spike", "crate", "heart", "angel", "snake"];
@@ -335,8 +330,12 @@ function drawObstacle(o) {
 
     ctx.fillStyle = "#b9b7c5";
     ctx.beginPath();
-    ctx.ellipse(o.x + 7, o.y + 25, 10, 6, -0.5, 0, Math.PI * 2);
-    ctx.ellipse(o.x + o.w - 7, o.y + 25, 10, 6, 0.5, 0, Math.PI * 2);
+    ctx.ellipse(
+      o.x + 7, o.y + 25, 10, 6, -0.5, 0, Math.PI * 2
+    );
+    ctx.ellipse(
+      o.x + o.w - 7, o.y + 25, 10, 6, 0.5, 0, Math.PI * 2
+    );
     ctx.fill();
 
     ctx.fillStyle = "#eee7d8";
@@ -353,6 +352,7 @@ function drawObstacle(o) {
     ctx.strokeStyle = "#8ca35c";
     ctx.lineWidth = 8;
     ctx.lineCap = "round";
+
     ctx.beginPath();
     ctx.moveTo(o.x, o.y + 16);
     ctx.quadraticCurveTo(o.x + 12, o.y - 1, o.x + 24, o.y + 15);
@@ -368,9 +368,9 @@ function drawObstacle(o) {
   ctx.restore();
 }
 
-// --------------------------------------
-// Collisioni
-// --------------------------------------
+// ======================================
+// COLLISIONI E PARTICELLE
+// ======================================
 
 function collides(a, b) {
   const inset = 6;
@@ -382,10 +382,6 @@ function collides(a, b) {
     a.y + a.h - inset > b.y + inset
   );
 }
-
-// --------------------------------------
-// Particelle
-// --------------------------------------
 
 function addParticles(x, y) {
   for (let i = 0; i < 12; i++) {
@@ -418,9 +414,9 @@ function updateParticles(dt) {
   ctx.globalAlpha = 1;
 }
 
-// --------------------------------------
-// Salto
-// --------------------------------------
+// ======================================
+// SALTO E COMANDI
+// ======================================
 
 function jump() {
   if (!running || !player.grounded) return;
@@ -434,25 +430,35 @@ jumpButton.addEventListener("click", jump);
 
 document.addEventListener("keydown", event => {
   if (
-    event.code === "Space" ||
-    event.code === "ArrowUp" ||
-    event.code === "KeyW"
+    event.code !== "Space" &&
+    event.code !== "ArrowUp" &&
+    event.code !== "KeyW"
   ) {
-    if (event.target === playerNameInput) return;
+    return;
+  }
 
-    event.preventDefault();
+  if (
+    event.target instanceof HTMLElement &&
+    (
+      event.target.matches("input, textarea, button") ||
+      event.target.isContentEditable
+    )
+  ) {
+    return;
+  }
 
-    if (!running && !gameOver) {
-      startGame();
-    } else {
-      jump();
-    }
+  event.preventDefault();
+
+  if (!running) {
+    startGame();
+  } else {
+    jump();
   }
 });
 
-// --------------------------------------
-// Avvio partita
-// --------------------------------------
+// ======================================
+// AVVIO PARTITA
+// ======================================
 
 function startGame() {
   if (animationId !== null) {
@@ -475,53 +481,27 @@ function startGame() {
   player.vy = 0;
   player.grounded = true;
 
-  messageElement.textContent = "Corri, lupetto! Evita gli ostacoli.";
-  startButton.textContent = "Ricomincia";
+  messageElement.textContent =
+    "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
 
   updateScoreboard();
-
   animationId = requestAnimationFrame(gameLoop);
 }
 
-// --------------------------------------
-// Fine partita
-// --------------------------------------
-
-function endGame() {
-  running = false;
-  gameOver = true;
-  finalScore = score;
-
-  if (score > best) {
-    best = score;
-    saveBest(best);
-  }
-
-  updateScoreboard();
-  addParticles(player.x + player.w / 2, player.y + player.h / 2);
-
-  messageElement.textContent =
-    "Partita terminata! Punteggio: " + finalScore +
-    ". Premi «Ricomincia» per tentare ancora.";
-
-  startButton.textContent = "Ricomincia";
-  animationId = null;
-
-  renderStatic();
-}
-
-// --------------------------------------
-// Ciclo di gioco
-// --------------------------------------
+// ======================================
+// CICLO DI GIOCO
+// ======================================
 
 function gameLoop(timestamp) {
   if (!running) return;
 
-  const dt = lastTime ? Math.min((timestamp - lastTime) / 16.67, 2) : 1;
+  if (!lastTime) lastTime = timestamp;
+
+  const dt = Math.min((timestamp - lastTime) / 16.667, 2);
   lastTime = timestamp;
 
   updateGame(dt);
-  renderGame();
+  drawGame();
 
   if (running) {
     animationId = requestAnimationFrame(gameLoop);
@@ -530,9 +510,10 @@ function gameLoop(timestamp) {
 
 function updateGame(dt) {
   distance += speed * dt;
-  speed = 4 + Math.min(4, distance / 1000);
-
+  speed = Math.min(10, 4 + distance / 1800);
   score = Math.floor(distance / 10);
+
+  updateScoreboard();
 
   // Fisica del salto
   player.vy += player.gravity * dt;
@@ -545,15 +526,15 @@ function updateGame(dt) {
   }
 
   // Generazione ostacoli
-  spawnTimer += dt * 16.67;
+  spawnTimer += dt * 16.667;
 
   if (spawnTimer >= nextObstacle) {
     createObstacle();
     spawnTimer = 0;
-    nextObstacle = 850 + Math.random() * 750;
+    nextObstacle = 900 + Math.random() * 700;
   }
 
-  // Movimento ostacoli e collisioni
+  // Movimento e collisioni
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
@@ -564,16 +545,10 @@ function updateGame(dt) {
   }
 
   obstacles = obstacles.filter(o => o.x + o.w > -10);
-
-  updateScoreboard();
+  updateParticles(dt);
 }
 
-// --------------------------------------
-// Rendering
-// --------------------------------------
-
-function renderGame() {
-  ctx.clearRect(0, 0, W, H);
+function drawGame() {
   drawBackground();
 
   for (const obstacle of obstacles) {
@@ -581,101 +556,169 @@ function renderGame() {
   }
 
   drawWolf();
-  updateParticles(1);
-}
+  updateParticles(0);
 
-function renderStatic() {
-  ctx.clearRect(0, 0, W, H);
-  drawBackground();
+  // Punteggio sul campo
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 18px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("LUPO RUNNER", 18, 32);
+  ctx.fillText("Punti: " + score, 18, 58);
 
-  for (const obstacle of obstacles) {
-    drawObstacle(obstacle);
+  if (!running && !gameOver) {
+    drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA");
   }
 
-  drawWolf();
-  updateParticles(1);
+  if (gameOver) {
+    drawOverlay("GAME OVER", "Punteggio: " + finalScore);
+  }
 }
 
-// Schermata iniziale
-function drawInitialScreen() {
-  drawBackground();
-  drawWolf();
-
-  ctx.fillStyle = "rgba(0,0,0,0.48)";
-  ctx.fillRect(35, 210, W - 70, 105);
+function drawOverlay(title, subtitle) {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+  ctx.fillRect(0, 0, W, H);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 26px Arial";
-  ctx.fillText("LUPO RUNNER", W / 2, 250);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 32px Arial";
+  ctx.fillText(title, W / 2, H / 2 - 15);
 
-  ctx.font = "15px Arial";
-  ctx.fillText("Premi INIZIA PARTITA", W / 2, 281);
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#ddd";
+  ctx.fillText(subtitle, W / 2, H / 2 + 22);
 }
 
-drawInitialScreen();
-updateScoreboard();
+// ======================================
+// FINE PARTITA
+// ======================================
+
+function endGame() {
+  running = false;
+  gameOver = true;
+  finalScore = score;
+
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+
+  addParticles(
+    player.x + player.w / 2,
+    player.y + player.h / 2
+  );
+
+  if (finalScore > best) {
+    best = finalScore;
+    saveBest(best);
+
+    messageElement.textContent =
+      "NUOVO RECORD! Hai totalizzato " + finalScore + " punti!";
+  } else {
+    messageElement.textContent =
+      "Partita terminata. Hai totalizzato " +
+      finalScore +
+      " punti. Riprova!";
+  }
+
+  updateScoreboard();
+  drawGame();
+}
 
 // ======================================
 // CLASSIFICA ONLINE
 // ======================================
 
-async function refreshBoard() {
+async function loadLeaderboard() {
   leaderboardStatus.textContent = "Caricamento classifica...";
-  refreshBoardButton.disabled = true;
+  leaderboardBody.replaceChildren();
+
+  const loadingRow = document.createElement("tr");
+  const loadingCell = document.createElement("td");
+
+  loadingCell.colSpan = 3;
+  loadingCell.textContent = "Caricamento...";
+
+  loadingRow.appendChild(loadingCell);
+  leaderboardBody.appendChild(loadingRow);
 
   try {
     const response = await fetch(
       LEADERBOARD_API_URL + "?action=top5",
-      { method: "GET", cache: "no-store" }
+      {
+        method: "GET",
+        cache: "no-store"
+      }
     );
 
     if (!response.ok) {
-      throw new Error("Risposta del server non valida.");
+      throw new Error("Risposta HTTP " + response.status);
     }
 
     const data = await response.json();
 
-    if (!data.ok || !Array.isArray(data.scores)) {
-      throw new Error("Formato classifica non valido.");
+    if (data.ok === false) {
+      throw new Error(data.message || "Classifica non disponibile.");
     }
+
+    const scores = Array.isArray(data.scores) ? data.scores : [];
 
     leaderboardBody.replaceChildren();
 
-    if (data.scores.length === 0) {
-      const row = leaderboardBody.insertRow();
-      const cell = row.insertCell();
-      cell.colSpan = 3;
-      cell.textContent = "Ancora nessun punteggio.";
-    } else {
-      data.scores.slice(0, 5).forEach((entry, index) => {
-        const row = leaderboardBody.insertRow();
+    if (scores.length === 0) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
 
-        row.insertCell().textContent = String(index + 1);
-        row.insertCell().textContent = String(entry.nickname ?? "Lupetto");
-        row.insertCell().textContent = String(Number(entry.score) || 0);
+      cell.colSpan = 3;
+      cell.textContent = "Nessun punteggio disponibile.";
+
+      row.appendChild(cell);
+      leaderboardBody.appendChild(row);
+    } else {
+      scores.slice(0, 5).forEach((entry, index) => {
+        const row = document.createElement("tr");
+        const positionCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+        const scoreCell = document.createElement("td");
+
+        positionCell.textContent = String(index + 1);
+        nameCell.textContent = String(
+          entry.nickname || entry.nome || "Lupetto"
+        );
+        scoreCell.textContent = String(
+          Number(entry.score ?? entry.punteggio ?? 0)
+        );
+
+        row.append(positionCell, nameCell, scoreCell);
+        leaderboardBody.appendChild(row);
       });
     }
 
     leaderboardStatus.textContent = "Classifica aggiornata.";
   } catch (error) {
-    console.error("Errore classifica:", error);
+    console.error("Errore caricamento classifica:", error);
+
     leaderboardStatus.textContent =
-      "Non riesco a caricare la classifica. Riprova più tardi.";
-  } finally {
-    refreshBoardButton.disabled = false;
+      "Impossibile caricare la classifica. Verifica la connessione e riprova.";
+
+    leaderboardBody.replaceChildren();
+
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = 3;
+    cell.textContent = "Classifica momentaneamente non disponibile.";
+
+    row.appendChild(cell);
+    leaderboardBody.appendChild(row);
   }
 }
 
-refreshBoardButton.addEventListener("click", refreshBoard);
-
-submitScoreButton.addEventListener("click", submitScore);
-
 async function submitScore() {
-  const nickname = playerNameInput.value.trim().replace(/^@/, "");
+  const nickname = playerNameInput.value.trim();
 
   if (!nickname) {
-    leaderboardStatus.textContent = "Inserisci il tuo nickname Instagram.";
+    leaderboardStatus.textContent =
+      "Inserisci prima il tuo nickname Instagram.";
     playerNameInput.focus();
     return;
   }
@@ -688,12 +731,12 @@ async function submitScore() {
 
   if (finalScore <= 0) {
     leaderboardStatus.textContent =
-      "Il punteggio è zero: gioca ancora e riprova!";
+      "Il punteggio deve essere maggiore di zero.";
     return;
   }
 
   submitScoreButton.disabled = true;
-  leaderboardStatus.textContent = "Invio del punteggio...";
+  leaderboardStatus.textContent = "Invio del punteggio in corso...";
 
   try {
     const response = await fetch(LEADERBOARD_API_URL, {
@@ -702,27 +745,43 @@ async function submitScore() {
         "Content-Type": "text/plain;charset=utf-8"
       },
       body: JSON.stringify({
-        nickname,
+        nickname: nickname,
         score: finalScore
       })
     });
 
     if (!response.ok) {
-      throw new Error("Il server non ha accettato la richiesta.");
+      throw new Error("Risposta HTTP " + response.status);
+    }
+
+    const result = await response.json();
+
+    if (result.ok === false) {
+      throw new Error(result.message || "Invio non riuscito.");
     }
 
     leaderboardStatus.textContent =
-      "Richiesta inviata. Aggiorno la classifica...";
-    await refreshBoard();
+      "Punteggio inviato! " + finalScore + " punti per " + nickname + ".";
+
+    await loadLeaderboard();
   } catch (error) {
     console.error("Errore invio punteggio:", error);
+
     leaderboardStatus.textContent =
-      "Invio non riuscito. Controlla la connessione e riprova.";
+      "Non è stato possibile inviare il punteggio. " +
+      "Controlla che Apps Script sia pubblicato correttamente.";
   } finally {
     submitScoreButton.disabled = false;
   }
 }
 
-// Carica la classifica appena si apre la pagina.
-refreshBoard();
+submitScoreButton.addEventListener("click", submitScore);
+refreshBoardButton.addEventListener("click", loadLeaderboard);
 
+// ======================================
+// INIZIALIZZAZIONE
+// ======================================
+
+updateScoreboard();
+drawGame();
+loadLeaderboard();
