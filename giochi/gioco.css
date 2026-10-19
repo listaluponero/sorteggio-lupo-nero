@@ -7,6 +7,7 @@
   --muted: #aaa;
   --border: #333;
   --accent: #fff;
+  --blood: #9d1933;
 }
 
 * {
@@ -43,15 +44,20 @@ button {
   color: #090909;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   opacity: 0.85;
 }
 
-button:active {
+button:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 button:focus-visible,
@@ -123,6 +129,7 @@ input:focus-visible {
   border: 1px solid #444;
   border-radius: 8px;
   background: #101010;
+  box-shadow: 0 0 24px rgba(120, 20, 40, 0.12);
 }
 
 #gameCanvas {
@@ -130,6 +137,7 @@ input:focus-visible {
   width: 100%;
   height: auto;
   touch-action: manipulation;
+  cursor: pointer;
 }
 
 .game-buttons,
@@ -142,7 +150,20 @@ input:focus-visible {
 
 #jumpGame {
   background: #252525;
+  border-color: #555;
   color: #fff;
+}
+
+#pauseGame {
+  background: #5c1727;
+  border-color: #9d3149;
+  color: #fff;
+}
+
+#pauseGame:disabled {
+  background: #292929;
+  border-color: #444;
+  color: #aaa;
 }
 
 .scoreboard {
@@ -252,4 +273,9 @@ th {
   .scoreboard {
     flex-direction: column;
   }
+
+  .game-buttons button {
+    flex: 1 1 auto;
+  }
 }
+
