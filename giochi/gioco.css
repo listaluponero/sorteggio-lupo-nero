@@ -100,19 +100,20 @@ input:focus-visible {
   color: var(--muted);
 }
 
+/* Layout generale */
 .game-container {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  width: min(1100px, 100%);
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+  gap: 28px;
+  width: min(1600px, 100%);
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 28px 24px;
   align-items: start;
 }
 
 .game-panel {
   min-width: 0;
-  padding: 20px;
+  padding: 22px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--panel);
@@ -126,15 +127,18 @@ input:focus-visible {
   color: var(--muted);
 }
 
+/* Area di gioco: più larga sui computer */
 .canvas-wrapper {
   width: 100%;
-  max-width: 420px;
+  max-width: none;
   margin: 20px auto;
   overflow: hidden;
   border: 1px solid #444;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #101010;
-  box-shadow: 0 0 24px rgba(120, 20, 40, 0.12);
+  box-shadow:
+    0 0 30px rgba(120, 20, 40, 0.16),
+    0 0 70px rgba(0, 0, 0, 0.3);
 }
 
 #gameCanvas {
@@ -142,15 +146,12 @@ input:focus-visible {
   width: 100%;
   height: auto;
 
-  /* Niente evidenziazione blu o selezione del canvas. */
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
 
-  /* Il browser può scorrere verticalmente sopra il gioco. */
   touch-action: pan-y;
-
   cursor: pointer;
 }
 
@@ -269,6 +270,25 @@ th {
   color: var(--text);
 }
 
+/* Computer con finestre grandi */
+@media (min-width: 1200px) {
+  .game-container {
+    grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.7fr);
+    gap: 32px;
+    padding: 36px 28px;
+  }
+
+  .game-panel {
+    padding: 26px;
+  }
+
+  .canvas-wrapper {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+/* Tablet e cellulare: manteniamo il layout precedente */
 @media (max-width: 760px) {
   .game-container {
     grid-template-columns: 1fr;
@@ -291,5 +311,11 @@ th {
   .game-buttons button {
     flex: 1 1 auto;
   }
+
+  .canvas-wrapper {
+    max-width: 420px;
+    margin: 20px auto;
+  }
 }
+
 
