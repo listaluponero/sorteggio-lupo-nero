@@ -1,739 +1,255 @@
 
-"use strict";
-
-// ======================================
-// LUPO GAMES - LUPO RUNNER
-// ======================================
-
-const LEADERBOARD_API_URL =
-  "https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
-
-const BEST_KEY = "lupoRunnerBest";
-
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const startButton = document.getElementById("startGame");
-const jumpButton = document.getElementById("jumpGame");
-const scoreElement = document.getElementById("score");
-const bestElement = document.getElementById("personalBest");
-const messageElement = document.getElementById("gameMessage");
-
-const playerNameInput = document.getElementById("playerName");
-const submitScoreButton = document.getElementById("submitScore");
-const refreshBoardButton = document.getElementById("refreshBoard");
-const leaderboardBody = document.getElementById("leaderboardBody");
-const leaderboardStatus = document.getElementById("leaderboardStatus");
-
-const W = canvas.width;
-const H = canvas.height;
-const groundY = H - 80;
-
-let running = false;
-let gameOver = false;
-let animationId = null;
-let lastTime = 0;
-let distance = 0;
-let score = 0;
-let finalScore = 0;
-let speed = 4;
-let spawnTimer = 0;
-let nextObstacle = 1000;
-let obstacles = [];
-let particles = [];
-
-let best = loadBest();
-
-const player = {
-  x: 75,
-  y: groundY - 46,
-  w: 42,
-  h: 46,
-  vy: 0,
-  gravity: 0.72,
-  jumpPower: -13,
-  grounded: true
-};
-
-// --------------------------------------
-// RECORD PERSONALE
-// --------------------------------------
-
-function loadBest() {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
+:root {
+  --bg: #090909;
+  --panel: #151515;
+  --panel-light: #202020;
+  --text: #f4f4f4;
+  --muted: #aaa;
+  --border: #333;
+  --accent: #fff;
 }
 
-function saveBest(value) {
-  try {
-    localStorage.setItem(BEST_KEY, String(value));
-  } catch {
-    // Il gioco continua anche senza localStorage.
-  }
+* {
+  box-sizing: border-box;
 }
 
-function updateScoreboard() {
-  scoreElement.textContent = String(score);
-  bestElement.textContent = String(best);
+html {
+  scroll-behavior: smooth;
 }
 
-// --------------------------------------
-// SFONDO
-// --------------------------------------
-
-function drawBackground() {
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#101426");
-  sky.addColorStop(0.65, "#242238");
-  sky.addColorStop(1, "#40303b");
-
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
-
-  // Luna
-  ctx.fillStyle = "#f0ead8";
-  ctx.beginPath();
-  ctx.arc(320, 95, 27, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Montagne lontane
-  ctx.fillStyle = "#252334";
-  ctx.beginPath();
-  ctx.moveTo(0, 350);
-  ctx.lineTo(80, 245);
-  ctx.lineTo(145, 330);
-  ctx.lineTo(235, 220);
-  ctx.lineTo(330, 335);
-  ctx.lineTo(390, 270);
-  ctx.lineTo(W, 345);
-  ctx.lineTo(W, H);
-  ctx.lineTo(0, H);
-  ctx.closePath();
-  ctx.fill();
-
-  // Montagne vicine
-  ctx.fillStyle = "#171923";
-  ctx.beginPath();
-  ctx.moveTo(0, 410);
-  ctx.lineTo(100, 330);
-  ctx.lineTo(185, 405);
-  ctx.lineTo(290, 320);
-  ctx.lineTo(W, 415);
-  ctx.lineTo(W, H);
-  ctx.lineTo(0, H);
-  ctx.closePath();
-  ctx.fill();
-
-  // Alberi
-  const offset = (distance * 0.4) % 100;
-
-  for (let i = -1; i < 7; i++) {
-    const x = i * 100 - offset;
-
-    ctx.fillStyle = "#10131a";
-
-    ctx.beginPath();
-    ctx.moveTo(x, groundY);
-    ctx.lineTo(x + 28, groundY - 95);
-    ctx.lineTo(x + 56, groundY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(x + 8, groundY - 35);
-    ctx.lineTo(x + 28, groundY - 120);
-    ctx.lineTo(x + 48, groundY - 35);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  // Terreno
-  ctx.fillStyle = "#101014";
-  ctx.fillRect(0, groundY, W, H - groundY);
-
-  ctx.fillStyle = "#8d6575";
-  ctx.fillRect(0, groundY, W, 3);
-
-  ctx.strokeStyle = "#39303b";
-  ctx.lineWidth = 2;
-
-  for (let x = -((distance * 2) % 45); x < W; x += 45) {
-    ctx.beginPath();
-    ctx.moveTo(x, groundY + 24);
-    ctx.lineTo(x + 20, groundY + 24);
-    ctx.stroke();
-  }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
 }
 
-// --------------------------------------
-// LUPO
-// --------------------------------------
-
-function drawWolf() {
-  const x = player.x;
-  const y = player.y;
-
-  ctx.save();
-
-  // Ombra
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.beginPath();
-  ctx.ellipse(
-    x + player.w / 2,
-    groundY + 5,
-    player.grounded ? 25 : 17,
-    5,
-    0,
-    0,
-    Math.PI * 2
-  );
-  ctx.fill();
-
-  // Corpo
-  ctx.fillStyle = "#17191e";
-  ctx.beginPath();
-  ctx.roundRect(x + 4, y + 19, 34, 27, 9);
-  ctx.fill();
-
-  // Zampe
-  ctx.fillStyle = "#090a0d";
-
-  const legOffset = running && player.grounded
-    ? Math.sin(distance * 0.2) * 5
-    : 0;
-
-  ctx.fillRect(x + 8, y + 38, 9, 9 + legOffset);
-  ctx.fillRect(x + 27, y + 38, 9, 9 - legOffset);
-
-  // Orecchie
-  ctx.fillStyle = "#22252c";
-
-  ctx.beginPath();
-  ctx.moveTo(x + 8, y + 20);
-  ctx.lineTo(x + 9, y + 1);
-  ctx.lineTo(x + 22, y + 17);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 25, y + 17);
-  ctx.lineTo(x + 37, y + 1);
-  ctx.lineTo(x + 39, y + 23);
-  ctx.closePath();
-  ctx.fill();
-
-  // Testa
-  ctx.fillStyle = "#30343c";
-  ctx.beginPath();
-  ctx.ellipse(x + 24, y + 22, 20, 17, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Muso
-  ctx.fillStyle = "#777c85";
-  ctx.beginPath();
-  ctx.moveTo(x + 32, y + 22);
-  ctx.lineTo(x + 45, y + 29);
-  ctx.lineTo(x + 32, y + 34);
-  ctx.closePath();
-  ctx.fill();
-
-  // Occhio
-  ctx.fillStyle = "#e8e1cf";
-  ctx.beginPath();
-  ctx.arc(x + 30, y + 19, 3.2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#c22b45";
-  ctx.beginPath();
-  ctx.arc(x + 31, y + 19, 1.6, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Naso
-  ctx.fillStyle = "#08080a";
-  ctx.beginPath();
-  ctx.arc(x + 44, y + 29, 2.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
+a {
+  color: var(--text);
 }
 
-// --------------------------------------
-// OSTACOLI
-// --------------------------------------
-
-function createObstacle() {
-  const types = ["spike", "crate", "heart", "angel", "snake"];
-  const type = types[Math.floor(Math.random() * types.length)];
-
-  const sizes = {
-    spike: { w: 35, h: 35 },
-    crate: { w: 35, h: 38 },
-    heart: { w: 34, h: 34 },
-    angel: { w: 39, h: 43 },
-    snake: { w: 48, h: 25 }
-  };
-
-  const size = sizes[type];
-
-  obstacles.push({
-    type,
-    x: W + 10,
-    y: groundY - size.h,
-    w: size.w,
-    h: size.h
-  });
+button,
+input {
+  font: inherit;
 }
 
-function drawObstacle(o) {
-  ctx.save();
-
-  if (o.type === "spike") {
-    ctx.fillStyle = "#d7d7dc";
-    ctx.beginPath();
-    ctx.moveTo(o.x, groundY);
-    ctx.lineTo(o.x + o.w / 2, o.y);
-    ctx.lineTo(o.x + o.w, groundY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.strokeStyle = "#777985";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  if (o.type === "crate") {
-    ctx.fillStyle = "#70472f";
-    ctx.fillRect(o.x, o.y, o.w, o.h);
-
-    ctx.strokeStyle = "#bd9062";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
-
-    ctx.beginPath();
-    ctx.moveTo(o.x + 5, o.y + 5);
-    ctx.lineTo(o.x + o.w - 5, o.y + o.h - 5);
-    ctx.moveTo(o.x + o.w - 5, o.y + 5);
-    ctx.lineTo(o.x + 5, o.y + o.h - 5);
-    ctx.stroke();
-  }
-
-  if (o.type === "heart") {
-    ctx.fillStyle = "#d52d55";
-    ctx.font = "34px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("♥", o.x + o.w / 2, o.y + o.h / 2);
-  }
-
-  if (o.type === "angel") {
-    ctx.fillStyle = "#e8dfc9";
-    ctx.beginPath();
-    ctx.arc(o.x + o.w / 2, o.y + 9, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#b9b7c5";
-    ctx.beginPath();
-    ctx.ellipse(
-      o.x + 7, o.y + 25, 10, 6, -0.5, 0, Math.PI * 2
-    );
-    ctx.ellipse(
-      o.x + o.w - 7, o.y + 25, 10, 6, 0.5, 0, Math.PI * 2
-    );
-    ctx.fill();
-
-    ctx.fillStyle = "#eee7d8";
-    ctx.beginPath();
-    ctx.moveTo(o.x + 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 8, o.y + o.h);
-    ctx.lineTo(o.x + 8, o.y + o.h);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  if (o.type === "snake") {
-    ctx.strokeStyle = "#8ca35c";
-    ctx.lineWidth = 8;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(o.x, o.y + 16);
-    ctx.quadraticCurveTo(o.x + 12, o.y - 1, o.x + 24, o.y + 15);
-    ctx.quadraticCurveTo(o.x + 35, o.y + 29, o.x + 47, o.y + 10);
-    ctx.stroke();
-
-    ctx.fillStyle = "#d8df92";
-    ctx.beginPath();
-    ctx.arc(o.x + 43, o.y + 8, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.restore();
+button {
+  padding: 12px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #090909;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-// --------------------------------------
-// COLLISIONI
-// --------------------------------------
-
-function collides(a, b) {
-  const inset = 6;
-
-  return (
-    a.x + inset < b.x + b.w - inset &&
-    a.x + a.w - inset > b.x + inset &&
-    a.y + inset < b.y + b.h - inset &&
-    a.y + a.h - inset > b.y + inset
-  );
+button:hover {
+  opacity: 0.85;
 }
 
-// --------------------------------------
-// PARTICELLE
-// --------------------------------------
-
-function addParticles(x, y) {
-  for (let i = 0; i < 12; i++) {
-    particles.push({
-      x,
-      y,
-      vx: (Math.random() - 0.5) * 5,
-      vy: (Math.random() - 0.8) * 5,
-      life: 25 + Math.random() * 15
-    });
-  }
+button:active {
+  transform: scale(0.98);
 }
 
-function updateParticles(dt) {
-  for (const p of particles) {
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    p.vy += 0.15 * dt;
-    p.life -= dt;
-  }
-
-  particles = particles.filter(p => p.life > 0);
-
-  for (const p of particles) {
-    ctx.globalAlpha = Math.min(1, p.life / 20);
-    ctx.fillStyle = "#eee4d1";
-    ctx.fillRect(p.x, p.y, 3, 3);
-  }
-
-  ctx.globalAlpha = 1;
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
 }
 
-// --------------------------------------
-// SALTO E CONTROLLI
-// --------------------------------------
-
-function jump() {
-  if (!running || !player.grounded) return;
-
-  player.vy = player.jumpPower;
-  player.grounded = false;
+.game-header {
+  padding: 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
 }
 
-startButton.addEventListener("click", startGame);
-jumpButton.addEventListener("click", jump);
-
-document.addEventListener("keydown", event => {
-  if (
-    event.code === "Space" ||
-    event.code === "ArrowUp" ||
-    event.code === "KeyW"
-  ) {
-    if (event.target === playerNameInput) return;
-
-    event.preventDefault();
-
-    if (!running && !gameOver) {
-      startGame();
-    } else {
-      jump();
-    }
-  }
-});
-
-// --------------------------------------
-// AVVIO PARTITA
-// --------------------------------------
-
-function startGame() {
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-  }
-
-  running = true;
-  gameOver = false;
-  lastTime = 0;
-  distance = 0;
-  score = 0;
-  finalScore = 0;
-  speed = 4;
-  spawnTimer = 0;
-  nextObstacle = 1000;
-  obstacles = [];
-  particles = [];
-
-  player.y = groundY - player.h;
-  player.vy = 0;
-  player.grounded = true;
-
-  messageElement.textContent =
-    "Corri, lupetto! Evita gli ostacoli.";
-
-  startButton.textContent = "Ricomincia";
-
-  updateScoreboard();
-  animationId = requestAnimationFrame(gameLoop);
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--muted);
+  text-decoration: none;
 }
 
-// --------------------------------------
-// FINE PARTITA
-// --------------------------------------
-
-function endGame() {
-  running = false;
-  gameOver = true;
-  finalScore = score;
-
-  if (score > best) {
-    best = score;
-    saveBest(best);
-  }
-
-  updateScoreboard();
-
-  messageElement.textContent =
-    "Partita terminata! Punteggio: " + finalScore +
-    ". Premi «Ricomincia» per tentare ancora.";
-
-  startButton.textContent = "Ricomincia";
-  animationId = null;
-
-  renderStatic();
+.back-link:hover {
+  color: var(--text);
 }
 
-// --------------------------------------
-// CICLO DI GIOCO
-// --------------------------------------
-
-function gameLoop(timestamp) {
-  if (!running) return;
-
-  const dt = lastTime
-    ? Math.min((timestamp - lastTime) / 16.67, 2)
-    : 1;
-
-  lastTime = timestamp;
-
-  updateGame(dt);
-
-  if (!running) return;
-
-  renderGame();
-
-  if (running) {
-    animationId = requestAnimationFrame(gameLoop);
-  }
+.game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: 4px;
 }
 
-function updateGame(dt) {
-  distance += speed * dt;
-  speed = 4 + Math.min(4, distance / 1000);
-
-  score = Math.floor(distance / 10);
-
-  // Fisica del salto
-  player.vy += player.gravity * dt;
-  player.y += player.vy * dt;
-
-  if (player.y + player.h >= groundY) {
-    player.y = groundY - player.h;
-    player.vy = 0;
-    player.grounded = true;
-  }
-
-  // Generazione ostacoli
-  spawnTimer += dt * 16.67;
-
-  if (spawnTimer >= nextObstacle) {
-    createObstacle();
-    spawnTimer = 0;
-    nextObstacle = 850 + Math.random() * 750;
-  }
-
-  // Movimento e collisioni
-  for (const obstacle of obstacles) {
-    obstacle.x -= speed * dt;
-
-    if (collides(player, obstacle)) {
-      endGame();
-      return;
-    }
-  }
-
-  obstacles = obstacles.filter(o => o.x + o.w > -10);
-
-  updateScoreboard();
+.game-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
 }
 
-// --------------------------------------
-// DISEGNO
-// --------------------------------------
-
-function renderGame() {
-  ctx.clearRect(0, 0, W, H);
-  drawBackground();
-
-  for (const obstacle of obstacles) {
-    drawObstacle(obstacle);
-  }
-
-  drawWolf();
-  updateParticles(1);
+.game-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 24px 16px;
+  align-items: start;
 }
 
-function renderStatic() {
-  ctx.clearRect(0, 0, W, H);
-  drawBackground();
-
-  for (const obstacle of obstacles) {
-    drawObstacle(obstacle);
-  }
-
-  drawWolf();
-  updateParticles(1);
+.game-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
 }
 
-function drawInitialScreen() {
-  drawBackground();
-  drawWolf();
-
-  ctx.fillStyle = "rgba(0,0,0,0.48)";
-  ctx.fillRect(35, 210, W - 70, 105);
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 26px Arial";
-  ctx.fillText("LUPO RUNNER", W / 2, 250);
-
-  ctx.font = "15px Arial";
-  ctx.fillText("Premi INIZIA PARTITA", W / 2, 281);
+.game-panel h2 {
+  margin-top: 0;
 }
 
-drawInitialScreen();
-updateScoreboard();
-
-// ======================================
-// CLASSIFICA ONLINE
-// ======================================
-
-async function refreshBoard() {
-  leaderboardStatus.textContent = "Caricamento classifica...";
-  refreshBoardButton.disabled = true;
-
-  try {
-    const response = await fetch(
-      LEADERBOARD_API_URL + "?action=top5",
-      { method: "GET", cache: "no-store" }
-    );
-
-    if (!response.ok) {
-      throw new Error("Risposta del server non valida.");
-    }
-
-    const data = await response.json();
-
-    if (!data.ok || !Array.isArray(data.scores)) {
-      throw new Error("Formato classifica non valido.");
-    }
-
-    leaderboardBody.replaceChildren();
-
-    if (data.scores.length === 0) {
-      const row = leaderboardBody.insertRow();
-      const cell = row.insertCell();
-      cell.colSpan = 3;
-      cell.textContent = "Ancora nessun punteggio.";
-    } else {
-      data.scores.slice(0, 5).forEach((entry, index) => {
-        const row = leaderboardBody.insertRow();
-
-        row.insertCell().textContent = String(index + 1);
-        row.insertCell().textContent =
-          String(entry.nickname ?? "Lupetto");
-        row.insertCell().textContent =
-          String(Number(entry.score) || 0);
-      });
-    }
-
-    leaderboardStatus.textContent = "Classifica aggiornata.";
-  } catch (error) {
-    console.error("Errore classifica:", error);
-    leaderboardStatus.textContent =
-      "Non riesco a caricare la classifica. Riprova più tardi.";
-  } finally {
-    refreshBoardButton.disabled = false;
-  }
+.game-panel > p {
+  color: var(--muted);
 }
 
-refreshBoardButton.addEventListener("click", refreshBoard);
-submitScoreButton.addEventListener("click", submitScore);
-
-async function submitScore() {
-  const nickname = playerNameInput.value.trim().replace(/^@/, "");
-
-  if (!nickname) {
-    leaderboardStatus.textContent =
-      "Inserisci il tuo nickname Instagram.";
-    playerNameInput.focus();
-    return;
-  }
-
-  if (!gameOver) {
-    leaderboardStatus.textContent =
-      "Completa una partita prima di inviare il punteggio.";
-    return;
-  }
-
-  if (finalScore <= 0) {
-    leaderboardStatus.textContent =
-      "Il punteggio è zero: gioca ancora e riprova!";
-    return;
-  }
-
-  submitScoreButton.disabled = true;
-  leaderboardStatus.textContent = "Invio del punteggio...";
-
-  try {
-    const response = await fetch(LEADERBOARD_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify({
-        nickname,
-        score: finalScore
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error("Il server non ha accettato la richiesta.");
-    }
-
-    leaderboardStatus.textContent =
-      "Richiesta inviata. Aggiorno la classifica...";
-
-    await refreshBoard();
-  } catch (error) {
-    console.error("Errore invio punteggio:", error);
-    leaderboardStatus.textContent =
-      "Invio non riuscito. Controlla la connessione e riprova.";
-  } finally {
-    submitScoreButton.disabled = false;
-  }
+.canvas-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  overflow: hidden;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #101010;
 }
 
-refreshBoard();
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+}
+
+.game-buttons,
+.leaderboard-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+#jumpGame {
+  background: #252525;
+  color: #fff;
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--panel-light);
+}
+
+.scoreboard p {
+  margin: 0;
+}
+
+#gameMessage {
+  min-height: 48px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.leaderboard-panel label {
+  display: block;
+  margin: 18px 0 6px;
+  font-weight: 700;
+}
+
+#playerName {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #090909;
+  color: var(--text);
+}
+
+#submitScore,
+#refreshBoard {
+  margin: 4px;
+}
+
+#refreshBoard {
+  border-color: var(--border);
+  background: var(--panel-light);
+  color: var(--text);
+}
+
+#leaderboardStatus {
+  min-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.game-footer {
+  padding: 24px 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+}
+
+.game-footer a {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 16px 12px;
+  }
+
+  .game-panel {
+    padding: 16px;
+  }
+
+  .game-header h1 {
+    letter-spacing: 2px;
+  }
+
+  .scoreboard {
+    flex-direction: column;
+  }
+}
