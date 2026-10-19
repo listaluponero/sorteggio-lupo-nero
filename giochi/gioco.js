@@ -12,9 +12,9 @@ const BEST_KEY = "lupoRunnerBest";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-
 const startButton = document.getElementById("startGame");
 const jumpButton = document.getElementById("jumpGame");
+const pauseButton = document.getElementById("pauseGame");
 const scoreElement = document.getElementById("score");
 const bestElement = document.getElementById("personalBest");
 const messageElement = document.getElementById("gameMessage");
@@ -29,6 +29,7 @@ const H = canvas.height;
 const groundY = H - 80;
 
 let running = false;
+let paused = false;
 let gameOver = false;
 let animationId = null;
 let lastTime = 0;
@@ -53,7 +54,7 @@ function saveBest(value) {
   try {
     localStorage.setItem(BEST_KEY, String(value));
   } catch {
-    // Il gioco funziona anche se localStorage non è disponibile.
+    // Il gioco continua anche se localStorage non è disponibile.
   }
 }
 
@@ -62,7 +63,7 @@ let best = loadBest();
 const player = {
   x: 75,
   y: groundY - 46,
-  w: 42,
+  w: 46,
   h: 46,
   vy: 0,
   gravity: 0.72,
@@ -75,23 +76,35 @@ function updateScoreboard() {
   bestElement.textContent = String(best);
 }
 
+function updatePauseButton() {
+  if (!pauseButton) return;
+
+  pauseButton.textContent = paused ? "RIPRENDI" : "PAUSA";
+  pauseButton.disabled = !running && !paused;
+}
+
 // ======================================
 // SFONDO
 // ======================================
 
 function drawBackground() {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#101426");
-  sky.addColorStop(0.65, "#242238");
-  sky.addColorStop(1, "#40303b");
+  sky.addColorStop(0, "#090b14");
+  sky.addColorStop(0.58, "#201b2b");
+  sky.addColorStop(1, "#38232d");
 
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
   // Luna
-  ctx.fillStyle = "#f0ead8";
+  ctx.fillStyle = "#e9e3d6";
   ctx.beginPath();
-  ctx.arc(320, 95, 27, 0, Math.PI * 2);
+  ctx.arc(320, 95, 26, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(9,11,20,0.22)";
+  ctx.beginPath();
+  ctx.arc(311, 88, 23, 0, Math.PI * 2);
   ctx.fill();
 
   // Montagne lontane
@@ -128,8 +141,7 @@ function drawBackground() {
   for (let i = -1; i < 7; i++) {
     const x = i * 100 - offset;
 
-    ctx.fillStyle = "#10131a";
-
+    ctx.fillStyle = "#0d1017";
     ctx.beginPath();
     ctx.moveTo(x, groundY);
     ctx.lineTo(x + 28, groundY - 95);
@@ -149,7 +161,7 @@ function drawBackground() {
   ctx.fillStyle = "#101014";
   ctx.fillRect(0, groundY, W, H - groundY);
 
-  ctx.fillStyle = "#8d6575";
+  ctx.fillStyle = "#8d354c";
   ctx.fillRect(0, groundY, W, 3);
 
   ctx.strokeStyle = "#39303b";
@@ -164,22 +176,25 @@ function drawBackground() {
 }
 
 // ======================================
-// LUPO GIOCATORE
+// LUPETTO - PERSONAGGIO
 // ======================================
 
 function drawWolf() {
   const x = player.x;
   const y = player.y;
+  const run = running && !paused && player.grounded
+    ? Math.sin(distance * 0.2) * 4
+    : 0;
 
   ctx.save();
 
   // Ombra
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
   ctx.ellipse(
-    x + player.w / 2,
+    x + 23,
     groundY + 5,
-    player.grounded ? 25 : 17,
+    player.grounded ? 25 : 16,
     5,
     0,
     0,
@@ -187,68 +202,95 @@ function drawWolf() {
   );
   ctx.fill();
 
-  // Corpo
-  ctx.fillStyle = "#17191e";
+  // Coda
+  ctx.strokeStyle = "#242832";
+  ctx.lineWidth = 8;
+  ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.roundRect(x + 4, y + 19, 34, 27, 9);
+  ctx.moveTo(x + 10, y + 30);
+  ctx.quadraticCurveTo(x - 2, y + 24, x + 3, y + 17);
+  ctx.stroke();
+
+  // Corpo
+  ctx.fillStyle = "#171a21";
+  ctx.beginPath();
+  ctx.ellipse(x + 22, y + 31, 19, 13, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Schiena
+  ctx.fillStyle = "#2b3039";
+  ctx.beginPath();
+  ctx.ellipse(x + 22, y + 25, 17, 10, -0.1, Math.PI, Math.PI * 2);
   ctx.fill();
 
   // Zampe
-  ctx.fillStyle = "#090a0d";
+  ctx.fillStyle = "#08090d";
+  ctx.fillRect(x + 10, y + 35, 8, 10 + run);
+  ctx.fillRect(x + 28, y + 35, 8, 10 - run);
 
-  const legOffset =
-    running && player.grounded ? Math.sin(distance * 0.2) * 5 : 0;
-
-  ctx.fillRect(x + 8, y + 38, 9, 9 + legOffset);
-  ctx.fillRect(x + 27, y + 38, 9, 9 - legOffset);
-
-  // Orecchie
-  ctx.fillStyle = "#22252c";
-
+  // Orecchie appuntite
+  ctx.fillStyle = "#252a33";
   ctx.beginPath();
-  ctx.moveTo(x + 8, y + 20);
-  ctx.lineTo(x + 9, y + 1);
-  ctx.lineTo(x + 22, y + 17);
+  ctx.moveTo(x + 6, y + 19);
+  ctx.lineTo(x + 8, y + 1);
+  ctx.lineTo(x + 20, y + 15);
   ctx.closePath();
   ctx.fill();
 
   ctx.beginPath();
-  ctx.moveTo(x + 25, y + 17);
-  ctx.lineTo(x + 37, y + 1);
-  ctx.lineTo(x + 39, y + 23);
+  ctx.moveTo(x + 24, y + 15);
+  ctx.lineTo(x + 38, y + 1);
+  ctx.lineTo(x + 41, y + 22);
+  ctx.closePath();
+  ctx.fill();
+
+  // Interno orecchie
+  ctx.fillStyle = "#711f34";
+  ctx.beginPath();
+  ctx.moveTo(x + 10, y + 14);
+  ctx.lineTo(x + 10, y + 6);
+  ctx.lineTo(x + 16, y + 14);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(x + 29, y + 14);
+  ctx.lineTo(x + 36, y + 6);
+  ctx.lineTo(x + 36, y + 16);
   ctx.closePath();
   ctx.fill();
 
   // Testa
-  ctx.fillStyle = "#30343c";
+  ctx.fillStyle = "#343944";
   ctx.beginPath();
-  ctx.ellipse(x + 24, y + 22, 20, 17, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 24, y + 22, 19, 17, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Muso
-  ctx.fillStyle = "#777c85";
+  // Guancia e muso
+  ctx.fillStyle = "#777d88";
   ctx.beginPath();
-  ctx.moveTo(x + 32, y + 22);
-  ctx.lineTo(x + 45, y + 29);
-  ctx.lineTo(x + 32, y + 34);
+  ctx.moveTo(x + 29, y + 23);
+  ctx.lineTo(x + 46, y + 29);
+  ctx.lineTo(x + 31, y + 35);
+  ctx.lineTo(x + 23, y + 29);
   ctx.closePath();
   ctx.fill();
 
   // Occhio
-  ctx.fillStyle = "#e8e1cf";
+  ctx.fillStyle = "#f0e7d6";
   ctx.beginPath();
   ctx.arc(x + 30, y + 19, 3.2, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "#c22b45";
+  ctx.fillStyle = "#d52b48";
   ctx.beginPath();
-  ctx.arc(x + 31, y + 19, 1.6, 0, Math.PI * 2);
+  ctx.arc(x + 31, y + 19, 1.7, 0, Math.PI * 2);
   ctx.fill();
 
   // Naso
-  ctx.fillStyle = "#08080a";
+  ctx.fillStyle = "#070709";
   ctx.beginPath();
-  ctx.arc(x + 44, y + 29, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 44, y + 29, 2.8, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -265,9 +307,9 @@ function createObstacle() {
   const sizes = {
     spike: { w: 35, h: 35 },
     crate: { w: 35, h: 38 },
-    heart: { w: 34, h: 34 },
-    angel: { w: 39, h: 43 },
-    snake: { w: 48, h: 25 }
+    heart: { w: 36, h: 36 },
+    angel: { w: 40, h: 44 },
+    snake: { w: 52, h: 28 }
   };
 
   const size = sizes[type];
@@ -276,9 +318,222 @@ function createObstacle() {
     type,
     x: W + 10,
     y: groundY - size.h,
+    baseY: groundY - size.h,
     w: size.w,
-    h: size.h
+    h: size.h,
+    phase: Math.random() * Math.PI * 2
   });
+}
+
+function drawHeart(o) {
+  const x = o.x;
+  const y = o.y;
+
+  ctx.save();
+
+  // Ombra scura
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.beginPath();
+  ctx.ellipse(x + 18, y + 33, 17, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Vasi sanguigni
+  ctx.strokeStyle = "#6f0d20";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+
+  ctx.beginPath();
+  ctx.moveTo(x + 17, y + 12);
+  ctx.lineTo(x + 12, y + 3);
+  ctx.lineTo(x + 6, y + 1);
+  ctx.moveTo(x + 20, y + 12);
+  ctx.lineTo(x + 26, y + 3);
+  ctx.lineTo(x + 31, y + 5);
+  ctx.moveTo(x + 10, y + 22);
+  ctx.lineTo(x + 3, y + 27);
+  ctx.moveTo(x + 25, y + 22);
+  ctx.lineTo(x + 32, y + 28);
+  ctx.stroke();
+
+  // Forma anatomica stilizzata
+  ctx.fillStyle = "#651020";
+  ctx.beginPath();
+  ctx.moveTo(x + 18, y + 31);
+  ctx.bezierCurveTo(x + 13, y + 25, x + 2, y + 18, x + 5, y + 10);
+  ctx.bezierCurveTo(x + 7, y + 3, x + 15, y + 4, x + 18, y + 11);
+  ctx.bezierCurveTo(x + 23, y + 2, x + 32, y + 5, x + 32, y + 13);
+  ctx.bezierCurveTo(x + 32, y + 20, x + 24, y + 27, x + 18, y + 31);
+  ctx.closePath();
+  ctx.fill();
+
+  // Muscolo interno
+  ctx.fillStyle = "#b51f36";
+  ctx.beginPath();
+  ctx.ellipse(x + 14, y + 13, 5, 7, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#8c1328";
+  ctx.beginPath();
+  ctx.ellipse(x + 24, y + 16, 5, 7, 0.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Solco centrale
+  ctx.strokeStyle = "#300711";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + 19, y + 12);
+  ctx.lineTo(x + 18, y + 25);
+  ctx.stroke();
+
+  // Goccia di sangue
+  ctx.fillStyle = "#e12c42";
+  ctx.beginPath();
+  ctx.moveTo(x + 30, y + 27);
+  ctx.quadraticCurveTo(x + 35, y + 32, x + 30, y + 35);
+  ctx.quadraticCurveTo(x + 26, y + 32, x + 30, y + 27);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawAngel(o) {
+  const x = o.x;
+  const y = o.y;
+
+  ctx.save();
+
+  // Alone nero
+  const glow = ctx.createRadialGradient(
+    x + 20, y + 20, 2,
+    x + 20, y + 20, 30
+  );
+  glow.addColorStop(0, "rgba(0,0,0,0.5)");
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(x - 12, y - 12, 64, 64);
+
+  // Ali nere
+  ctx.fillStyle = "#050507";
+  ctx.beginPath();
+  ctx.moveTo(x + 17, y + 18);
+  ctx.quadraticCurveTo(x - 2, y - 1, x - 1, y + 14);
+  ctx.quadraticCurveTo(x + 2, y + 28, x + 16, y + 29);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(x + 23, y + 18);
+  ctx.quadraticCurveTo(x + 42, y - 1, x + 41, y + 14);
+  ctx.quadraticCurveTo(x + 38, y + 28, x + 24, y + 29);
+  ctx.closePath();
+  ctx.fill();
+
+  // Veste scura
+  ctx.fillStyle = "#08080a";
+  ctx.beginPath();
+  ctx.moveTo(x + 13, y + 18);
+  ctx.lineTo(x + 27, y + 18);
+  ctx.lineTo(x + 33, y + 43);
+  ctx.lineTo(x + 7, y + 43);
+  ctx.closePath();
+  ctx.fill();
+
+  // Testa nera
+  ctx.fillStyle = "#020203";
+  ctx.beginPath();
+  ctx.arc(x + 20, y + 12, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Occhi rossi
+  ctx.fillStyle = "#c51e39";
+  ctx.fillRect(x + 15, y + 11, 3, 2);
+  ctx.fillRect(x + 22, y + 11, 3, 2);
+
+  // Piccoli dettagli sulle ali
+  ctx.strokeStyle = "#343039";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x + 14, y + 20);
+  ctx.lineTo(x + 4, y + 11);
+  ctx.moveTo(x + 26, y + 20);
+  ctx.lineTo(x + 36, y + 11);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawSnake(o) {
+  const x = o.x;
+  const y = o.y;
+  const wiggle = Math.sin(distance * 0.12 + o.phase) * 3;
+
+  ctx.save();
+
+  // Corpo verde sinuoso
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#315d35";
+  ctx.lineWidth = 11;
+  ctx.beginPath();
+  ctx.moveTo(x + 2, y + 19);
+  ctx.bezierCurveTo(
+    x + 10, y + 1 + wiggle,
+    x + 19, y + 29 - wiggle,
+    x + 28, y + 15
+  );
+  ctx.bezierCurveTo(
+    x + 36, y + 2 + wiggle,
+    x + 42, y + 25,
+    x + 49, y + 10
+  );
+  ctx.stroke();
+
+  // Dorso più chiaro
+  ctx.strokeStyle = "#72a94e";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x + 3, y + 17);
+  ctx.bezierCurveTo(
+    x + 11, y + 3 + wiggle,
+    x + 19, y + 26 - wiggle,
+    x + 28, y + 14
+  );
+  ctx.bezierCurveTo(
+    x + 36, y + 5 + wiggle,
+    x + 42, y + 22,
+    x + 48, y + 10
+  );
+  ctx.stroke();
+
+  // Testa
+  ctx.fillStyle = "#477d39";
+  ctx.beginPath();
+  ctx.ellipse(x + 47, y + 9, 7, 5, -0.25, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Occhio
+  ctx.fillStyle = "#f2e8bc";
+  ctx.beginPath();
+  ctx.arc(x + 49, y + 7, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#111";
+  ctx.beginPath();
+  ctx.arc(x + 50, y + 7, 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Lingua biforcuta
+  ctx.strokeStyle = "#d72c4d";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(x + 52, y + 11);
+  ctx.lineTo(x + 57, y + 13);
+  ctx.lineTo(x + 59, y + 11);
+  ctx.moveTo(x + 57, y + 13);
+  ctx.lineTo(x + 57, y + 15);
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 function drawObstacle(o) {
@@ -314,56 +569,9 @@ function drawObstacle(o) {
     ctx.stroke();
   }
 
-  if (o.type === "heart") {
-    ctx.fillStyle = "#d52d55";
-    ctx.font = "34px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("♥", o.x + o.w / 2, o.y + o.h / 2);
-  }
-
-  if (o.type === "angel") {
-    ctx.fillStyle = "#e8dfc9";
-    ctx.beginPath();
-    ctx.arc(o.x + o.w / 2, o.y + 9, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#b9b7c5";
-    ctx.beginPath();
-    ctx.ellipse(
-      o.x + 7, o.y + 25, 10, 6, -0.5, 0, Math.PI * 2
-    );
-    ctx.ellipse(
-      o.x + o.w - 7, o.y + 25, 10, 6, 0.5, 0, Math.PI * 2
-    );
-    ctx.fill();
-
-    ctx.fillStyle = "#eee7d8";
-    ctx.beginPath();
-    ctx.moveTo(o.x + 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 8, o.y + o.h);
-    ctx.lineTo(o.x + 8, o.y + o.h);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  if (o.type === "snake") {
-    ctx.strokeStyle = "#8ca35c";
-    ctx.lineWidth = 8;
-    ctx.lineCap = "round";
-
-    ctx.beginPath();
-    ctx.moveTo(o.x, o.y + 16);
-    ctx.quadraticCurveTo(o.x + 12, o.y - 1, o.x + 24, o.y + 15);
-    ctx.quadraticCurveTo(o.x + 35, o.y + 29, o.x + 47, o.y + 10);
-    ctx.stroke();
-
-    ctx.fillStyle = "#d8df92";
-    ctx.beginPath();
-    ctx.arc(o.x + 43, o.y + 8, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  if (o.type === "heart") drawHeart(o);
+  if (o.type === "angel") drawAngel(o);
+  if (o.type === "snake") drawSnake(o);
 
   ctx.restore();
 }
@@ -404,6 +612,10 @@ function updateParticles(dt) {
   }
 
   particles = particles.filter(p => p.life > 0);
+}
+
+function drawParticles() {
+  ctx.save();
 
   for (const p of particles) {
     ctx.globalAlpha = Math.min(1, p.life / 20);
@@ -411,22 +623,92 @@ function updateParticles(dt) {
     ctx.fillRect(p.x, p.y, 3, 3);
   }
 
-  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 // ======================================
-// SALTO E COMANDI
+// SALTO, PAUSA E COMANDI
 // ======================================
 
 function jump() {
-  if (!running || !player.grounded) return;
+  if (!running || paused || !player.grounded) return;
 
   player.vy = player.jumpPower;
   player.grounded = false;
 }
 
+function togglePause() {
+  if (running && !paused) {
+    paused = true;
+    running = false;
+
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+
+    messageElement.textContent =
+      "Partita in pausa. Premi RIPRENDI quando vuoi continuare.";
+    updatePauseButton();
+    drawGame();
+    return;
+  }
+
+  if (paused) {
+    paused = false;
+    running = true;
+    lastTime = 0;
+    messageElement.textContent =
+      "Si riparte, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
+    updatePauseButton();
+    animationId = requestAnimationFrame(gameLoop);
+  }
+}
+
+function startGame() {
+  // Non riavviare mai una partita già attiva o in pausa.
+  if (running || paused) return;
+
+  running = true;
+  gameOver = false;
+  lastTime = 0;
+  distance = 0;
+  score = 0;
+  finalScore = 0;
+  speed = 4;
+  spawnTimer = 0;
+  nextObstacle = 1000;
+  obstacles = [];
+  particles = [];
+
+  player.y = groundY - player.h;
+  player.vy = 0;
+  player.grounded = true;
+
+  messageElement.textContent =
+    "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
+
+  updateScoreboard();
+  updatePauseButton();
+
+  if (startButton) startButton.textContent = "Inizia partita";
+
+  animationId = requestAnimationFrame(gameLoop);
+}
+
 startButton.addEventListener("click", startGame);
 jumpButton.addEventListener("click", jump);
+
+if (pauseButton) {
+  pauseButton.addEventListener("click", togglePause);
+}
+
+// Toccare o cliccare il campo di gioco fa saltare Lupetto.
+canvas.addEventListener("pointerdown", event => {
+  if (!running || paused) return;
+  event.preventDefault();
+  jump();
+});
 
 document.addEventListener("keydown", event => {
   if (
@@ -449,51 +731,19 @@ document.addEventListener("keydown", event => {
 
   event.preventDefault();
 
-  if (!running) {
-    startGame();
-  } else {
+  if (running && !paused) {
     jump();
+  } else if (!running && !paused && !gameOver) {
+    startGame();
   }
 });
-
-// ======================================
-// AVVIO PARTITA
-// ======================================
-
-function startGame() {
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-  }
-
-  running = true;
-  gameOver = false;
-  lastTime = 0;
-  distance = 0;
-  score = 0;
-  finalScore = 0;
-  speed = 4;
-  spawnTimer = 0;
-  nextObstacle = 1000;
-  obstacles = [];
-  particles = [];
-
-  player.y = groundY - player.h;
-  player.vy = 0;
-  player.grounded = true;
-
-  messageElement.textContent =
-    "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
-
-  updateScoreboard();
-  animationId = requestAnimationFrame(gameLoop);
-}
 
 // ======================================
 // CICLO DI GIOCO
 // ======================================
 
 function gameLoop(timestamp) {
-  if (!running) return;
+  if (!running || paused) return;
 
   if (!lastTime) lastTime = timestamp;
 
@@ -503,7 +753,7 @@ function gameLoop(timestamp) {
   updateGame(dt);
   drawGame();
 
-  if (running) {
+  if (running && !paused) {
     animationId = requestAnimationFrame(gameLoop);
   }
 }
@@ -534,9 +784,14 @@ function updateGame(dt) {
     nextObstacle = 900 + Math.random() * 700;
   }
 
-  // Movimento e collisioni
+  // Movimento ostacoli, oscillazione angelo e collisioni
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
+
+    if (obstacle.type === "angel") {
+      obstacle.y = obstacle.baseY +
+        Math.sin(distance * 0.035 + obstacle.phase) * 10;
+    }
 
     if (collides(player, obstacle)) {
       endGame();
@@ -548,6 +803,10 @@ function updateGame(dt) {
   updateParticles(dt);
 }
 
+// ======================================
+// DISEGNO E MESSAGGI
+// ======================================
+
 function drawGame() {
   drawBackground();
 
@@ -556,17 +815,21 @@ function drawGame() {
   }
 
   drawWolf();
-  updateParticles(0);
+  drawParticles();
 
-  // Punteggio sul campo
   ctx.fillStyle = "#fff";
   ctx.font = "bold 18px Arial";
   ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
   ctx.fillText("LUPO RUNNER", 18, 32);
   ctx.fillText("Punti: " + score, 18, 58);
 
-  if (!running && !gameOver) {
+  if (!running && !paused && !gameOver) {
     drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA");
+  }
+
+  if (paused) {
+    drawOverlay("PAUSA", "Premi RIPRENDI per continuare");
   }
 
   if (gameOver) {
@@ -575,10 +838,13 @@ function drawGame() {
 }
 
 function drawOverlay(title, subtitle) {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+  ctx.save();
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
   ctx.fillRect(0, 0, W, H);
 
   ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#fff";
   ctx.font = "bold 32px Arial";
   ctx.fillText(title, W / 2, H / 2 - 15);
@@ -586,6 +852,8 @@ function drawOverlay(title, subtitle) {
   ctx.font = "16px Arial";
   ctx.fillStyle = "#ddd";
   ctx.fillText(subtitle, W / 2, H / 2 + 22);
+
+  ctx.restore();
 }
 
 // ======================================
@@ -594,6 +862,7 @@ function drawOverlay(title, subtitle) {
 
 function endGame() {
   running = false;
+  paused = false;
   gameOver = true;
   finalScore = score;
 
@@ -610,7 +879,6 @@ function endGame() {
   if (finalScore > best) {
     best = finalScore;
     saveBest(best);
-
     messageElement.textContent =
       "NUOVO RECORD! Hai totalizzato " + finalScore + " punti!";
   } else {
@@ -621,6 +889,7 @@ function endGame() {
   }
 
   updateScoreboard();
+  updatePauseButton();
   drawGame();
 }
 
@@ -629,25 +898,22 @@ function endGame() {
 // ======================================
 
 async function loadLeaderboard() {
+  if (!leaderboardBody || !leaderboardStatus) return;
+
   leaderboardStatus.textContent = "Caricamento classifica...";
   leaderboardBody.replaceChildren();
 
   const loadingRow = document.createElement("tr");
   const loadingCell = document.createElement("td");
-
   loadingCell.colSpan = 3;
   loadingCell.textContent = "Caricamento...";
-
   loadingRow.appendChild(loadingCell);
   leaderboardBody.appendChild(loadingRow);
 
   try {
     const response = await fetch(
       LEADERBOARD_API_URL + "?action=top5",
-      {
-        method: "GET",
-        cache: "no-store"
-      }
+      { method: "GET", cache: "no-store" }
     );
 
     if (!response.ok) {
@@ -661,16 +927,13 @@ async function loadLeaderboard() {
     }
 
     const scores = Array.isArray(data.scores) ? data.scores : [];
-
     leaderboardBody.replaceChildren();
 
     if (scores.length === 0) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
-
       cell.colSpan = 3;
       cell.textContent = "Nessun punteggio disponibile.";
-
       row.appendChild(cell);
       leaderboardBody.appendChild(row);
     } else {
@@ -704,10 +967,8 @@ async function loadLeaderboard() {
 
     const row = document.createElement("tr");
     const cell = document.createElement("td");
-
     cell.colSpan = 3;
     cell.textContent = "Classifica momentaneamente non disponibile.";
-
     row.appendChild(cell);
     leaderboardBody.appendChild(row);
   }
@@ -745,7 +1006,7 @@ async function submitScore() {
         "Content-Type": "text/plain;charset=utf-8"
       },
       body: JSON.stringify({
-        nickname: nickname,
+        nickname,
         score: finalScore
       })
     });
@@ -766,7 +1027,6 @@ async function submitScore() {
     await loadLeaderboard();
   } catch (error) {
     console.error("Errore invio punteggio:", error);
-
     leaderboardStatus.textContent =
       "Non è stato possibile inviare il punteggio. " +
       "Controlla che Apps Script sia pubblicato correttamente.";
@@ -775,13 +1035,19 @@ async function submitScore() {
   }
 }
 
-submitScoreButton.addEventListener("click", submitScore);
-refreshBoardButton.addEventListener("click", loadLeaderboard);
+if (submitScoreButton) {
+  submitScoreButton.addEventListener("click", submitScore);
+}
+
+if (refreshBoardButton) {
+  refreshBoardButton.addEventListener("click", loadLeaderboard);
+}
 
 // ======================================
 // INIZIALIZZAZIONE
 // ======================================
 
 updateScoreboard();
+updatePauseButton();
 drawGame();
 loadLeaderboard();
