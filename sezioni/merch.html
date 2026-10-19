@@ -1,1 +1,275 @@
-<!-- Merchandising ufficiale Lista Lupo Nero -->
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Scopri il merchandising ufficiale Lista Lupo Nero e accedi al modulo per effettuare il tuo ordine.">
+  <title>Merch ufficiale | Lista Lupo Nero</title>
+
+  <style>
+    :root {
+      --bg: #090909;
+      --panel: #151515;
+      --text: #f4f4f4;
+      --muted: #aaa;
+      --border: #303030;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      background: #090909;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .menu {
+      max-width: 1200px;
+      margin: auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .menu a {
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: #ccc;
+      font-size: 13px;
+    }
+
+    .menu a:hover,
+    .menu a.active {
+      background: #202020;
+      color: #fff;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 12px 0 18px;
+      font-size: clamp(36px, 7vw, 60px);
+      line-height: 1.1;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 0 auto 30px;
+      color: #bbb;
+      font-size: 16px;
+    }
+
+    .merch-card {
+      max-width: 650px;
+      margin: auto;
+      padding: 34px 25px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(145deg, #191919, #101010);
+    }
+
+    .wolf {
+      margin-bottom: 15px;
+      font-size: 64px;
+      filter: grayscale(1);
+    }
+
+    .merch-card h2 {
+      margin: 0 0 15px;
+      font-size: 25px;
+    }
+
+    .merch-card p {
+      margin: 0 0 16px;
+      color: #ccc;
+    }
+
+    .order-button {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 15px 22px;
+      border: 1px solid #fff;
+      border-radius: 9px;
+      background: #fff;
+      color: #090909;
+      font-size: 15px;
+      font-weight: bold;
+      transition: background .2s, transform .2s;
+    }
+
+    .order-button:hover {
+      background: #ddd;
+      transform: translateY(-2px);
+    }
+
+    .note {
+      margin-top: 20px !important;
+      color: #999 !important;
+      font-size: 13px;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-top: 28px;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .back-home:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    footer {
+      padding: 24px 16px;
+      border-top: 1px solid var(--border);
+      color: #888;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    footer a {
+      color: #ddd;
+    }
+
+    @media (max-width: 600px) {
+      .menu {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px 12px;
+      }
+
+      .menu a {
+        flex: 0 0 auto;
+        font-size: 12px;
+      }
+
+      main {
+        padding: 42px 16px;
+      }
+
+      .merch-card {
+        padding: 28px 18px;
+      }
+
+      .order-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <nav class="menu" aria-label="Menu principale">
+      <a href="../index.html">Home</a>
+      <a href="eventi.html">Eventi</a>
+      <a href="sorteggio.html">Sorteggio</a>
+      <a href="../giochi/index.html">Lupo Games</a>
+      <a href="dj.html">DJ</a>
+      <a href="merch.html" class="active">Merch</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="youtube.html">YouTube</a>
+      <a href="partner.html">Partner</a>
+      <a href="sostieni.html">Sostieni</a>
+      <a href="volontariato.html">Volontariato</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="eyebrow">Lista Lupo Nero</div>
+    <h1>MERCH UFFICIALE</h1>
+
+    <p class="intro">
+      Porta con te i colori e lo spirito del Branco.
+      Scopri il merchandising ufficiale Lupo Nero e prepara il tuo ordine.
+    </p>
+
+    <section class="merch-card">
+      <div class="wolf" aria-hidden="true">🐺</div>
+
+      <h2>Entra nel mondo Lupo Nero</h2>
+
+      <p>
+        Magliette e altri articoli ufficiali ti aspettano
+        nel nostro modulo ordini.
+      </p>
+
+      <p>
+        Compila il modulo per comunicarci gli articoli che desideri.
+        Ti ricontatteremo per verificare i dettagli e confermare l'ordine.
+      </p>
+
+      <a
+        class="order-button"
+        href="https://forms.gle/ceuYcgEsyjzTbz7w5"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Vai al modulo acquisti →
+      </a>
+
+      <p class="note">
+        Il modulo si apre in una nuova scheda.
+        L'invio non costituisce conferma definitiva dell'ordine.
+      </p>
+    </section>
+
+    <a class="back-home" href="../index.html">
+      ← Torna alla Home
+    </a>
+  </main>
+
+  <footer>
+    <p>© Lista Lupo Nero — Il Branco è in movimento.</p>
+    <p>
+      <a href="https://www.instagram.com/Lista.LupoNero/"
+         target="_blank" rel="noopener noreferrer">Instagram Lista</a>
+      ·
+      <a href="https://www.instagram.com/ReLupoNero/"
+         target="_blank" rel="noopener noreferrer">Instagram DJ</a>
+    </p>
+  </footer>
+</body>
+</html>
