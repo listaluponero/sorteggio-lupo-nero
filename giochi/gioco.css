@@ -29,6 +29,7 @@ body {
 
 a {
   color: var(--text);
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -45,6 +46,10 @@ button {
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 button:hover:not(:disabled) {
@@ -136,7 +141,16 @@ input:focus-visible {
   display: block;
   width: 100%;
   height: auto;
-  touch-action: manipulation;
+
+  /* Niente evidenziazione blu o selezione del canvas. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* Il browser può scorrere verticalmente sopra il gioco. */
+  touch-action: pan-y;
+
   cursor: pointer;
 }
 
