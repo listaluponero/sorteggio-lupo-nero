@@ -1,1 +1,281 @@
-<!-- Gallery Lista Lupo Nero -->
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="La Gallery ufficiale di Lista Lupo Nero è in lavorazione. Presto arriveranno gli album delle nostre serate.">
+  <title>Gallery | Lista Lupo Nero</title>
+
+  <style>
+    :root {
+      --bg: #090909;
+      --panel: #151515;
+      --text: #f4f4f4;
+      --muted: #aaa;
+      --border: #303030;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      background: #090909;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .menu {
+      max-width: 1200px;
+      margin: auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .menu a {
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: #ccc;
+      font-size: 13px;
+    }
+
+    .menu a:hover,
+    .menu a.active {
+      background: #202020;
+      color: #fff;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding: 65px 20px;
+      text-align: center;
+    }
+
+    .gallery-icon {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      color: #ddd;
+    }
+
+    .photo-frame {
+      width: 70px;
+      height: 85px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #555;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #242424, #101010);
+      font-size: 30px;
+      transform: rotate(-7deg);
+    }
+
+    .photo-frame:last-child {
+      transform: rotate(7deg);
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 12px 0;
+      font-size: clamp(38px, 7vw, 62px);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: #bbb;
+      margin: 0 auto 28px;
+      max-width: 600px;
+    }
+
+    .status {
+      display: inline-block;
+      margin-bottom: 22px;
+      padding: 9px 15px;
+      border: 1px solid #484848;
+      border-radius: 999px;
+      background: var(--panel);
+      color: #eee;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .message {
+      max-width: 650px;
+      margin: auto;
+      padding: 30px 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(145deg, #181818, #101010);
+    }
+
+    .message p {
+      margin: 0 0 16px;
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    .message p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message strong {
+      color: #fff;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 12px 20px;
+      border: 1px solid #fff;
+      border-radius: 9px;
+      background: #fff;
+      color: #090909;
+      font-weight: bold;
+    }
+
+    .back-home:hover {
+      background: #ddd;
+    }
+
+    footer {
+      padding: 24px 16px;
+      border-top: 1px solid var(--border);
+      color: #888;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    footer a {
+      color: #ddd;
+    }
+
+    @media (max-width: 600px) {
+      .menu {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px 12px;
+      }
+
+      .menu a {
+        flex: 0 0 auto;
+        font-size: 12px;
+      }
+
+      main {
+        padding: 45px 16px;
+      }
+
+      .message {
+        padding: 25px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <nav class="menu" aria-label="Menu principale">
+      <a href="../index.html">Home</a>
+      <a href="eventi.html">Eventi</a>
+      <a href="sorteggio.html">Sorteggio</a>
+      <a href="../giochi/index.html">Lupo Games</a>
+      <a href="dj.html">DJ</a>
+      <a href="merch.html">Merch</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="youtube.html">YouTube</a>
+      <a href="partner.html">Partner</a>
+      <a href="sostieni.html">Sostieni</a>
+      <a href="volontariato.html">Volontariato</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="gallery-icon" aria-hidden="true">
+      <div class="photo-frame">✦</div>
+      <div class="photo-frame">🐺</div>
+      <div class="photo-frame">✦</div>
+    </div>
+
+    <div class="eyebrow">Lista Lupo Nero</div>
+    <h1>GALLERY</h1>
+
+    <p class="subtitle">
+      Le notti del Branco, i momenti indimenticabili e i ricordi
+      che meritano di essere condivisi.
+    </p>
+
+    <div class="status">WORK IN PROGRESS</div>
+
+    <section class="message">
+      <p>
+        Stiamo preparando la nostra <strong>Gallery ufficiale</strong>.
+      </p>
+
+      <p>
+        Presto troverai album fotografici delle serate,
+        degli eventi e dei momenti vissuti insieme al Branco.
+      </p>
+
+      <p>
+        Ogni notte lascia un ricordo.
+        <strong>Presto li rivivremo insieme.</strong>
+      </p>
+
+      <p>🐺 Il Branco è in movimento.</p>
+    </section>
+
+    <a class="back-home" href="../index.html">
+      ← Torna alla Home
+    </a>
+  </main>
+
+  <footer>
+    <p>© Lista Lupo Nero — Il Branco è in movimento.</p>
+    <p>
+      <a href="https://www.instagram.com/Lista.LupoNero/"
+         target="_blank" rel="noopener noreferrer">Instagram Lista</a>
+      ·
+      <a href="https://www.instagram.com/ReLupoNero/"
+         target="_blank" rel="noopener noreferrer">Instagram DJ</a>
+    </p>
+  </footer>
+</body>
+</html>
