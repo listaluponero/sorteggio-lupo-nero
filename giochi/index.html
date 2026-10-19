@@ -1,777 +1,99 @@
-"use strict";
 
-// ======================================
-// LUPO GAMES - LUPO RUNNER
-// ======================================
-
-const LEADERBOARD_API_URL =
-  "https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
-
-const BEST_KEY = "lupoRunnerBest";
-
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const startButton = document.getElementById("startGame");
-const jumpButton = document.getElementById("jumpGame");
-const scoreElement = document.getElementById("score");
-const bestElement = document.getElementById("personalBest");
-const messageElement = document.getElementById("gameMessage");
-const playerNameInput = document.getElementById("playerName");
-const submitScoreButton = document.getElementById("submitScore");
-const refreshBoardButton = document.getElementById("refreshBoard");
-const leaderboardBody = document.getElementById("leaderboardBody");
-const leaderboardStatus = document.getElementById("leaderboardStatus");
-
-const W = canvas.width;
-const H = canvas.height;
-const groundY = H - 80;
-
-let running = false;
-let gameOver = false;
-let animationId = null;
-let lastTime = 0;
-let distance = 0;
-let score = 0;
-let finalScore = 0;
-let speed = 4;
-let spawnTimer = 0;
-let nextObstacle = 1000;
-let obstacles = [];
-let particles = [];
-
-function loadBest() {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function saveBest(value) {
-  try {
-    localStorage.setItem(BEST_KEY, String(value));
-  } catch {
-    // Il gioco funziona anche se localStorage non è disponibile.
-  }
-}
-
-let best = loadBest();
-
-const player = {
-  x: 75,
-  y: groundY - 46,
-  w: 42,
-  h: 46,
-  vy: 0,
-  gravity: 0.72,
-  jumpPower: -13,
-  grounded: true
-};
-
-function updateScoreboard() {
-  scoreElement.textContent = String(score);
-  bestElement.textContent = String(best);
-}
-
-// ======================================
-// SFONDO
-// ======================================
-
-function drawBackground() {
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#101426");
-  sky.addColorStop(0.65, "#242238");
-  sky.addColorStop(1, "#40303b");
-
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
-
-  // Luna
-  ctx.fillStyle = "#f0ead8";
-  ctx.beginPath();
-  ctx.arc(320, 95, 27, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Montagne lontane
-  ctx.fillStyle = "#252334";
-  ctx.beginPath();
-  ctx.moveTo(0, 350);
-  ctx.lineTo(80, 245);
-  ctx.lineTo(145, 330);
-  ctx.lineTo(235, 220);
-  ctx.lineTo(330, 335);
-  ctx.lineTo(390, 270);
-  ctx.lineTo(W, 345);
-  ctx.lineTo(W, H);
-  ctx.lineTo(0, H);
-  ctx.closePath();
-  ctx.fill();
-
-  // Montagne vicine
-  ctx.fillStyle = "#171923";
-  ctx.beginPath();
-  ctx.moveTo(0, 410);
-  ctx.lineTo(100, 330);
-  ctx.lineTo(185, 405);
-  ctx.lineTo(290, 320);
-  ctx.lineTo(W, 415);
-  ctx.lineTo(W, H);
-  ctx.lineTo(0, H);
-  ctx.closePath();
-  ctx.fill();
-
-  // Alberi in movimento
-  const offset = (distance * 0.4) % 100;
-
-  for (let i = -1; i < 7; i++) {
-    const x = i * 100 - offset;
-
-    ctx.fillStyle = "#10131a";
-    ctx.beginPath();
-    ctx.moveTo(x, groundY);
-    ctx.lineTo(x + 28, groundY - 95);
-    ctx.lineTo(x + 56, groundY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(x + 8, groundY - 35);
-    ctx.lineTo(x + 28, groundY - 120);
-    ctx.lineTo(x + 48, groundY - 35);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  // Terreno
-  ctx.fillStyle = "#101014";
-  ctx.fillRect(0, groundY, W, H - groundY);
-
-  ctx.fillStyle = "#8d6575";
-  ctx.fillRect(0, groundY, W, 3);
-
-  ctx.strokeStyle = "#39303b";
-  ctx.lineWidth = 2;
-
-  for (let x = -((distance * 2) % 45); x < W; x += 45) {
-    ctx.beginPath();
-    ctx.moveTo(x, groundY + 24);
-    ctx.lineTo(x + 20, groundY + 24);
-    ctx.stroke();
-  }
-}
-
-// ======================================
-// LUPO GIOCATORE
-// ======================================
-
-function drawWolf() {
-  const x = player.x;
-  const y = player.y;
-
-  ctx.save();
-
-  // Ombra
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.beginPath();
-  ctx.ellipse(
-    x + player.w / 2,
-    groundY + 5,
-    player.grounded ? 25 : 17,
-    5,
-    0,
-    0,
-    Math.PI * 2
-  );
-  ctx.fill();
-
-  // Corpo
-  ctx.fillStyle = "#17191e";
-  ctx.beginPath();
-  ctx.roundRect(x + 4, y + 19, 34, 27, 9);
-  ctx.fill();
-
-  // Zampe
-  ctx.fillStyle = "#090a0d";
-
-  const legOffset = running && player.grounded
-    ? Math.sin(distance * 0.2) * 5
-    : 0;
-
-  ctx.fillRect(x + 8, y + 38, 9, 9 + legOffset);
-  ctx.fillRect(x + 27, y + 38, 9, 9 - legOffset);
-
-  // Orecchie
-  ctx.fillStyle = "#22252c";
-  ctx.beginPath();
-  ctx.moveTo(x + 8, y + 20);
-  ctx.lineTo(x + 9, y + 1);
-  ctx.lineTo(x + 22, y + 17);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 25, y + 17);
-  ctx.lineTo(x + 37, y + 1);
-  ctx.lineTo(x + 39, y + 23);
-  ctx.closePath();
-  ctx.fill();
-
-  // Testa
-  ctx.fillStyle = "#30343c";
-  ctx.beginPath();
-  ctx.ellipse(x + 24, y + 22, 20, 17, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Muso
-  ctx.fillStyle = "#777c85";
-  ctx.beginPath();
-  ctx.moveTo(x + 32, y + 22);
-  ctx.lineTo(x + 45, y + 29);
-  ctx.lineTo(x + 32, y + 34);
-  ctx.closePath();
-  ctx.fill();
-
-  // Occhio
-  ctx.fillStyle = "#e8e1cf";
-  ctx.beginPath();
-  ctx.arc(x + 30, y + 19, 3.2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#c22b45";
-  ctx.beginPath();
-  ctx.arc(x + 31, y + 19, 1.6, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Naso
-  ctx.fillStyle = "#08080a";
-  ctx.beginPath();
-  ctx.arc(x + 44, y + 29, 2.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-// ======================================
-// OSTACOLI
-// ======================================
-
-function createObstacle() {
-  const types = ["spike", "crate", "heart", "angel", "snake"];
-  const type = types[Math.floor(Math.random() * types.length)];
-
-  const sizes = {
-    spike: { w: 35, h: 35 },
-    crate: { w: 35, h: 38 },
-    heart: { w: 34, h: 34 },
-    angel: { w: 39, h: 43 },
-    snake: { w: 48, h: 25 }
-  };
-
-  const size = sizes[type];
-
-  obstacles.push({
-    type,
-    x: W + 10,
-    y: groundY - size.h,
-    w: size.w,
-    h: size.h
-  });
-}
-
-function drawObstacle(o) {
-  ctx.save();
-
-  if (o.type === "spike") {
-    ctx.fillStyle = "#d7d7dc";
-    ctx.beginPath();
-    ctx.moveTo(o.x, groundY);
-    ctx.lineTo(o.x + o.w / 2, o.y);
-    ctx.lineTo(o.x + o.w, groundY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.strokeStyle = "#777985";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  if (o.type === "crate") {
-    ctx.fillStyle = "#70472f";
-    ctx.fillRect(o.x, o.y, o.w, o.h);
-
-    ctx.strokeStyle = "#bd9062";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
-
-    ctx.beginPath();
-    ctx.moveTo(o.x + 5, o.y + 5);
-    ctx.lineTo(o.x + o.w - 5, o.y + o.h - 5);
-    ctx.moveTo(o.x + o.w - 5, o.y + 5);
-    ctx.lineTo(o.x + 5, o.y + o.h - 5);
-    ctx.stroke();
-  }
-
-  if (o.type === "heart") {
-    ctx.fillStyle = "#d52d55";
-    ctx.font = "34px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("♥", o.x + o.w / 2, o.y + o.h / 2);
-  }
-
-  if (o.type === "angel") {
-    ctx.fillStyle = "#e8dfc9";
-    ctx.beginPath();
-    ctx.arc(o.x + o.w / 2, o.y + 9, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#b9b7c5";
-    ctx.beginPath();
-    ctx.ellipse(o.x + 7, o.y + 25, 10, 6, -0.5, 0, Math.PI * 2);
-    ctx.ellipse(
-      o.x + o.w - 7,
-      o.y + 25,
-      10,
-      6,
-      0.5,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
-
-    ctx.fillStyle = "#eee7d8";
-    ctx.beginPath();
-    ctx.moveTo(o.x + 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 12, o.y + 17);
-    ctx.lineTo(o.x + o.w - 8, o.y + o.h);
-    ctx.lineTo(o.x + 8, o.y + o.h);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  if (o.type === "snake") {
-    ctx.strokeStyle = "#8ca35c";
-    ctx.lineWidth = 8;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(o.x, o.y + 16);
-    ctx.quadraticCurveTo(o.x + 12, o.y - 1, o.x + 24, o.y + 15);
-    ctx.quadraticCurveTo(o.x + 35, o.y + 29, o.x + 47, o.y + 10);
-    ctx.stroke();
-
-    ctx.fillStyle = "#d8df92";
-    ctx.beginPath();
-    ctx.arc(o.x + 43, o.y + 8, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-// ======================================
-// COLLISIONI E PARTICELLE
-// ======================================
-
-function collides(a, b) {
-  const inset = 6;
-
-  return (
-    a.x + inset < b.x + b.w - inset &&
-    a.x + a.w - inset > b.x + inset &&
-    a.y + inset < b.y + b.h - inset &&
-    a.y + a.h - inset > b.y + inset
-  );
-}
-
-function addParticles(x, y) {
-  for (let i = 0; i < 12; i++) {
-    particles.push({
-      x,
-      y,
-      vx: (Math.random() - 0.5) * 5,
-      vy: (Math.random() - 0.8) * 5,
-      life: 25 + Math.random() * 15
-    });
-  }
-}
-
-function updateParticles(dt) {
-  for (const p of particles) {
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    p.vy += 0.15 * dt;
-    p.life -= dt;
-  }
-
-  particles = particles.filter(p => p.life > 0);
-
-  for (const p of particles) {
-    ctx.globalAlpha = Math.min(1, p.life / 20);
-    ctx.fillStyle = "#eee4d1";
-    ctx.fillRect(p.x, p.y, 3, 3);
-  }
-
-  ctx.globalAlpha = 1;
-}
-
-// ======================================
-// SALTO E COMANDI
-// ======================================
-
-function jump() {
-  if (!running || !player.grounded) return;
-
-  player.vy = player.jumpPower;
-  player.grounded = false;
-}
-
-startButton.addEventListener("click", startGame);
-jumpButton.addEventListener("click", jump);
-
-document.addEventListener("keydown", event => {
-  if (
-    event.code !== "Space" &&
-    event.code !== "ArrowUp" &&
-    event.code !== "KeyW"
-  ) {
-    return;
-  }
-
-  if (
-    event.target instanceof HTMLElement &&
-    (
-      event.target.matches("input, textarea, button") ||
-      event.target.isContentEditable
-    )
-  ) {
-    return;
-  }
-
-  event.preventDefault();
-
-  if (!running) {
-    startGame();
-  } else {
-    jump();
-  }
-});
-
-// ======================================
-// AVVIO PARTITA
-// ======================================
-
-function startGame() {
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-  }
-
-  running = true;
-  gameOver = false;
-  lastTime = 0;
-  distance = 0;
-  score = 0;
-  finalScore = 0;
-  speed = 4;
-  spawnTimer = 0;
-  nextObstacle = 1000;
-  obstacles = [];
-  particles = [];
-
-  player.y = groundY - player.h;
-  player.vy = 0;
-  player.grounded = true;
-
-  messageElement.textContent =
-    "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
-
-  updateScoreboard();
-  animationId = requestAnimationFrame(gameLoop);
-}
-
-// ======================================
-// CICLO DI GIOCO
-// ======================================
-
-function gameLoop(timestamp) {
-  if (!running) return;
-
-  if (!lastTime) lastTime = timestamp;
-
-  const dt = Math.min((timestamp - lastTime) / 16.667, 2);
-  lastTime = timestamp;
-
-  updateGame(dt);
-  drawGame();
-
-  if (running) {
-    animationId = requestAnimationFrame(gameLoop);
-  }
-}
-
-function updateGame(dt) {
-  distance += speed * dt;
-  speed = Math.min(10, 4 + distance / 1800);
-
-  score = Math.floor(distance / 10);
-  updateScoreboard();
-
-  // Fisica del salto
-  player.vy += player.gravity * dt;
-  player.y += player.vy * dt;
-
-  if (player.y + player.h >= groundY) {
-    player.y = groundY - player.h;
-    player.vy = 0;
-    player.grounded = true;
-  }
-
-  // Generazione ostacoli
-  spawnTimer += dt * 16.667;
-
-  if (spawnTimer >= nextObstacle) {
-    createObstacle();
-    spawnTimer = 0;
-    nextObstacle = 900 + Math.random() * 700;
-  }
-
-  // Movimento e collisioni
-  for (const obstacle of obstacles) {
-    obstacle.x -= speed * dt;
-
-    if (collides(player, obstacle)) {
-      endGame();
-      return;
-    }
-  }
-
-  obstacles = obstacles.filter(o => o.x + o.w > -10);
-
-  updateParticles(dt);
-}
-
-function drawGame() {
-  drawBackground();
-
-  for (const obstacle of obstacles) {
-    drawObstacle(obstacle);
-  }
-
-  drawWolf();
-  updateParticles(0);
-
-  // Punteggio sul campo
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 18px Arial";
-  ctx.textAlign = "left";
-  ctx.fillText("LUPO RUNNER", 18, 32);
-  ctx.fillText("Punti: " + score, 18, 58);
-
-  if (!running && !gameOver) {
-    drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA");
-  }
-
-  if (gameOver) {
-    drawOverlay("GAME OVER", "Punteggio: " + finalScore);
-  }
-}
-
-function drawOverlay(title, subtitle) {
-  ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 32px Arial";
-  ctx.fillText(title, W / 2, H / 2 - 15);
-
-  ctx.font = "16px Arial";
-  ctx.fillStyle = "#ddd";
-  ctx.fillText(subtitle, W / 2, H / 2 + 22);
-}
-
-// ======================================
-// FINE PARTITA
-// ======================================
-
-function endGame() {
-  running = false;
-  gameOver = true;
-  finalScore = score;
-
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
-  }
-
-  addParticles(player.x + player.w / 2, player.y + player.h / 2);
-
-  if (finalScore > best) {
-    best = finalScore;
-    saveBest(best);
-    messageElement.textContent =
-      "NUOVO RECORD! Hai totalizzato " + finalScore + " punti!";
-  } else {
-    messageElement.textContent =
-      "Partita terminata. Hai totalizzato " + finalScore +
-      " punti. Riprova!";
-  }
-
-  updateScoreboard();
-  drawGame();
-}
-
-// ======================================
-// CLASSIFICA ONLINE
-// ======================================
-
-async function loadLeaderboard() {
-  leaderboardStatus.textContent = "Caricamento classifica...";
-  leaderboardBody.replaceChildren();
-
-  const loadingRow = document.createElement("tr");
-  const loadingCell = document.createElement("td");
-  loadingCell.colSpan = 3;
-  loadingCell.textContent = "Caricamento...";
-  loadingRow.appendChild(loadingCell);
-  leaderboardBody.appendChild(loadingRow);
-
-  try {
-    const response = await fetch(
-      LEADERBOARD_API_URL + "?action=top5",
-      { method: "GET", cache: "no-store" }
-    );
-
-    if (!response.ok) {
-      throw new Error("Risposta HTTP " + response.status);
-    }
-
-    const data = await response.json();
-
-    if (data.ok === false) {
-      throw new Error(data.message || "Classifica non disponibile.");
-    }
-
-    const scores = Array.isArray(data.scores) ? data.scores : [];
-
-    leaderboardBody.replaceChildren();
-
-    if (scores.length === 0) {
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      cell.colSpan = 3;
-      cell.textContent = "Nessun punteggio disponibile.";
-      row.appendChild(cell);
-      leaderboardBody.appendChild(row);
-    } else {
-      scores.slice(0, 5).forEach((entry, index) => {
-        const row = document.createElement("tr");
-
-        const positionCell = document.createElement("td");
-        positionCell.textContent = String(index + 1);
-
-        const nameCell = document.createElement("td");
-        nameCell.textContent = String(
-          entry.nickname || entry.nome || "Lupetto"
-        );
-
-        const scoreCell = document.createElement("td");
-        scoreCell.textContent = String(
-          Number(entry.score ?? entry.punteggio ?? 0)
-        );
-
-        row.append(positionCell, nameCell, scoreCell);
-        leaderboardBody.appendChild(row);
-      });
-    }
-
-    leaderboardStatus.textContent = "Classifica aggiornata.";
-  } catch (error) {
-    console.error("Errore caricamento classifica:", error);
-
-    leaderboardStatus.textContent =
-      "Impossibile caricare la classifica. Verifica la connessione e riprova.";
-
-    leaderboardBody.replaceChildren();
-
-    const row = document.createElement("tr");
-    const cell = document.createElement("td");
-    cell.colSpan = 3;
-    cell.textContent = "Classifica momentaneamente non disponibile.";
-    row.appendChild(cell);
-    leaderboardBody.appendChild(row);
-  }
-}
-
-async function submitScore() {
-  const nickname = playerNameInput.value.trim();
-
-  if (!nickname) {
-    leaderboardStatus.textContent =
-      "Inserisci prima il tuo nickname Instagram.";
-    playerNameInput.focus();
-    return;
-  }
-
-  if (!gameOver) {
-    leaderboardStatus.textContent =
-      "Completa una partita prima di inviare il punteggio.";
-    return;
-  }
-
-  if (finalScore <= 0) {
-    leaderboardStatus.textContent =
-      "Il punteggio deve essere maggiore di zero.";
-    return;
-  }
-
-  submitScoreButton.disabled = true;
-  leaderboardStatus.textContent = "Invio del punteggio in corso...";
-
-  try {
-    const response = await fetch(LEADERBOARD_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify({
-        nickname: nickname,
-        score: finalScore
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error("Risposta HTTP " + response.status);
-    }
-
-    const result = await response.json();
-
-    if (result.ok === false) {
-      throw new Error(result.message || "Invio non riuscito.");
-    }
-
-    leaderboardStatus.textContent =
-      "Punteggio inviato! " + finalScore + " punti per " + nickname + ".";
-
-    await loadLeaderboard();
-  } catch (error) {
-    console.error("Errore invio punteggio:", error);
-
-    leaderboardStatus.textContent =
-      "Non è stato possibile inviare il punteggio. " +
-      "Controlla che Apps Script sia pubblicato correttamente.";
-  } finally {
-    submitScoreButton.disabled = false;
-  }
-}
-
-submitScoreButton.addEventListener("click", submitScore);
-refreshBoardButton.addEventListener("click", loadLeaderboard);
-
-// ======================================
-// INIZIALIZZAZIONE
-// ======================================
-
-updateScoreboard();
-drawGame();
-loadLeaderboard();
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>Lupo Games | Lista Lupo Nero</title>
+
+  <link rel="stylesheet" href="gioco.css">
+  <script src="gioco.js" defer></script>
+</head>
+
+<body>
+  <header class="game-header">
+    <a href="../index.html" class="back-link">← Torna alla Home</a>
+    <h1>LUPO GAMES</h1>
+    <p>Benvenuto nel branco. Quanto riuscirai a resistere?</p>
+  </header>
+
+  <main class="game-container">
+    <section class="game-panel">
+      <h2>Lupo Runner</h2>
+      <p>Salta gli ostacoli e cerca di stabilire il tuo record!</p>
+
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas" width="420" height="620">
+          Il tuo browser non supporta il canvas.
+        </canvas>
+      </div>
+
+      <div class="game-buttons">
+        <button id="startGame" type="button">Inizia partita</button>
+        <button id="jumpGame" type="button">SALTA</button>
+      </div>
+
+      <div class="scoreboard">
+        <p>Punteggio: <strong id="score">0</strong></p>
+        <p>Record personale: <strong id="personalBest">0</strong></p>
+      </div>
+
+      <p id="gameMessage" role="status" aria-live="polite">
+        Premi «Inizia partita» per giocare.
+      </p>
+    </section>
+
+    <section class="game-panel leaderboard-panel">
+      <h2>Classifica del branco</h2>
+      <p>Inserisci il tuo nickname Instagram per inviare il punteggio.</p>
+
+      <label for="playerName">Nickname Instagram</label>
+      <input
+        id="playerName"
+        type="text"
+        maxlength="30"
+        placeholder="@tuonickname"
+        autocomplete="nickname"
+      >
+
+      <div class="leaderboard-buttons">
+        <button id="submitScore" type="button">Invia punteggio</button>
+        <button id="refreshBoard" type="button">Aggiorna classifica</button>
+      </div>
+
+      <p id="leaderboardStatus" role="status" aria-live="polite">
+        Caricamento classifica...
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Pos.</th>
+              <th>Nickname</th>
+              <th>Punteggio</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr>
+              <td colspan="3">Classifica in caricamento...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="game-footer">
+    <p>Lista Lupo Nero · Il branco gioca insieme.</p>
+    <a
+      href="https://www.instagram.com/Lista.LupoNero/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Instagram Lista Lupo Nero
+    </a>
+  </footer>
+</body>
+</html>
