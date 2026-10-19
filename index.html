@@ -1,32 +1,24 @@
-
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090909">
-  <meta name="description" content="Lista Lupo Nero: eventi, sorteggi, Lupo Runner e il mondo del Branco.">
+  <meta name="description" content="Lista Lupo Nero: eventi, musica, giochi e il mondo del Branco.">
   <title>Lista Lupo Nero</title>
 
   <style>
     :root {
       --bg: #090909;
       --panel: #151515;
-      --panel2: #1d1d1d;
       --text: #f4f4f4;
       --muted: #aaa;
-      --accent: #d9d9d9;
       --border: #333;
-      --radius: 16px;
     }
 
     * {
       box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 100px;
     }
 
     body {
@@ -39,44 +31,32 @@
 
     a {
       color: inherit;
-    }
-
-    button,
-    input {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
+      text-decoration: none;
     }
 
     .site-header {
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(9, 9, 9, .96);
+      z-index: 10;
+      background: rgba(9, 9, 9, .97);
       border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
     }
 
     .header-inner {
       max-width: 1150px;
       margin: auto;
-      padding: 14px 20px;
+      padding: 16px 20px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 20px;
       flex-wrap: wrap;
     }
 
     .brand {
-      color: var(--text);
-      font-size: 1.15rem;
       font-weight: 900;
-      text-decoration: none;
+      font-size: 1.1rem;
       letter-spacing: 1px;
-      white-space: nowrap;
     }
 
     .brand span {
@@ -85,23 +65,20 @@
 
     .main-nav {
       display: flex;
-      align-items: center;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 6px;
     }
 
     .main-nav a {
-      padding: 7px 11px;
-      color: #ddd;
-      text-decoration: none;
+      padding: 7px 10px;
+      border-radius: 8px;
       font-size: .88rem;
-      border-radius: 9px;
-      transition: background .2s, color .2s;
+      color: #ddd;
     }
 
     .main-nav a:hover {
       background: #292929;
-      color: #fff;
+      color: white;
     }
 
     main {
@@ -109,258 +86,124 @@
       margin: auto;
     }
 
-    section {
-      padding: 48px 0;
-      border-bottom: 1px solid #222;
-    }
-
     .hero {
-      min-height: 320px;
+      min-height: 470px;
+      padding: 80px 15px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 65px 15px;
     }
 
     .eyebrow {
       color: #aaa;
       font-size: .8rem;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       text-transform: uppercase;
     }
 
     h1 {
-      font-size: clamp(2.3rem, 8vw, 5rem);
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
       line-height: 1.05;
-      margin: 12px 0;
       letter-spacing: 2px;
-    }
-
-    h2 {
-      font-size: clamp(1.6rem, 5vw, 2.4rem);
-      line-height: 1.2;
-      margin: 0 0 12px;
-    }
-
-    h3 {
-      margin-top: 0;
+      margin: 18px 0;
     }
 
     .subtitle {
-      max-width: 650px;
+      max-width: 680px;
       color: var(--muted);
-      margin: 0 auto 24px;
+      margin: 0 auto 28px;
     }
 
-    .section-intro {
-      color: var(--muted);
-      margin-top: 0;
-      margin-bottom: 24px;
-      max-width: 750px;
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .button-row {
+    .buttons {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      min-height: 44px;
-      padding: 10px 17px;
-      background: #eee;
-      color: #090909;
+      display: inline-block;
+      padding: 12px 18px;
       border: 1px solid #eee;
       border-radius: 10px;
+      background: #eee;
+      color: #090909;
       font-weight: 800;
-      text-decoration: none;
-      transition: transform .15s, background .15s;
+      transition: .2s;
     }
 
     .btn:hover {
-      background: #fff;
-      transform: translateY(-1px);
+      background: white;
+      transform: translateY(-2px);
     }
 
     .btn.secondary {
-      background: transparent;
       color: #eee;
+      background: transparent;
       border-color: #555;
     }
 
     .btn.secondary:hover {
-      background: #242424;
+      background: #222;
     }
 
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: .5;
-      transform: none;
+    .section {
+      padding: 42px 0;
+      border-top: 1px solid #222;
     }
 
-    .input {
-      display: block;
-      width: 100%;
-      min-height: 46px;
-      padding: 11px 13px;
-      margin: 8px 0 14px;
-      border: 1px solid #444;
-      border-radius: 9px;
-      background: #090909;
-      color: #fff;
-      outline: none;
+    .section h2 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin: 0 0 10px;
     }
 
-    .input:focus {
-      border-color: #aaa;
-    }
-
-    .muted {
+    .section p {
       color: var(--muted);
+      max-width: 720px;
     }
 
-    .small {
-      font-size: .88rem;
-    }
-
-    .status {
-      min-height: 28px;
-      margin-top: 14px;
-      color: #ddd;
-      overflow-wrap: anywhere;
-    }
-
-    .event-grid {
+    .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
+      gap: 16px;
+      margin-top: 24px;
     }
 
-    .event-card {
-      overflow: hidden;
+    .card {
+      display: block;
+      padding: 22px;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      display: flex;
-      flex-direction: column;
+      border-radius: 14px;
+      transition: border-color .2s, transform .2s;
     }
 
-    .event-image {
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      object-fit: cover;
-      background: #222;
-      display: block;
+    .card:hover {
+      border-color: #888;
+      transform: translateY(-3px);
     }
 
-    .event-content {
-      padding: 17px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
+    .card h3 {
+      margin: 0 0 8px;
     }
 
-    .event-content p {
-      margin: 4px 0;
+    .card p {
+      margin-bottom: 0;
+      font-size: .92rem;
     }
 
-    .event-content .btn {
-      margin-top: 14px;
-    }
-
-    .empty-message {
-      color: var(--muted);
-      padding: 18px;
-      border: 1px dashed #444;
-      border-radius: 12px;
-    }
-
-    .game-wrap {
-      overflow: hidden;
-    }
-
-    .game-canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 800 / 360;
-      background: #101218;
-      border: 1px solid #353535;
-      border-radius: 12px;
-      touch-action: manipulation;
-    }
-
-    .game-controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .game-stats {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 12px 0;
-      color: #ddd;
-    }
-
-    .leaderboard {
-      list-style: none;
-      padding: 0;
-      margin: 12px 0 0;
-    }
-
-    .leaderboard li {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      padding: 10px 0;
-      border-bottom: 1px solid #333;
-    }
-
-    .leaderboard li:last-child {
-      border-bottom: 0;
-    }
-
-    .footer {
-      max-width: 1100px;
-      margin: auto;
-      padding: 30px 16px 45px;
+    footer {
+      padding: 30px 16px;
       text-align: center;
       color: #888;
       font-size: .9rem;
+      border-top: 1px solid #222;
     }
 
-    .footer a {
+    footer a {
       color: #ddd;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
     }
 
     @media (max-width: 700px) {
@@ -377,20 +220,9 @@
         padding: 6px 8px;
       }
 
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      section {
-        padding: 35px 0;
-      }
-
-      .panel {
-        padding: 18px;
-      }
-
-      .game-canvas {
-        aspect-ratio: 800 / 400;
+      .hero {
+        min-height: 390px;
+        padding: 55px 8px;
       }
     }
   </style>
@@ -399,1068 +231,116 @@
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="#home">LISTA <span>LUPO NERO</span></a>
+      <a class="brand" href="index.html">LISTA <span>LUPO NERO</span></a>
 
       <nav class="main-nav" aria-label="Navigazione principale">
-        <a href="#home">Home</a>
-        <a href="#eventi">Eventi</a>
-        <a href="#sorteggio">Sorteggio</a>
-        <a href="#games">Lupo Games</a>
+        <a href="index.html">Home</a>
+        <a href="sezioni/eventi.html">Eventi</a>
+        <a href="sezioni/sorteggio.html">Sorteggio</a>
+        <a href="giochi/index.html">Lupo Games</a>
         <a href="sezioni/dj.html">DJ</a>
         <a href="sezioni/merch.html">Merch</a>
         <a href="sezioni/gallery.html">Gallery</a>
         <a href="sezioni/youtube.html">YouTube</a>
         <a href="sezioni/partner.html">Partner</a>
-        <a href="#sostieni">Sostieni</a>
+        <a href="sezioni/sostieni.html">Sostieni</a>
         <a href="sezioni/volontariato.html">Volontariato</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- HOME -->
-    <section class="hero" id="home">
+    <section class="hero">
       <div class="eyebrow">Benvenuti nel Branco</div>
-      <h1>LISTA LUPO NERO</h1>
+
+      <h1>LISTA<br>LUPO NERO</h1>
+
       <p class="subtitle">
-        Eventi, musica, esperienze e iniziative. Un branco fatto di persone,
-        libertà e voglia di vivere la notte insieme.
+        Eventi, musica, esperienze e nuove iniziative.
+        Un branco fatto di persone, libertà e voglia di vivere
+        la notte insieme.
       </p>
 
-      <div class="button-row">
-        <a class="btn" href="#eventi">Scopri gli eventi</a>
-        <a class="btn secondary" href="#sorteggio">Prova il sorteggio</a>
-        <a class="btn secondary" href="#games">Gioca a Lupo Runner</a>
+      <div class="buttons">
+        <a class="btn" href="sezioni/eventi.html">Scopri gli eventi</a>
+        <a class="btn secondary" href="sezioni/sorteggio.html">Tenta la sorte</a>
+        <a class="btn secondary" href="giochi/index.html">Entra in Lupo Games</a>
       </div>
     </section>
 
-    <!-- EVENTI -->
-    <section id="eventi">
-      <h2>Eventi del Branco</h2>
-      <p class="section-intro">
-        Scopri gli appuntamenti, consulta le informazioni e raggiungi il link
-        per i biglietti quando disponibile.
+    <section class="section">
+      <h2>Il mondo del Branco</h2>
+      <p>
+        La Lista Lupo Nero è un progetto indipendente che unisce
+        persone, musica e iniziative. Qui puoi scoprire le attività
+        del Branco e trovare tutti i nostri collegamenti.
       </p>
 
-      <div id="eventi-container" class="event-grid">
-        <p class="empty-message">Caricamento degli eventi in corso...</p>
+      <div class="cards">
+        <a class="card" href="sezioni/eventi.html">
+          <h3>🌑 Eventi</h3>
+          <p>Scopri serate, appuntamenti e informazioni sui biglietti.</p>
+        </a>
+
+        <a class="card" href="sezioni/sorteggio.html">
+          <h3>🐺 Sorteggio del Lupo</h3>
+          <p>Visita la pagina dedicata ai tentativi e alle iniziative promozionali.</p>
+        </a>
+
+        <a class="card" href="giochi/index.html">
+          <h3>🎮 Lupo Games</h3>
+          <p>Entra nel mondo dei giochi del Branco e prova a battere il record.</p>
+        </a>
+
+        <a class="card" href="sezioni/dj.html">
+          <h3>🎧 DJ</h3>
+          <p>Musica, set e progetti legati al mondo del Lupo Nero.</p>
+        </a>
+
+        <a class="card" href="sezioni/merch.html">
+          <h3>🐺 Merch ufficiale</h3>
+          <p>Scopri i prodotti ufficiali della Lista Lupo Nero.</p>
+        </a>
+
+        <a class="card" href="sezioni/partner.html">
+          <h3>🤝 Partner</h3>
+          <p>Le collaborazioni e le realtà che sostengono il progetto.</p>
+        </a>
       </div>
     </section>
 
-    <!-- SORTEGGIO -->
-    <section id="sorteggio">
-      <h2>Il Sorteggio del Lupo</h2>
-      <p class="section-intro">
-        Inserisci il tuo nickname Instagram e tenta la fortuna.
-        Ogni tentativo ha una probabilità di vincita di 1 su 1000.
+    <section class="section">
+      <h2>Il Branco cresce insieme</h2>
+      <p>
+        Partecipa, condividi le iniziative e aiutaci a costruire
+        nuove esperienze. Per informazioni e collaborazioni,
+        contattaci su Instagram.
       </p>
 
-      <div class="grid">
-        <div class="panel">
-          <h3>🐺 Tenta la fortuna</h3>
+      <div class="buttons">
+        <a class="btn" href="https://www.instagram.com/Lista.LupoNero/"
+           target="_blank" rel="noopener noreferrer">
+          Instagram Lista Lupo Nero
+        </a>
 
-          <label for="instagram-nickname">Nickname Instagram</label>
-          <input
-            class="input"
-            id="instagram-nickname"
-            type="text"
-            maxlength="30"
-            placeholder="@tuonickname"
-            autocomplete="nickname"
-          >
-
-          <button class="btn" id="draw-button" type="button">
-            Tenta il sorteggio
-          </button>
-
-          <div class="status" id="draw-status" role="status" aria-live="polite">
-            Hai a disposizione un tentativo ogni 8 ore su questo browser.
-          </div>
-
-          <p class="muted small">
-            Il sorteggio è una funzione promozionale del sito. Il risultato
-            viene generato nel browser e non costituisce una verifica
-            indipendente o certificata del concorso.
-          </p>
-        </div>
-
-        <div class="panel">
-          <h3>Come funziona</h3>
-          <p>1. Inserisci il tuo nickname Instagram.</p>
-          <p>2. Premi il pulsante per tentare la fortuna.</p>
-          <p>3. Se vinci, segui le istruzioni mostrate sul sito.</p>
-
-          <div class="button-row" style="justify-content:flex-start">
-            <a
-              class="btn secondary"
-              href="https://www.instagram.com/Lista.LupoNero/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Instagram Lista</a>
-
-            <a
-              class="btn secondary"
-              href="https://www.instagram.com/ReLupoNero/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Instagram DJ</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- LUPO RUNNER -->
-    <section id="games">
-      <h2>Lupo Games: Lupo Runner</h2>
-      <p class="section-intro">
-        Salta gli ostacoli, raccogli i bonus e prova a raggiungere il record.
-        Su computer puoi usare la barra spaziatrice o la freccia in alto;
-        su telefono puoi toccare il gioco.
-      </p>
-
-      <div class="panel game-wrap">
-        <div class="game-stats">
-          <span>Punteggio: <strong id="game-score">0</strong></span>
-          <span>Record personale: <strong id="game-best">0</strong></span>
-          <span>Stato: <strong id="game-state">Pronto</strong></span>
-        </div>
-
-        <canvas
-          class="game-canvas"
-          id="runner-canvas"
-          width="800"
-          height="360"
-          aria-label="Gioco Lupo Runner. Salta per evitare gli ostacoli."
-        ></canvas>
-
-        <div class="game-controls">
-          <button class="btn" id="game-start" type="button">Inizia partita</button>
-          <button class="btn secondary" id="game-jump" type="button">Salta</button>
-          <button class="btn secondary" id="game-restart" type="button">Ricomincia</button>
-        </div>
-
-        <p class="muted small">
-          Comandi: SPAZIO, freccia SU, clic o tocco sul gioco. Evita gli
-          ostacoli e raccogli i bonus per aumentare il punteggio.
-        </p>
-      </div>
-
-      <div class="grid" style="margin-top:18px">
-        <div class="panel">
-          <h3>🏆 Classifica online</h3>
-          <p class="muted small">
-            I migliori punteggi vengono richiesti al servizio di classifica.
-          </p>
-          <ol class="leaderboard" id="leaderboard">
-            <li><span>Caricamento classifica...</span><span>—</span></li>
-          </ol>
-          <button class="btn secondary" id="refresh-leaderboard" type="button" style="margin-top:15px">
-            Aggiorna classifica
-          </button>
-          <div class="status" id="leaderboard-status" role="status" aria-live="polite"></div>
-        </div>
-
-        <div class="panel">
-          <h3>Invia il tuo punteggio</h3>
-          <p class="muted small">
-            Dopo aver concluso una partita, puoi provare a inviare il risultato
-            alla classifica online.
-          </p>
-
-          <label for="leaderboard-nickname">Nickname per la classifica</label>
-          <input
-            class="input"
-            id="leaderboard-nickname"
-            type="text"
-            maxlength="20"
-            placeholder="Il tuo nickname"
-            autocomplete="nickname"
-          >
-
-          <button class="btn" id="submit-score" type="button" disabled>
-            Invia punteggio
-          </button>
-
-          <div class="status" id="submit-status" role="status" aria-live="polite"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SOSTIENI -->
-    <section id="sostieni">
-      <h2>Sostieni il Branco</h2>
-      <p class="section-intro">
-        La Lista Lupo Nero cresce grazie alle persone che partecipano,
-        condividono le iniziative e contribuiscono a creare nuove esperienze.
-      </p>
-
-      <div class="grid">
-        <div class="panel">
-          <h3>Entra in contatto</h3>
-          <p class="muted">
-            Per informazioni sulle liste, sugli eventi e sulle iniziative,
-            scrivici sui nostri canali social.
-          </p>
-          <a
-            class="btn"
-            href="https://www.instagram.com/Lista.LupoNero/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Contatta Lista Lupo Nero</a>
-        </div>
-
-        <div class="panel">
-          <h3>Condividi il progetto</h3>
-          <p class="muted">
-            Condividi la pagina con gli amici e aiutaci a far conoscere il
-            Branco e le sue attività.
-          </p>
-          <button class="btn secondary" id="share-site" type="button">
-            Condividi il sito
-          </button>
-          <div class="status" id="share-status" role="status" aria-live="polite"></div>
-        </div>
+        <a class="btn secondary" href="https://www.instagram.com/ReLupoNero/"
+           target="_blank" rel="noopener noreferrer">
+          Instagram ReLupoNero
+        </a>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
+  <footer>
     <p><strong>LISTA LUPO NERO</strong></p>
     <p>Il Branco si costruisce insieme.</p>
-    <p>
-      <a href="https://www.instagram.com/Lista.LupoNero/" target="_blank" rel="noopener noreferrer">Instagram Lista</a>
-      ·
-      <a href="https://www.instagram.com/ReLupoNero/" target="_blank" rel="noopener noreferrer">Re Lupo Nero</a>
-    </p>
     <p>© <span id="current-year"></span> Lista Lupo Nero</p>
   </footer>
 
-  <!-- File degli eventi: deve rimanere nella cartella principale -->
-  <script src="eventi.js"></script>
-
   <script>
-    "use strict";
-
-    /* =========================================================
-       CONFIGURAZIONE CLASSIFICA ONLINE
-       ========================================================= */
-
-    const LEADERBOARD_API =
-      "https://script.google.com/macros/s/AKfycbw90FPmdyu6G-qnkNq3G47-aryIWio0iC9XLb0fv-dXOgTDJge9YNickWF6cZCu9Tdv/exec";
-
-    /* =========================================================
-       UTILITÀ GENERALI
-       ========================================================= */
-
-    const $ = (selector) => document.querySelector(selector);
-
-    function setText(selector, message) {
-      const element = $(selector);
-      if (element) element.textContent = message;
-    }
-
-    function safeText(value, fallback = "") {
-      if (value === undefined || value === null) return fallback;
-      return String(value);
-    }
-
-    $("#current-year").textContent = new Date().getFullYear();
-
-    /* =========================================================
-       EVENTI
-       Legge i dati dal file eventi.js.
-       Formato atteso: window.eventi = [{nome, locandina,
-       linkBiglietti, data, locale}, ...]
-       ========================================================= */
-
-    function renderEvents() {
-      const container = $("#eventi-container");
-      if (!container) return;
-
-      const events = Array.isArray(window.eventi) ? window.eventi : [];
-
-      if (events.length === 0) {
-        container.innerHTML = "";
-        const message = document.createElement("p");
-        message.className = "empty-message";
-        message.textContent =
-          "Al momento non ci sono eventi da mostrare. Torna presto per i prossimi appuntamenti!";
-        container.appendChild(message);
-        return;
-      }
-
-      container.innerHTML = "";
-
-      events.forEach((event) => {
-        const card = document.createElement("article");
-        card.className = "event-card";
-
-        const imageUrl = safeText(event.locandina).trim();
-        if (imageUrl) {
-          const image = document.createElement("img");
-          image.className = "event-image";
-          image.src = imageUrl;
-          image.alt = "Locandina " + safeText(event.nome, "evento");
-          image.loading = "lazy";
-          image.onerror = () => {
-            image.removeAttribute("src");
-            image.alt = "Locandina non disponibile";
-          };
-          card.appendChild(image);
-        }
-
-        const content = document.createElement("div");
-        content.className = "event-content";
-
-        const title = document.createElement("h3");
-        title.textContent = safeText(event.nome, "Evento");
-        content.appendChild(title);
-
-        if (event.data) {
-          const date = document.createElement("p");
-          date.textContent = "📅 " + safeText(event.data);
-          content.appendChild(date);
-        }
-
-        if (event.locale) {
-          const venue = document.createElement("p");
-          venue.textContent = "📍 " + safeText(event.locale);
-          content.appendChild(venue);
-        }
-
-        const ticketUrl = safeText(event.linkBiglietti).trim();
-
-        if (ticketUrl && /^https?:\/\//i.test(ticketUrl)) {
-          const link = document.createElement("a");
-          link.className = "btn";
-          link.href = ticketUrl;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = "Info e biglietti";
-          content.appendChild(link);
-        }
-
-        card.appendChild(content);
-        container.appendChild(card);
-      });
-    }
-
-    renderEvents();
-
-    /* =========================================================
-       SORTEGGIO
-       Probabilità: 1 su 1000 per tentativo.
-       Intervallo: 8 ore sul browser corrente.
-       ========================================================= */
-
-    const DRAW_COOLDOWN = 8 * 60 * 60 * 1000;
-    const DRAW_STORAGE_KEY = "lupoDrawLast";
-    const DRAW_PROBABILITY = 1 / 1000;
-
-    function getLastDrawTime() {
-      try {
-        const value = Number(localStorage.getItem(DRAW_STORAGE_KEY));
-        return Number.isFinite(value) ? value : 0;
-      } catch (error) {
-        return 0;
-      }
-    }
-
-    function updateDrawButton() {
-      const button = $("#draw-button");
-      const status = $("#draw-status");
-      if (!button || !status) return;
-
-      const remaining = DRAW_COOLDOWN - (Date.now() - getLastDrawTime());
-
-      if (remaining > 0) {
-        button.disabled = true;
-
-        const hours = Math.floor(remaining / 3600000);
-        const minutes = Math.floor((remaining % 3600000) / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-
-        status.textContent =
-          "Prossimo tentativo disponibile tra " +
-          hours + "h " + minutes + "m " + seconds + "s.";
-      } else {
-        button.disabled = false;
-        status.textContent =
-          "Puoi tentare la fortuna. Probabilità indicativa: 1 su 1000.";
-      }
-    }
-
-    $("#draw-button").addEventListener("click", () => {
-      const nicknameInput = $("#instagram-nickname");
-      const nickname = nicknameInput.value.trim();
-      const status = $("#draw-status");
-
-      if (!nickname) {
-        status.textContent = "Inserisci prima il tuo nickname Instagram.";
-        nicknameInput.focus();
-        return;
-      }
-
-      const remaining = DRAW_COOLDOWN - (Date.now() - getLastDrawTime());
-
-      if (remaining > 0) {
-        updateDrawButton();
-        return;
-      }
-
-      try {
-        localStorage.setItem(DRAW_STORAGE_KEY, String(Date.now()));
-      } catch (error) {
-        status.textContent =
-          "Non è stato possibile salvare il tentativo nel browser.";
-        return;
-      }
-
-      const won = Math.random() < DRAW_PROBABILITY;
-
-      if (won) {
-        status.textContent =
-          "🐺 Complimenti, " + nickname +
-          "! Il sorteggio indica una vincita. Contatta @Lista.LupoNero su Instagram per verificare il risultato e ricevere le istruzioni.";
-      } else {
-        status.textContent =
-          "🐺 Questa volta niente fortuna, " + nickname +
-          ". Il Branco ti aspetta al prossimo tentativo disponibile!";
-      }
-
-      updateDrawButton();
-    });
-
-    updateDrawButton();
-
-    /* =========================================================
-       CONDIVISIONE DEL SITO
-       ========================================================= */
-
-    $("#share-site").addEventListener("click", async () => {
-      const status = $("#share-status");
-      const shareData = {
-        title: "Lista Lupo Nero",
-        text: "Scopri il mondo della Lista Lupo Nero!",
-        url: window.location.href
-      };
-
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          status.textContent = "Condivisione avviata.";
-        } else if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(window.location.href);
-          status.textContent = "Link del sito copiato.";
-        } else {
-          status.textContent = "Copia il link dalla barra degli indirizzi del browser.";
-        }
-      } catch (error) {
-        if (error && error.name !== "AbortError") {
-          status.textContent = "Non è stato possibile condividere il link.";
-        }
-      }
-    });
-
-    /* =========================================================
-       LUPO RUNNER
-       ========================================================= */
-
-    const canvas = $("#runner-canvas");
-    const ctx = canvas.getContext("2d");
-
-    const game = {
-      running: false,
-      over: false,
-      score: 0,
-      best: 0,
-      speed: 5,
-      frame: 0,
-      lastTime: 0,
-      obstacles: [],
-      particles: [],
-      groundY: 300,
-      nextObstacle: 70,
-      lastSubmittedScore: 0
-    };
-
-    const wolf = {
-      x: 95,
-      y: 0,
-      width: 48,
-      height: 48,
-      vy: 0,
-      onGround: true
-    };
-
-    const GRAVITY = 0.65;
-    const JUMP_FORCE = -13.5;
-    const BEST_KEY = "lupoRunnerBest";
-
-    try {
-      game.best = Number(localStorage.getItem(BEST_KEY)) || 0;
-    } catch (error) {
-      game.best = 0;
-    }
-
-    wolf.y = game.groundY - wolf.height;
-    setText("#game-best", game.best);
-
-    function roundedRect(x, y, width, height, radius, fill) {
-      ctx.fillStyle = fill;
-      ctx.beginPath();
-      ctx.roundRect(x, y, width, height, radius);
-      ctx.fill();
-    }
-
-    function drawBackground() {
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, "#111621");
-      gradient.addColorStop(1, "#252832");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Luna
-      ctx.fillStyle = "#d8dbe0";
-      ctx.beginPath();
-      ctx.arc(680, 65, 24, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#111621";
-      ctx.beginPath();
-      ctx.arc(690, 56, 22, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Stelle
-      ctx.fillStyle = "#e7e7e7";
-      for (let i = 0; i < 30; i++) {
-        const x = (i * 83 + 29) % canvas.width;
-        const y = (i * 47 + 19) % 155;
-        ctx.globalAlpha = 0.25 + ((i % 4) * 0.15);
-        ctx.fillRect(x, y, 2, 2);
-      }
-      ctx.globalAlpha = 1;
-
-      // Sagome di montagne
-      ctx.fillStyle = "#202530";
-      ctx.beginPath();
-      ctx.moveTo(0, 245);
-      for (let x = 0; x <= canvas.width; x += 100) {
-        ctx.lineTo(x + 50, 190 + ((x * 7) % 50));
-        ctx.lineTo(x + 100, 245);
-      }
-      ctx.lineTo(canvas.width, canvas.height);
-      ctx.lineTo(0, canvas.height);
-      ctx.closePath();
-      ctx.fill();
-
-      // Terreno
-      ctx.fillStyle = "#141414";
-      ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
-
-      ctx.fillStyle = "#8e929a";
-      ctx.fillRect(0, game.groundY, canvas.width, 2);
-
-      // Linee del terreno
-      ctx.strokeStyle = "#353943";
-      ctx.lineWidth = 2;
-
-      for (let i = 0; i < 18; i++) {
-        const x = ((i * 67) - (game.frame * game.speed * 0.8) % 67 + 67) % canvas.width;
-        ctx.beginPath();
-        ctx.moveTo(x, game.groundY + 18);
-        ctx.lineTo(x - 22, game.groundY + 18);
-        ctx.stroke();
-      }
-    }
-
-    function drawWolf() {
-      const x = wolf.x;
-      const y = wolf.y;
-
-      // Ombra
-      ctx.fillStyle = "rgba(0,0,0,.3)";
-      ctx.beginPath();
-      ctx.ellipse(x + 24, game.groundY + 2, 28, 5, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Coda
-      ctx.strokeStyle = "#777e89";
-      ctx.lineWidth = 9;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(x + 8, y + 31);
-      ctx.quadraticCurveTo(x - 12, y + 22, x - 7, y + 11);
-      ctx.stroke();
-
-      // Corpo
-      roundedRect(x + 5, y + 18, 35, 25, 9, "#555c68");
-
-      // Zampe
-      ctx.fillStyle = "#242832";
-      const legOffset = game.running && wolf.onGround
-        ? Math.sin(game.frame * 0.45) * 5
-        : 0;
-
-      roundedRect(x + 10, y + 36, 9, 14 + legOffset, 4, "#242832");
-      roundedRect(x + 29, y + 36, 9, 14 - legOffset, 4, "#242832");
-
-      // Testa
-      ctx.fillStyle = "#737b88";
-      ctx.beginPath();
-      ctx.moveTo(x + 24, y + 3);
-      ctx.lineTo(x + 46, y + 9);
-      ctx.lineTo(x + 45, y + 27);
-      ctx.lineTo(x + 34, y + 34);
-      ctx.lineTo(x + 20, y + 25);
-      ctx.lineTo(x + 15, y + 12);
-      ctx.closePath();
-      ctx.fill();
-
-      // Orecchie
-      ctx.fillStyle = "#515864";
-      ctx.beginPath();
-      ctx.moveTo(x + 17, y + 12);
-      ctx.lineTo(x + 13, y - 2);
-      ctx.lineTo(x + 27, y + 8);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(x + 31, y + 9);
-      ctx.lineTo(x + 40, y - 3);
-      ctx.lineTo(x + 41, y + 15);
-      ctx.closePath();
-      ctx.fill();
-
-      // Muso
-      ctx.fillStyle = "#b7bbc2";
-      ctx.beginPath();
-      ctx.moveTo(x + 35, y + 20);
-      ctx.lineTo(x + 49, y + 23);
-      ctx.lineTo(x + 37, y + 30);
-      ctx.closePath();
-      ctx.fill();
-
-      // Occhio
-      ctx.fillStyle = "#f5f5f5";
-      ctx.beginPath();
-      ctx.arc(x + 34, y + 16, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#080808";
-      ctx.beginPath();
-      ctx.arc(x + 35, y + 16, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Naso
-      ctx.fillStyle = "#080808";
-      ctx.beginPath();
-      ctx.arc(x + 46, y + 23, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function createObstacle() {
-      const types = ["spike", "crate", "heart", "angel", "snake"];
-      const type = types[Math.floor(Math.random() * types.length)];
-
-      const isBonus = type === "heart" || type === "angel";
-
-      game.obstacles.push({
-        x: canvas.width + 20,
-        y: isBonus ? game.groundY - 75 - Math.random() * 45 : game.groundY - 35,
-        width: type === "crate" ? 34 : 30,
-        height: type === "crate" ? 35 : 32,
-        type,
-        passed: false
-      });
-    }
-
-    function drawObstacle(obstacle) {
-      const x = obstacle.x;
-      const y = obstacle.y;
-
-      if (obstacle.type === "spike") {
-        ctx.fillStyle = "#b8bec8";
-        ctx.beginPath();
-        ctx.moveTo(x, y + obstacle.height);
-        ctx.lineTo(x + obstacle.width / 2, y);
-        ctx.lineTo(x + obstacle.width, y + obstacle.height);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = "#777e89";
-        ctx.fillRect(x, y + obstacle.height - 5, obstacle.width, 5);
-      } else if (obstacle.type === "crate") {
-        roundedRect(x, y, obstacle.width, obstacle.height, 4, "#79553c");
-
-        ctx.strokeStyle = "#bd9874";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x + 5, y + 5, obstacle.width - 10, obstacle.height - 10);
-
-        ctx.beginPath();
-        ctx.moveTo(x + 6, y + 6);
-        ctx.lineTo(x + obstacle.width - 6, y + obstacle.height - 6);
-        ctx.moveTo(x + obstacle.width - 6, y + 6);
-        ctx.lineTo(x + 6, y + obstacle.height - 6);
-        ctx.stroke();
-      } else if (obstacle.type === "heart") {
-        ctx.fillStyle = "#e2e2e2";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("♥", x + obstacle.width / 2, y + 28);
-      } else if (obstacle.type === "angel") {
-        ctx.fillStyle = "#dedede";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("✦", x + obstacle.width / 2, y + 27);
-      } else if (obstacle.type === "snake") {
-        ctx.strokeStyle = "#8b929d";
-        ctx.lineWidth = 7;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(x, y + 25);
-        ctx.quadraticCurveTo(x + 8, y + 4, x + 16, y + 23);
-        ctx.quadraticCurveTo(x + 23, y + 39, x + 30, y + 15);
-        ctx.stroke();
-
-        ctx.fillStyle = "#d8d8d8";
-        ctx.beginPath();
-        ctx.arc(x + 30, y + 14, 4, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.textAlign = "start";
-    }
-
-    function drawOverlay(title, subtitle) {
-      ctx.fillStyle = "rgba(0,0,0,.58)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 34px Arial";
-      ctx.fillText(title, canvas.width / 2, canvas.height / 2 - 12);
-
-      ctx.fillStyle = "#d1d1d1";
-      ctx.font = "16px Arial";
-      ctx.fillText(subtitle, canvas.width / 2, canvas.height / 2 + 22);
-      ctx.textAlign = "start";
-    }
-
-    function drawScene() {
-      drawBackground();
-
-      for (const obstacle of game.obstacles) {
-        drawObstacle(obstacle);
-      }
-
-      drawWolf();
-
-      if (!game.running && !game.over) {
-        drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA per giocare");
-      }
-
-      if (game.over) {
-        drawOverlay("GAME OVER", "Punteggio: " + Math.floor(game.score) + " — Premi RICOMINCIA");
-      }
-    }
-
-    function jump() {
-      if (!game.running) {
-        if (!game.over) startGame();
-        return;
-      }
-
-      if (wolf.onGround) {
-        wolf.vy = JUMP_FORCE;
-        wolf.onGround = false;
-      }
-    }
-
-    function startGame() {
-      game.running = true;
-      game.over = false;
-      game.score = 0;
-      game.speed = 5;
-      game.frame = 0;
-      game.lastTime = 0;
-      game.obstacles = [];
-      game.particles = [];
-      game.nextObstacle = 65;
-      wolf.y = game.groundY - wolf.height;
-      wolf.vy = 0;
-      wolf.onGround = true;
-      game.lastSubmittedScore = 0;
-
-      setText("#game-score", "0");
-      setText("#game-state", "In corso");
-      setText("#submit-status", "");
-      $("#submit-score").disabled = true;
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    function endGame() {
-      game.running = false;
-      game.over = true;
-
-      const finalScore = Math.floor(game.score);
-      setText("#game-state", "Terminata");
-
-      if (finalScore > game.best) {
-        game.best = finalScore;
-        setText("#game-best", game.best);
-
-        try {
-          localStorage.setItem(BEST_KEY, String(game.best));
-        } catch (error) {
-          // Il record rimane disponibile per la partita corrente.
-        }
-      }
-
-      game.lastSubmittedScore = finalScore;
-      $("#submit-score").disabled = finalScore <= 0;
-
-      drawScene();
-    }
-
-    function overlaps(a, b) {
-      const padding = 7;
-
-      return (
-        a.x + padding < b.x + b.width &&
-        a.x + a.width - padding > b.x &&
-        a.y + padding < b.y + b.height &&
-        a.y + a.height - padding > b.y
-      );
-    }
-
-    function gameLoop(timestamp) {
-      if (!game.running) return;
-
-      if (!game.lastTime) game.lastTime = timestamp;
-
-      const delta = Math.min((timestamp - game.lastTime) / 16.67, 2);
-      game.lastTime = timestamp;
-
-      game.frame += delta;
-      game.score += 0.12 * delta;
-      game.speed = Math.min(11, 5 + game.score / 180);
-
-      // Fisica del salto
-      wolf.vy += GRAVITY * delta;
-      wolf.y += wolf.vy * delta;
-
-      if (wolf.y >= game.groundY - wolf.height) {
-        wolf.y = game.groundY - wolf.height;
-        wolf.vy = 0;
-        wolf.onGround = true;
-      }
-
-      // Creazione degli ostacoli e dei bonus
-      game.nextObstacle -= delta;
-
-      if (game.nextObstacle <= 0) {
-        createObstacle();
-        game.nextObstacle = Math.max(36, 80 - game.speed * 3) + Math.random() * 35;
-      }
-
-      // Movimento e collisioni
-      const wolfBox = {
-        x: wolf.x + 3,
-        y: wolf.y + 4,
-        width: wolf.width - 7,
-        height: wolf.height - 5
-      };
-
-      for (const obstacle of game.obstacles) {
-        obstacle.x -= game.speed * delta;
-
-        if (overlaps(wolfBox, obstacle)) {
-          if (obstacle.type === "heart" || obstacle.type === "angel") {
-            obstacle.passed = true;
-            obstacle.x = -100;
-            game.score += obstacle.type === "heart" ? 25 : 50;
-          } else {
-            endGame();
-            return;
-          }
-        }
-      }
-
-      game.obstacles = game.obstacles.filter(
-        (obstacle) => obstacle.x + obstacle.width > -10 && !obstacle.passed
-      );
-
-      setText("#game-score", String(Math.floor(game.score)));
-
-      drawScene();
-      requestAnimationFrame(gameLoop);
-    }
-
-    $("#game-start").addEventListener("click", () => {
-      if (!game.running) startGame();
-    });
-
-    $("#game-jump").addEventListener("click", jump);
-
-    $("#game-restart").addEventListener("click", startGame);
-
-    canvas.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      jump();
-    });
-
-    document.addEventListener("keydown", (event) => {
-      const tag = event.target && event.target.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-
-      if (event.code === "Space" || event.code === "ArrowUp") {
-        event.preventDefault();
-        jump();
-      }
-    });
-
-    drawScene();
-
-    /* =========================================================
-       CLASSIFICA ONLINE
-       ========================================================= */
-
-    async function refreshLeaderboard() {
-      const list = $("#leaderboard");
-      const status = $("#leaderboard-status");
-
-      list.innerHTML = "";
-      const loading = document.createElement("li");
-      loading.textContent = "Caricamento classifica...";
-      list.appendChild(loading);
-      status.textContent = "";
-
-      try {
-        const response = await fetch(
-          LEADERBOARD_API + "?action=top5&t=" + Date.now(),
-          { method: "GET", cache: "no-store" }
-        );
-
-        if (!response.ok) {
-          throw new Error("Risposta del servizio non valida.");
-        }
-
-        const data = await response.json();
-
-        let scores = [];
-
-        if (Array.isArray(data)) {
-          scores = data;
-        } else if (data && Array.isArray(data.top5)) {
-          scores = data.top5;
-        } else if (data && Array.isArray(data.scores)) {
-          scores = data.scores;
-        } else if (data && Array.isArray(data.data)) {
-          scores = data.data;
-        }
-
-        list.innerHTML = "";
-
-        if (scores.length === 0) {
-          const item = document.createElement("li");
-          item.textContent = "Nessun punteggio disponibile.";
-          list.appendChild(item);
-          return;
-        }
-
-        scores.slice(0, 5).forEach((entry, index) => {
-          const item = document.createElement("li");
-
-          const nickname = document.createElement("span");
-          const score = document.createElement("strong");
-
-          const name =
-            entry.nickname ??
-            entry.nome ??
-            entry.name ??
-            entry.player ??
-            "Lupo anonimo";
-
-          const points =
-            entry.score ??
-            entry.punteggio ??
-            entry.points ??
-            0;
-
-          nickname.textContent = (index + 1) + ". " + String(name);
-          score.textContent = String(points);
-
-          item.appendChild(nickname);
-          item.appendChild(score);
-          list.appendChild(item);
-        });
-      } catch (error) {
-        list.innerHTML = "";
-
-        const item = document.createElement("li");
-        item.textContent = "Classifica momentaneamente non disponibile.";
-        list.appendChild(item);
-
-        status.textContent =
-          "Controlla che il servizio Apps Script sia pubblicato e accessibile.";
-      }
-    }
-
-    $("#refresh-leaderboard").addEventListener("click", refreshLeaderboard);
-
-    async function submitScore() {
-      const nickname = $("#leaderboard-nickname").value.trim();
-      const status = $("#submit-status");
-      const button = $("#submit-score");
-      const score = Math.floor(game.lastSubmittedScore);
-
-      if (!nickname) {
-        status.textContent = "Inserisci un nickname per la classifica.";
-        $("#leaderboard-nickname").focus();
-        return;
-      }
-
-      if (score <= 0) {
-        status.textContent = "Completa una partita prima di inviare il punteggio.";
-        return;
-      }
-
-      button.disabled = true;
-      status.textContent = "Invio del punteggio in corso...";
-
-      try {
-        const response = await fetch(LEADERBOARD_API, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({
-            nickname: nickname.slice(0, 20),
-            score: score
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error("Invio non riuscito.");
-        }
-
-        status.textContent = "Richiesta di invio completata. Aggiorno la classifica...";
-        await refreshLeaderboard();
-      } catch (error) {
-        status.textContent =
-          "Non è stato possibile inviare il punteggio. Verifica il servizio Apps Script.";
-      } finally {
-        button.disabled = false;
-      }
-    }
-
-    $("#submit-score").addEventListener("click", submitScore);
-
-    refreshLeaderboard();
+    document.getElementById("current-year").textContent =
+      new Date().getFullYear();
   </script>
 </body>
 </html>
+```
