@@ -2,9 +2,9 @@
 "use strict";
 
 // ======================================
-// LUPO GAMES - LUPO RUNNER
-// Difficolta progressiva e sequenze variabili
-// Angelo volante: da evitare passando sotto
+// LUPO GAMES - LUPO RUNNER: MODALITA INCUBO
+// Difficolta estrema, velocita progressiva,
+// sequenze variabili e angelo volante.
 // ======================================
 
 const LEADERBOARD_API_URL =
@@ -33,11 +33,13 @@ const groundY = H - 80;
 const START_SPEED = 4;
 const MAX_SPEED = 8;
 
-const MIN_COMBO_GAP = 370;
+// Le combinazioni restano affrontabili anche alla velocita massima.
+const MIN_COMBO_GAP = 305;
 
-// ANGELO: altezza dal terreno e oscillazione verticale.
-const ANGEL_HEIGHT_ABOVE_GROUND = 145;
-const ANGEL_FLOAT_AMPLITUDE = 5;
+// Angelo variabile: il bordo inferiore resta sopra Lupetto.
+const ANGEL_MIN_HEIGHT = 100;
+const ANGEL_MAX_HEIGHT = 150;
+const ANGEL_FLOAT_AMPLITUDE = 3;
 
 let running = false;
 let paused = false;
@@ -53,10 +55,10 @@ let speed = START_SPEED;
 let baseSpeed = START_SPEED;
 let speedFactor = 1;
 let speedChangeTimer = 0;
-let nextSpeedChange = 3000;
+let nextSpeedChange = 2200;
 
 let spawnDistance = 0;
-let nextSpawnDistance = 430;
+let nextSpawnDistance = 400;
 
 let obstacles = [];
 let particles = [];
@@ -112,14 +114,14 @@ function updatePauseButton() {
 }
 
 // ======================================
-// FASI DI DIFFICOLTA
+// DIFFICOLTA: LE FASI ARRIVANO PRIMA
 // ======================================
 
 function getDifficultyStage() {
-  if (score < 500) return 0;
-  if (score < 1500) return 1;
-  if (score < 3000) return 2;
-  if (score < 5000) return 3;
+  if (score < 300) return 0;
+  if (score < 800) return 1;
+  if (score < 1600) return 2;
+  if (score < 2800) return 3;
   return 4;
 }
 
@@ -334,7 +336,7 @@ function drawWolf() {
 }
 
 // ======================================
-// GENERATORE DI OSTACOLI
+// GENERATORE OSTACOLI
 // ======================================
 
 const OBSTACLE_SIZES = {
@@ -348,10 +350,13 @@ const OBSTACLE_SIZES = {
 function createObstacle(type, offset = 0) {
   const size = OBSTACLE_SIZES[type];
 
-  // Gli ostacoli normali restano a terra.
-  // L'angelo è invece sospeso in aria.
+  const angelHeight = type === "angel"
+    ? ANGEL_MIN_HEIGHT +
+      Math.random() * (ANGEL_MAX_HEIGHT - ANGEL_MIN_HEIGHT)
+    : 0;
+
   const baseY = type === "angel"
-    ? groundY - ANGEL_HEIGHT_ABOVE_GROUND
+    ? groundY - angelHeight
     : groundY - size.h;
 
   obstacles.push({
@@ -361,6 +366,7 @@ function createObstacle(type, offset = 0) {
     baseY,
     w: size.w,
     h: size.h,
+    angelHeight,
     phase: Math.random() * Math.PI * 2
   });
 }
@@ -375,6 +381,7 @@ function choosePattern() {
   const groundTypes = ["spike", "crate", "heart", "snake"];
   const allTypes = ["spike", "crate", "heart", "angel", "snake"];
 
+  // La prima fase serve ancora a prendere confidenza.
   if (stage === 0) {
     return {
       types: [pickRandom(["spike", "crate", "heart"])],
@@ -382,73 +389,31 @@ function choosePattern() {
     };
   }
 
-  if (stage === 1) {
-    if (Math.random() < 0.22) {
-      return {
-        types: [
-          pickRandom(groundTypes),
-          pickRandom(groundTypes)
-        ],
-        gap: MIN_COMBO_GAP + Math.random() * 45
-      };
+  // Le combinazioni aumentano progressivamente.
+  const comboChance = [0, 0.42, 0.62, 0.76, 0.84][stage];
+
+  if (Math.random() < comboChance) {
+    const first = pickRandom(groundTypes);
+    let second = pickRandom(groundTypes);
+
+    if (Math.random() < 0.65 && second === first) {
+      second = pickRandom(
+        groundTypes.filter(type => type !== first)
+      );
     }
 
+    const gapVariation = [0, 20, 35, 45, 55][stage];
+    const gap = MIN_COMBO_GAP + Math.random() * gapVariation;
+
+    // Due ostacoli a terra: la distanza rimane affrontabile
+    // anche quando la velocita arriva a 8.
     return {
-      types: [pickRandom(allTypes)],
-      gap: 0
+      types: [first, second],
+      gap
     };
   }
 
-  if (stage === 2) {
-    if (Math.random() < 0.4) {
-      const first = pickRandom(groundTypes);
-      let second = pickRandom(groundTypes);
-
-      if (second === first) {
-        second = pickRandom(
-          groundTypes.filter(type => type !== first)
-        );
-      }
-
-      return {
-        types: [first, second],
-        gap: MIN_COMBO_GAP + Math.random() * 65
-      };
-    }
-
-    return {
-      types: [pickRandom(allTypes)],
-      gap: 0
-    };
-  }
-
-  if (stage === 3) {
-    if (Math.random() < 0.55) {
-      return {
-        types: [
-          pickRandom(groundTypes),
-          pickRandom(groundTypes)
-        ],
-        gap: MIN_COMBO_GAP + Math.random() * 80
-      };
-    }
-
-    return {
-      types: [pickRandom(allTypes)],
-      gap: 0
-    };
-  }
-
-  if (Math.random() < 0.62) {
-    return {
-      types: [
-        pickRandom(groundTypes),
-        pickRandom(groundTypes)
-      ],
-      gap: MIN_COMBO_GAP + Math.random() * 100
-    };
-  }
-
+  // L'angelo può apparire da solo e a diverse altezze.
   return {
     types: [pickRandom(allTypes)],
     gap: 0
@@ -467,29 +432,19 @@ function spawnPattern() {
 
   const stage = getDifficultyStage();
 
-  let minRest;
-  let maxRest;
+  // Intervalli più corti nelle fasi avanzate.
+  const rests = [
+    [620, 850],
+    [440, 610],
+    [380, 530],
+    [340, 470],
+    [320, 440]
+  ];
 
-  if (stage === 0) {
-    minRest = 640;
-    maxRest = 900;
-  } else if (stage === 1) {
-    minRest = 570;
-    maxRest = 820;
-  } else if (stage === 2) {
-    minRest = 520;
-    maxRest = 760;
-  } else if (stage === 3) {
-    minRest = 490;
-    maxRest = 700;
-  } else {
-    minRest = 470;
-    maxRest = 660;
-  }
+  const [minRest, maxRest] = rests[stage];
 
-  // Considera anche la larghezza dell'ultimo ostacolo
-  // per evitare che la combinazione successiva si sovrapponga.
   const lastType = pattern.types[pattern.types.length - 1];
+
   const patternSpan = pattern.types.length > 1
     ? pattern.gap + OBSTACLE_SIZES[lastType].w
     : OBSTACLE_SIZES[lastType].w;
@@ -613,8 +568,8 @@ function drawAngel(o) {
   ctx.fillRect(x + 15, y + 11, 3, 2);
   ctx.fillRect(x + 22, y + 11, 3, 2);
 
-  // Alone rosso molto discreto.
-  ctx.strokeStyle = "rgba(197, 30, 57, 0.55)";
+  // Alone rosso.
+  ctx.strokeStyle = "rgba(197, 30, 57, 0.7)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.ellipse(x + 20, y + 5, 12, 3, 0, 0, Math.PI * 2);
@@ -783,11 +738,12 @@ function drawParticles() {
 }
 
 // ======================================
-// VELOCITA PROGRESSIVA
+// VELOCITA: RAGGIUNGE 8 PIU RAPIDAMENTE
+// Il limite massimo rimane invariato.
 // ======================================
 
 function updateSpeed(dt) {
-  const progress = Math.min(score / 6000, 1);
+  const progress = Math.min(score / 3000, 1);
 
   baseSpeed =
     START_SPEED + progress * (MAX_SPEED - START_SPEED);
@@ -796,7 +752,7 @@ function updateSpeed(dt) {
 
   if (speedChangeTimer >= nextSpeedChange) {
     speedChangeTimer = 0;
-    nextSpeedChange = 2500 + Math.random() * 2500;
+    nextSpeedChange = 1800 + Math.random() * 1600;
 
     const stage = getDifficultyStage();
     const variation = 0.04 + stage * 0.012;
@@ -834,8 +790,10 @@ function togglePause() {
       animationId = null;
     }
 
-    messageElement.textContent =
-      "Partita in pausa. Premi RIPRENDI per continuare.";
+    if (messageElement) {
+      messageElement.textContent =
+        "Partita in pausa. Premi RIPRENDI per continuare.";
+    }
 
     updatePauseButton();
     drawGame();
@@ -847,7 +805,10 @@ function togglePause() {
     running = true;
     lastTime = 0;
 
-    messageElement.textContent = "Si riparte, Lupetto!";
+    if (messageElement) {
+      messageElement.textContent = "Si riparte, Lupetto!";
+    }
+
     updatePauseButton();
     animationId = requestAnimationFrame(gameLoop);
   }
@@ -868,10 +829,10 @@ function startGame() {
   baseSpeed = START_SPEED;
   speedFactor = 1;
   speedChangeTimer = 0;
-  nextSpeedChange = 3000;
+  nextSpeedChange = 2200;
 
   spawnDistance = 0;
-  nextSpawnDistance = 430;
+  nextSpawnDistance = 400;
 
   obstacles = [];
   particles = [];
@@ -883,8 +844,10 @@ function startGame() {
   player.vy = 0;
   player.grounded = true;
 
-  messageElement.textContent =
-    "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
+  if (messageElement) {
+    messageElement.textContent =
+      "Corri, Lupetto! Premi SPAZIO, ↑, W oppure SALTA.";
+  }
 
   updateScoreboard();
   updatePauseButton();
@@ -1024,13 +987,32 @@ function updateGame(dt) {
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
-    // L'angelo oscilla in aria attorno alla sua altezza.
-    // La posizione viene calcolata rispetto alla quota di volo.
+    // L'angelo varia quota entro limiti controllati.
+    // Il movimento non lo porta a contatto col terreno.
     if (obstacle.type === "angel") {
+      const wave =
+        Math.sin(distance * 0.018 + obstacle.phase);
+
+      const heightRange = ANGEL_MAX_HEIGHT - ANGEL_MIN_HEIGHT;
+
+      const currentHeight =
+        ANGEL_MIN_HEIGHT +
+        ((wave + 1) / 2) * heightRange;
+
       obstacle.y =
-        obstacle.baseY +
-        Math.sin(distance * 0.025 + obstacle.phase) *
+        groundY -
+        currentHeight +
+        Math.sin(distance * 0.035 + obstacle.phase) *
         ANGEL_FLOAT_AMPLITUDE;
+
+      // Aggiorna la hitbox alla quota effettiva.
+      obstacle.y = Math.max(
+        groundY - ANGEL_MAX_HEIGHT - ANGEL_FLOAT_AMPLITUDE,
+        Math.min(
+          groundY - ANGEL_MIN_HEIGHT + ANGEL_FLOAT_AMPLITUDE,
+          obstacle.y
+        )
+      );
     }
 
     if (collides(player, obstacle)) {
@@ -1123,9 +1105,11 @@ function endGame() {
     best = finalScore;
     saveBest(best);
 
-    messageElement.textContent =
-      "NUOVO RECORD! Hai totalizzato " + finalScore + " metri!";
-  } else {
+    if (messageElement) {
+      messageElement.textContent =
+        "NUOVO RECORD! Hai totalizzato " + finalScore + " metri!";
+    }
+  } else if (messageElement) {
     messageElement.textContent =
       "Partita terminata. Hai totalizzato " +
       finalScore + " metri. Riprova!";
@@ -1291,3 +1275,4 @@ updateScoreboard();
 updatePauseButton();
 drawGame();
 loadLeaderboard();
+
