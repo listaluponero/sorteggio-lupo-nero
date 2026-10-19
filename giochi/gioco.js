@@ -1,11 +1,10 @@
 
-
-
 "use strict";
 
 // ======================================
 // LUPO GAMES - LUPO RUNNER
 // Difficolta progressiva e sequenze variabili
+// Angelo volante: da evitare passando sotto
 // ======================================
 
 const LEADERBOARD_API_URL =
@@ -35,8 +34,11 @@ const START_SPEED = 4;
 const MAX_SPEED = 8;
 
 // Distanza minima tra due ostacoli di una combinazione.
-// Serve a dare a Lupetto il tempo di atterrare.
 const MIN_COMBO_GAP = 370;
+
+// Altezza dell'angelo: resta in aria, sopra Lupetto.
+const ANGEL_HEIGHT_ABOVE_GROUND = 100;
+const ANGEL_FLOAT_AMPLITUDE = 5;
 
 let running = false;
 let paused = false;
@@ -54,14 +56,12 @@ let speedFactor = 1;
 let speedChangeTimer = 0;
 let nextSpeedChange = 3000;
 
-// Generazione degli ostacoli basata sulla distanza percorsa.
 let spawnDistance = 0;
 let nextSpawnDistance = 430;
 
 let obstacles = [];
 let particles = [];
 
-// Controlli touch.
 let pointerStartX = 0;
 let pointerStartY = 0;
 let pointerMoved = false;
@@ -125,8 +125,6 @@ function getDifficultyStage() {
 }
 
 function getStageName() {
-  const stage = getDifficultyStage();
-
   const names = [
     "APPRENDIMENTO",
     "ATTENZIONE",
@@ -135,7 +133,7 @@ function getStageName() {
     "INCUBO"
   ];
 
-  return names[stage];
+  return names[getDifficultyStage()];
 }
 
 // ======================================
@@ -351,11 +349,18 @@ const OBSTACLE_SIZES = {
 function createObstacle(type, offset = 0) {
   const size = OBSTACLE_SIZES[type];
 
+  // Gli ostacoli normali restano a terra.
+  // L'angelo invece vola abbastanza in alto da poterci
+  // passare sotto quando Lupetto rimane a terra.
+  const baseY = type === "angel"
+    ? groundY - ANGEL_HEIGHT_ABOVE_GROUND
+    : groundY - size.h;
+
   obstacles.push({
     type,
     x: W + 10 + offset,
-    y: groundY - size.h,
-    baseY: groundY - size.h,
+    y: baseY,
+    baseY,
     w: size.w,
     h: size.h,
     phase: Math.random() * Math.PI * 2
@@ -366,15 +371,12 @@ function pickRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-// Sceglie quali ostacoli inserire nella prossima sequenza.
-// Le combinazioni aumentano con il punteggio.
 function choosePattern() {
   const stage = getDifficultyStage();
 
   const groundTypes = ["spike", "crate", "heart", "snake"];
   const allTypes = ["spike", "crate", "heart", "angel", "snake"];
 
-  // Fase 1: ostacoli singoli e leggibili.
   if (stage === 0) {
     return {
       types: [pickRandom(["spike", "crate", "heart"])],
@@ -382,7 +384,6 @@ function choosePattern() {
     };
   }
 
-  // Fase 2: varietà maggiore, prime combinazioni rare.
   if (stage === 1) {
     if (Math.random() < 0.22) {
       return {
@@ -400,7 +401,6 @@ function choosePattern() {
     };
   }
 
-  // Fase 3: combinazioni più frequenti e angelo volante.
   if (stage === 2) {
     if (Math.random() < 0.4) {
       const first = pickRandom(groundTypes);
@@ -424,7 +424,6 @@ function choosePattern() {
     };
   }
 
-  // Fase 4: più coppie, senza triplette ravvicinate.
   if (stage === 3) {
     if (Math.random() < 0.55) {
       return {
@@ -442,8 +441,6 @@ function choosePattern() {
     };
   }
 
-  // Fase 5: modalità avanzata.
-  // Le sequenze restano limitate a due ostacoli.
   if (Math.random() < 0.62) {
     return {
       types: [
@@ -460,9 +457,6 @@ function choosePattern() {
   };
 }
 
-// Genera una sequenza e programma la successiva.
-// Il tempo tra le sequenze dipende dalla distanza percorsa,
-// non soltanto da un timer fisso.
 function spawnPattern() {
   const pattern = choosePattern();
 
@@ -495,8 +489,6 @@ function spawnPattern() {
     maxRest = 660;
   }
 
-  // La distanza di riposo è calcolata dopo l'ultimo
-  // ostacolo della sequenza, non dopo il primo.
   nextSpawnDistance =
     spawnDistance +
     pattern.gap +
@@ -578,7 +570,9 @@ function drawAngel(o) {
 
   ctx.save();
 
+  // Ali neri.
   ctx.fillStyle = "#050507";
+
   ctx.beginPath();
   ctx.moveTo(x + 17, y + 18);
   ctx.quadraticCurveTo(x - 2, y - 1, x - 1, y + 14);
@@ -593,6 +587,7 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
+  // Corpo.
   ctx.fillStyle = "#08080a";
   ctx.beginPath();
   ctx.moveTo(x + 13, y + 18);
@@ -602,14 +597,23 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
+  // Testa.
   ctx.fillStyle = "#020203";
   ctx.beginPath();
   ctx.arc(x + 20, y + 12, 8, 0, Math.PI * 2);
   ctx.fill();
 
+  // Occhi rossi.
   ctx.fillStyle = "#c51e39";
   ctx.fillRect(x + 15, y + 11, 3, 2);
   ctx.fillRect(x + 22, y + 11, 3, 2);
+
+  // Alone rosso molto discreto.
+  ctx.strokeStyle = "rgba(197, 30, 57, 0.55)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(x + 20, y + 5, 12, 3, 0, 0, Math.PI * 2);
+  ctx.stroke();
 
   ctx.restore();
 }
@@ -778,14 +782,11 @@ function drawParticles() {
 // ======================================
 
 function updateSpeed(dt) {
-  // La velocità cresce fino al limite massimo.
-  // Il traguardo di crescita è progressivo e non improvviso.
   const progress = Math.min(score / 6000, 1);
 
   baseSpeed =
     START_SPEED + progress * (MAX_SPEED - START_SPEED);
 
-  // Piccole variazioni casuali, senza scatti estremi.
   speedChangeTimer += dt * 16.667;
 
   if (speedChangeTimer >= nextSpeedChange) {
@@ -799,7 +800,6 @@ function updateSpeed(dt) {
       1 + (Math.random() * 2 - 1) * variation;
   }
 
-  // Ritorno graduale verso la velocità di base.
   speedFactor += (1 - speedFactor) * 0.004 * dt;
 
   speed = Math.max(
@@ -927,8 +927,6 @@ document.addEventListener("keydown", event => {
 
 // ======================================
 // CONTROLLI TOUCH DEL CANVAS
-// Tocco breve = salto.
-// Trascinamento = scroll, senza salto.
 // ======================================
 
 canvas.addEventListener("pointerdown", event => {
@@ -1003,7 +1001,6 @@ function updateGame(dt) {
 
   updateScoreboard();
 
-  // Movimento e gravità di Lupetto.
   player.vy += player.gravity * dt;
   player.y += player.vy * dt;
 
@@ -1013,21 +1010,23 @@ function updateGame(dt) {
     player.grounded = true;
   }
 
-  // Avanza la distanza del generatore.
   spawnDistance += speed * dt;
 
   if (spawnDistance >= nextSpawnDistance) {
     spawnPattern();
   }
 
-  // Aggiornamento ostacoli e movimento dell'angelo.
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
+    // L'angelo oscilla leggermente, ma rimane in alto.
+    // Il margine inferiore resta sopra la testa di Lupetto
+    // quando il lupo corre a terra.
     if (obstacle.type === "angel") {
       obstacle.y =
         obstacle.baseY +
-        Math.sin(distance * 0.035 + obstacle.phase) * 10;
+        Math.sin(distance * 0.025 + obstacle.phase) *
+        ANGEL_FLOAT_AMPLITUDE;
     }
 
     if (collides(player, obstacle)) {
@@ -1061,7 +1060,6 @@ function drawGame() {
   ctx.fillText("LUPO RUNNER", 18, 32);
   ctx.fillText("Metri: " + score, 18, 58);
 
-  // Indicatore discreto della fase attuale.
   ctx.fillStyle = "#c5b9c0";
   ctx.font = "11px Arial";
   ctx.fillText(getStageName(), 18, 76);
