@@ -1,8 +1,11 @@
 
+
+
 "use strict";
 
 // ======================================
 // LUPO GAMES - LUPO RUNNER
+// Difficolta progressiva e sequenze variabili
 // ======================================
 
 const LEADERBOARD_API_URL =
@@ -31,29 +34,42 @@ const groundY = H - 80;
 const START_SPEED = 4;
 const MAX_SPEED = 8;
 
+// Distanza minima tra due ostacoli di una combinazione.
+// Serve a dare a Lupetto il tempo di atterrare.
+const MIN_COMBO_GAP = 370;
+
 let running = false;
 let paused = false;
 let gameOver = false;
 let animationId = null;
 let lastTime = 0;
+
 let distance = 0;
 let score = 0;
 let finalScore = 0;
+
 let speed = START_SPEED;
 let baseSpeed = START_SPEED;
 let speedFactor = 1;
 let speedChangeTimer = 0;
 let nextSpeedChange = 3000;
-let spawnTimer = 0;
-let nextObstacle = 1450;
+
+// Generazione degli ostacoli basata sulla distanza percorsa.
+let spawnDistance = 0;
+let nextSpawnDistance = 430;
+
 let obstacles = [];
 let particles = [];
 
-// Stato del tocco sul canvas
+// Controlli touch.
 let pointerStartX = 0;
 let pointerStartY = 0;
 let pointerMoved = false;
 let pointerIsDown = false;
+
+// ======================================
+// RECORD PERSONALE
+// ======================================
 
 function loadBest() {
   try {
@@ -85,14 +101,41 @@ const player = {
 };
 
 function updateScoreboard() {
-  scoreElement.textContent = String(score);
-  bestElement.textContent = String(best);
+  if (scoreElement) scoreElement.textContent = String(score);
+  if (bestElement) bestElement.textContent = String(best);
 }
 
 function updatePauseButton() {
   if (!pauseButton) return;
+
   pauseButton.textContent = paused ? "RIPRENDI" : "PAUSA";
   pauseButton.disabled = !running && !paused;
+}
+
+// ======================================
+// FASI DI DIFFICOLTA
+// ======================================
+
+function getDifficultyStage() {
+  if (score < 500) return 0;
+  if (score < 1500) return 1;
+  if (score < 3000) return 2;
+  if (score < 5000) return 3;
+  return 4;
+}
+
+function getStageName() {
+  const stage = getDifficultyStage();
+
+  const names = [
+    "APPRENDIMENTO",
+    "ATTENZIONE",
+    "SOPRAVVIVENZA",
+    "LUPO NERO",
+    "INCUBO"
+  ];
+
+  return names[stage];
 }
 
 // ======================================
@@ -189,6 +232,7 @@ function drawBackground() {
 function drawWolf() {
   const x = player.x;
   const y = player.y;
+
   const run = running && !paused && player.grounded
     ? Math.sin(distance * 0.2) * 4
     : 0;
@@ -293,26 +337,23 @@ function drawWolf() {
 }
 
 // ======================================
-// OSTACOLI
+// GENERATORE DI OSTACOLI
 // ======================================
 
-function createObstacle() {
-  const types = ["spike", "crate", "heart", "angel", "snake"];
-  const type = types[Math.floor(Math.random() * types.length)];
+const OBSTACLE_SIZES = {
+  spike: { w: 35, h: 35 },
+  crate: { w: 35, h: 38 },
+  heart: { w: 36, h: 36 },
+  angel: { w: 40, h: 44 },
+  snake: { w: 52, h: 28 }
+};
 
-  const sizes = {
-    spike: { w: 35, h: 35 },
-    crate: { w: 35, h: 38 },
-    heart: { w: 36, h: 36 },
-    angel: { w: 40, h: 44 },
-    snake: { w: 52, h: 28 }
-  };
-
-  const size = sizes[type];
+function createObstacle(type, offset = 0) {
+  const size = OBSTACLE_SIZES[type];
 
   obstacles.push({
     type,
-    x: W + 10,
+    x: W + 10 + offset,
     y: groundY - size.h,
     baseY: groundY - size.h,
     w: size.w,
@@ -320,6 +361,152 @@ function createObstacle() {
     phase: Math.random() * Math.PI * 2
   });
 }
+
+function pickRandom(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// Sceglie quali ostacoli inserire nella prossima sequenza.
+// Le combinazioni aumentano con il punteggio.
+function choosePattern() {
+  const stage = getDifficultyStage();
+
+  const groundTypes = ["spike", "crate", "heart", "snake"];
+  const allTypes = ["spike", "crate", "heart", "angel", "snake"];
+
+  // Fase 1: ostacoli singoli e leggibili.
+  if (stage === 0) {
+    return {
+      types: [pickRandom(["spike", "crate", "heart"])],
+      gap: 0
+    };
+  }
+
+  // Fase 2: varietà maggiore, prime combinazioni rare.
+  if (stage === 1) {
+    if (Math.random() < 0.22) {
+      return {
+        types: [
+          pickRandom(groundTypes),
+          pickRandom(groundTypes)
+        ],
+        gap: MIN_COMBO_GAP + Math.random() * 45
+      };
+    }
+
+    return {
+      types: [pickRandom(allTypes)],
+      gap: 0
+    };
+  }
+
+  // Fase 3: combinazioni più frequenti e angelo volante.
+  if (stage === 2) {
+    if (Math.random() < 0.4) {
+      const first = pickRandom(groundTypes);
+      let second = pickRandom(groundTypes);
+
+      if (second === first) {
+        second = pickRandom(
+          groundTypes.filter(type => type !== first)
+        );
+      }
+
+      return {
+        types: [first, second],
+        gap: MIN_COMBO_GAP + Math.random() * 65
+      };
+    }
+
+    return {
+      types: [pickRandom(allTypes)],
+      gap: 0
+    };
+  }
+
+  // Fase 4: più coppie, senza triplette ravvicinate.
+  if (stage === 3) {
+    if (Math.random() < 0.55) {
+      return {
+        types: [
+          pickRandom(groundTypes),
+          pickRandom(groundTypes)
+        ],
+        gap: MIN_COMBO_GAP + Math.random() * 80
+      };
+    }
+
+    return {
+      types: [pickRandom(allTypes)],
+      gap: 0
+    };
+  }
+
+  // Fase 5: modalità avanzata.
+  // Le sequenze restano limitate a due ostacoli.
+  if (Math.random() < 0.62) {
+    return {
+      types: [
+        pickRandom(groundTypes),
+        pickRandom(groundTypes)
+      ],
+      gap: MIN_COMBO_GAP + Math.random() * 100
+    };
+  }
+
+  return {
+    types: [pickRandom(allTypes)],
+    gap: 0
+  };
+}
+
+// Genera una sequenza e programma la successiva.
+// Il tempo tra le sequenze dipende dalla distanza percorsa,
+// non soltanto da un timer fisso.
+function spawnPattern() {
+  const pattern = choosePattern();
+
+  pattern.types.forEach((type, index) => {
+    createObstacle(
+      type,
+      index === 0 ? 0 : pattern.gap
+    );
+  });
+
+  const stage = getDifficultyStage();
+
+  let minRest;
+  let maxRest;
+
+  if (stage === 0) {
+    minRest = 640;
+    maxRest = 900;
+  } else if (stage === 1) {
+    minRest = 570;
+    maxRest = 820;
+  } else if (stage === 2) {
+    minRest = 520;
+    maxRest = 760;
+  } else if (stage === 3) {
+    minRest = 490;
+    maxRest = 700;
+  } else {
+    minRest = 470;
+    maxRest = 660;
+  }
+
+  // La distanza di riposo è calcolata dopo l'ultimo
+  // ostacolo della sequenza, non dopo il primo.
+  nextSpawnDistance =
+    spawnDistance +
+    pattern.gap +
+    minRest +
+    Math.random() * (maxRest - minRest);
+}
+
+// ======================================
+// DISEGNO OSTACOLI
+// ======================================
 
 function drawHeart(o) {
   const x = o.x;
@@ -440,16 +627,32 @@ function drawSnake(o) {
 
   ctx.beginPath();
   ctx.moveTo(x + 2, y + 19);
-  ctx.bezierCurveTo(x + 10, y + 1 + wiggle, x + 19, y + 29 - wiggle, x + 28, y + 15);
-  ctx.bezierCurveTo(x + 36, y + 2 + wiggle, x + 42, y + 25, x + 49, y + 10);
+  ctx.bezierCurveTo(
+    x + 10, y + 1 + wiggle,
+    x + 19, y + 29 - wiggle,
+    x + 28, y + 15
+  );
+  ctx.bezierCurveTo(
+    x + 36, y + 2 + wiggle,
+    x + 42, y + 25,
+    x + 49, y + 10
+  );
   ctx.stroke();
 
   ctx.strokeStyle = "#72a94e";
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(x + 3, y + 17);
-  ctx.bezierCurveTo(x + 11, y + 3 + wiggle, x + 19, y + 26 - wiggle, x + 28, y + 14);
-  ctx.bezierCurveTo(x + 36, y + 5 + wiggle, x + 42, y + 22, x + 48, y + 10);
+  ctx.bezierCurveTo(
+    x + 11, y + 3 + wiggle,
+    x + 19, y + 26 - wiggle,
+    x + 28, y + 14
+  );
+  ctx.bezierCurveTo(
+    x + 36, y + 5 + wiggle,
+    x + 42, y + 22,
+    x + 48, y + 10
+  );
   ctx.stroke();
 
   ctx.fillStyle = "#477d39";
@@ -491,6 +694,7 @@ function drawObstacle(o) {
     ctx.lineTo(o.x + o.w, groundY);
     ctx.closePath();
     ctx.fill();
+
     ctx.strokeStyle = "#777985";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -499,9 +703,11 @@ function drawObstacle(o) {
   if (o.type === "crate") {
     ctx.fillStyle = "#70472f";
     ctx.fillRect(o.x, o.y, o.w, o.h);
+
     ctx.strokeStyle = "#bd9062";
     ctx.lineWidth = 3;
     ctx.strokeRect(o.x + 3, o.y + 3, o.w - 6, o.h - 6);
+
     ctx.beginPath();
     ctx.moveTo(o.x + 5, o.y + 5);
     ctx.lineTo(o.x + o.w - 5, o.y + o.h - 5);
@@ -568,30 +774,36 @@ function drawParticles() {
 }
 
 // ======================================
-// VELOCITÀ VARIABILE
+// VELOCITA PROGRESSIVA
 // ======================================
 
 function updateSpeed(dt) {
-  const progress = Math.min(distance / 18000, 1);
-  baseSpeed = START_SPEED + progress * (MAX_SPEED - START_SPEED);
+  // La velocità cresce fino al limite massimo.
+  // Il traguardo di crescita è progressivo e non improvviso.
+  const progress = Math.min(score / 6000, 1);
 
+  baseSpeed =
+    START_SPEED + progress * (MAX_SPEED - START_SPEED);
+
+  // Piccole variazioni casuali, senza scatti estremi.
   speedChangeTimer += dt * 16.667;
 
   if (speedChangeTimer >= nextSpeedChange) {
     speedChangeTimer = 0;
     nextSpeedChange = 2500 + Math.random() * 2500;
 
-    const difficulty = Math.min(distance / 12000, 1);
-    const variation = 0.06 + difficulty * 0.03;
+    const stage = getDifficultyStage();
+    const variation = 0.04 + stage * 0.012;
 
     speedFactor =
       1 + (Math.random() * 2 - 1) * variation;
   }
 
+  // Ritorno graduale verso la velocità di base.
   speedFactor += (1 - speedFactor) * 0.004 * dt;
 
   speed = Math.max(
-    START_SPEED * 0.85,
+    START_SPEED * 0.9,
     Math.min(MAX_SPEED, baseSpeed * speedFactor)
   );
 }
@@ -642,18 +854,25 @@ function startGame() {
   running = true;
   gameOver = false;
   lastTime = 0;
+
   distance = 0;
   score = 0;
   finalScore = 0;
+
   speed = START_SPEED;
   baseSpeed = START_SPEED;
   speedFactor = 1;
   speedChangeTimer = 0;
   nextSpeedChange = 3000;
-  spawnTimer = 0;
-  nextObstacle = 1450;
+
+  spawnDistance = 0;
+  nextSpawnDistance = 430;
+
   obstacles = [];
   particles = [];
+
+  pointerIsDown = false;
+  pointerMoved = false;
 
   player.y = groundY - player.h;
   player.vy = 0;
@@ -664,11 +883,17 @@ function startGame() {
 
   updateScoreboard();
   updatePauseButton();
+
   animationId = requestAnimationFrame(gameLoop);
 }
 
-startButton.addEventListener("click", startGame);
-jumpButton.addEventListener("click", jump);
+if (startButton) {
+  startButton.addEventListener("click", startGame);
+}
+
+if (jumpButton) {
+  jumpButton.addEventListener("click", jump);
+}
 
 if (pauseButton) {
   pauseButton.addEventListener("click", togglePause);
@@ -702,14 +927,13 @@ document.addEventListener("keydown", event => {
 
 // ======================================
 // CONTROLLI TOUCH DEL CANVAS
-// Un tocco breve salta.
-// Un trascinamento permette di scorrere.
+// Tocco breve = salto.
+// Trascinamento = scroll, senza salto.
 // ======================================
 
 canvas.addEventListener("pointerdown", event => {
   if (!running || paused) return;
 
-  // Memorizza il punto iniziale senza bloccare lo scroll del browser.
   pointerStartX = event.clientX;
   pointerStartY = event.clientY;
   pointerMoved = false;
@@ -722,7 +946,6 @@ canvas.addEventListener("pointermove", event => {
   const dx = Math.abs(event.clientX - pointerStartX);
   const dy = Math.abs(event.clientY - pointerStartY);
 
-  // Anche un piccolo trascinamento annulla il salto.
   if (dx > 10 || dy > 10) {
     pointerMoved = true;
   }
@@ -733,19 +956,17 @@ canvas.addEventListener("pointerup", event => {
 
   pointerIsDown = false;
 
-  if (!running || paused) return;
+  if (!running || paused || pointerMoved) return;
 
   const dx = Math.abs(event.clientX - pointerStartX);
   const dy = Math.abs(event.clientY - pointerStartY);
 
-  if (!pointerMoved && dx <= 10 && dy <= 10) {
+  if (dx <= 10 && dy <= 10) {
     jump();
   }
 });
 
 canvas.addEventListener("pointercancel", () => {
-  // Il browser spesso invia pointercancel quando l'utente scorre.
-  // In quel caso annulliamo il salto.
   pointerIsDown = false;
   pointerMoved = true;
 });
@@ -779,8 +1000,10 @@ function updateGame(dt) {
 
   distance += speed * dt;
   score = Math.floor(distance / 10);
+
   updateScoreboard();
 
+  // Movimento e gravità di Lupetto.
   player.vy += player.gravity * dt;
   player.y += player.vy * dt;
 
@@ -790,19 +1013,14 @@ function updateGame(dt) {
     player.grounded = true;
   }
 
-  spawnTimer += dt * 16.667;
+  // Avanza la distanza del generatore.
+  spawnDistance += speed * dt;
 
-  const difficulty = Math.min(distance / 18000, 1);
-  const minInterval = 1250 - difficulty * 150;
-  const maxInterval = 1850 - difficulty * 200;
-
-  if (spawnTimer >= nextObstacle) {
-    createObstacle();
-    spawnTimer = 0;
-    nextObstacle =
-      minInterval + Math.random() * (maxInterval - minInterval);
+  if (spawnDistance >= nextSpawnDistance) {
+    spawnPattern();
   }
 
+  // Aggiornamento ostacoli e movimento dell'angelo.
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
@@ -819,6 +1037,7 @@ function updateGame(dt) {
   }
 
   obstacles = obstacles.filter(o => o.x + o.w > -10);
+
   updateParticles(dt);
 }
 
@@ -841,6 +1060,11 @@ function drawGame() {
   ctx.textAlign = "left";
   ctx.fillText("LUPO RUNNER", 18, 32);
   ctx.fillText("Metri: " + score, 18, 58);
+
+  // Indicatore discreto della fase attuale.
+  ctx.fillStyle = "#c5b9c0";
+  ctx.font = "11px Arial";
+  ctx.fillText(getStageName(), 18, 76);
 
   if (!running && !paused && !gameOver) {
     drawOverlay("LUPO RUNNER", "Premi INIZIA PARTITA");
@@ -896,6 +1120,7 @@ function endGame() {
   if (finalScore > best) {
     best = finalScore;
     saveBest(best);
+
     messageElement.textContent =
       "NUOVO RECORD! Hai totalizzato " + finalScore + " metri!";
   } else {
@@ -940,8 +1165,10 @@ async function loadLeaderboard() {
     if (scores.length === 0) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
+
       cell.colSpan = 3;
       cell.textContent = "Nessun punteggio disponibile.";
+
       row.appendChild(cell);
       leaderboardBody.appendChild(row);
     } else {
@@ -967,24 +1194,30 @@ async function loadLeaderboard() {
     leaderboardStatus.textContent = "Classifica aggiornata.";
   } catch (error) {
     console.error("Errore classifica:", error);
+
     leaderboardStatus.textContent =
       "Classifica non disponibile. Riprova più tardi.";
 
     const row = document.createElement("tr");
     const cell = document.createElement("td");
+
     cell.colSpan = 3;
     cell.textContent = "Errore nel caricamento della classifica.";
+
     row.appendChild(cell);
     leaderboardBody.appendChild(row);
   }
 }
 
 async function submitScore() {
+  if (!playerNameInput || !submitScoreButton) return;
+
   const nickname = playerNameInput.value.trim();
 
   if (!nickname) {
     leaderboardStatus.textContent =
       "Inserisci il tuo nickname Instagram.";
+
     playerNameInput.focus();
     return;
   }
@@ -1032,6 +1265,7 @@ async function submitScore() {
     await loadLeaderboard();
   } catch (error) {
     console.error("Errore invio punteggio:", error);
+
     leaderboardStatus.textContent =
       "Invio non riuscito. Verifica la pubblicazione di Apps Script.";
   } finally {
@@ -1055,4 +1289,3 @@ updateScoreboard();
 updatePauseButton();
 drawGame();
 loadLeaderboard();
-
