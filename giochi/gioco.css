@@ -81,4 +81,175 @@ input:focus-visible {
 .game-header h1 {
   margin: 0;
   font-size: clamp(2rem, 6vw, 3.5rem);
- 
+  letter-spacing: 4px;
+}
+
+.game-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 24px 16px;
+  align-items: start;
+}
+
+.game-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.game-panel h2 {
+  margin-top: 0;
+}
+
+.game-panel > p {
+  color: var(--muted);
+}
+
+.canvas-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  overflow: hidden;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #101010;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+}
+
+.game-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+#jumpGame {
+  background: #252525;
+  color: #fff;
+}
+
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--panel-light);
+}
+
+.scoreboard p {
+  margin: 0;
+}
+
+#gameMessage {
+  min-height: 48px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.leaderboard-panel label {
+  display: block;
+  margin: 18px 0 6px;
+  font-weight: 700;
+}
+
+#playerName {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #090909;
+  color: var(--text);
+}
+
+#submitScore,
+#refreshBoard {
+  margin: 4px 4px 4px 0;
+}
+
+#refreshBoard {
+  border-color: var(--border);
+  background: var(--panel-light);
+  color: var(--text);
+}
+
+#leaderboardStatus {
+  min-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.game-footer {
+  padding: 24px 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--muted);
+}
+
+.game-footer a {
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 16px 12px;
+  }
+
+  .game-panel {
+    padding: 16px;
+  }
+
+  .game-header h1 {
+    letter-spacing: 2px;
+  }
+
+  .scoreboard {
+    flex-direction: column;
+  }
+}
+```
