@@ -33,11 +33,10 @@ const groundY = H - 80;
 const START_SPEED = 4;
 const MAX_SPEED = 8;
 
-// Distanza minima tra due ostacoli di una combinazione.
 const MIN_COMBO_GAP = 370;
 
-// Altezza dell'angelo: resta in aria, sopra Lupetto.
-const ANGEL_HEIGHT_ABOVE_GROUND = 100;
+// ANGELO: altezza dal terreno e oscillazione verticale.
+const ANGEL_HEIGHT_ABOVE_GROUND = 145;
 const ANGEL_FLOAT_AMPLITUDE = 5;
 
 let running = false;
@@ -350,8 +349,7 @@ function createObstacle(type, offset = 0) {
   const size = OBSTACLE_SIZES[type];
 
   // Gli ostacoli normali restano a terra.
-  // L'angelo invece vola abbastanza in alto da poterci
-  // passare sotto quando Lupetto rimane a terra.
+  // L'angelo è invece sospeso in aria.
   const baseY = type === "angel"
     ? groundY - ANGEL_HEIGHT_ABOVE_GROUND
     : groundY - size.h;
@@ -489,9 +487,16 @@ function spawnPattern() {
     maxRest = 660;
   }
 
+  // Considera anche la larghezza dell'ultimo ostacolo
+  // per evitare che la combinazione successiva si sovrapponga.
+  const lastType = pattern.types[pattern.types.length - 1];
+  const patternSpan = pattern.types.length > 1
+    ? pattern.gap + OBSTACLE_SIZES[lastType].w
+    : OBSTACLE_SIZES[lastType].w;
+
   nextSpawnDistance =
     spawnDistance +
-    pattern.gap +
+    patternSpan +
     minRest +
     Math.random() * (maxRest - minRest);
 }
@@ -1019,9 +1024,8 @@ function updateGame(dt) {
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
-    // L'angelo oscilla leggermente, ma rimane in alto.
-    // Il margine inferiore resta sopra la testa di Lupetto
-    // quando il lupo corre a terra.
+    // L'angelo oscilla in aria attorno alla sua altezza.
+    // La posizione viene calcolata rispetto alla quota di volo.
     if (obstacle.type === "angel") {
       obstacle.y =
         obstacle.baseY +
