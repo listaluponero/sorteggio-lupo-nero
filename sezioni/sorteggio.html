@@ -1,1 +1,643 @@
 
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909">
+<title>Sorteggio del Lupo | Lista Lupo Nero</title>
+
+<style>
+:root{
+  --bg:#090909;
+  --panel:#141414;
+  --panel2:#1d1d1d;
+  --text:#f5f5f5;
+  --muted:#a5a5a5;
+  --border:#303030;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+html{min-height:100%;scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
+  background:
+    radial-gradient(ellipse at 50% 0%,#242424 0%,#090909 58%);
+  color:var(--text);
+}
+a{color:inherit}
+.topbar{
+  width:100%;
+  border-bottom:1px solid var(--border);
+  background:#0b0b0bed;
+  padding:15px 20px;
+}
+.nav{
+  max-width:1050px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand{
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.nav a{
+  font-size:13px;
+  color:var(--muted);
+  text-decoration:none;
+}
+.nav a:hover{color:white}
+main{
+  min-height:calc(100vh - 60px);
+  display:grid;
+  place-items:center;
+  padding:35px 16px;
+}
+.card{
+  width:min(510px,100%);
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+  padding:34px 27px;
+  border:1px solid #353535;
+  border-radius:26px;
+  background:linear-gradient(160deg,#191919,#0f0f0f 75%);
+  box-shadow:0 24px 90px #0009;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;left:18%;right:18%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#eee,transparent);
+}
+.mark{
+  font-size:57px;
+  line-height:1.2;
+  margin-bottom:9px;
+  display:inline-block;
+  filter:grayscale(1);
+}
+.eyebrow{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:#aaa;
+}
+h1{
+  font-size:clamp(32px,8vw,47px);
+  line-height:1.05;
+  letter-spacing:-.055em;
+  margin:12px 0;
+}
+.subtitle{
+  color:#b5b5b5;
+  line-height:1.65;
+  font-size:14px;
+  margin:0 auto 24px;
+  max-width:380px;
+}
+.panel{
+  background:#1a1a1a;
+  border:1px solid #333;
+  border-radius:18px;
+  padding:18px;
+  margin:18px 0;
+}
+.timer-label{
+  color:#aaa;
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.timer{
+  font-size:clamp(31px,8vw,40px);
+  font-weight:900;
+  letter-spacing:.045em;
+  font-variant-numeric:tabular-nums;
+  margin:6px 0;
+}
+.status{
+  font-size:12px;
+  line-height:1.5;
+  color:#aaa;
+}
+input{
+  width:100%;
+  padding:14px 15px;
+  border:1px solid #414141;
+  border-radius:12px;
+  background:#101010;
+  color:white;
+  font:inherit;
+  font-size:15px;
+  outline:none;
+}
+input:focus{border-color:#aaa}
+.input-help{
+  font-size:11px;
+  color:#999;
+  text-align:left;
+  margin:8px 2px 0;
+  line-height:1.5;
+}
+button,.social-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  width:100%;
+  border:1px solid #fff;
+  border-radius:13px;
+  padding:16px 18px;
+  background:#fff;
+  color:#090909;
+  font:inherit;
+  font-weight:900;
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform .18s,background .18s,opacity .18s;
+}
+button:hover:not(:disabled),.social-button:hover{
+  transform:translateY(-2px);
+  background:#dedede;
+}
+button:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+.result{
+  display:none;
+  margin-top:22px;
+  padding:20px 16px;
+  border:1px solid #393939;
+  border-radius:17px;
+  background:#101010;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+.result.visible{display:block}
+.result.lose{border-color:#484848}
+.result.win{
+  border-color:#bdbdbd;
+  background:linear-gradient(150deg,#292929,#101010);
+  box-shadow:0 0 30px #ffffff12;
+}
+.result-title{
+  font-weight:950;
+  font-size:24px;
+  letter-spacing:-.025em;
+  margin-bottom:9px;
+}
+.result-message{font-size:14px;color:#ddd}
+.win-code{
+  display:inline-block;
+  margin:15px 0 5px;
+  padding:9px 15px;
+  background:#fff;
+  color:#090909;
+  border-radius:9px;
+  font-size:21px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.win-instructions{
+  margin-top:17px;
+  padding-top:15px;
+  border-top:1px solid #414141;
+  text-align:left;
+  font-size:13px;
+  color:#ddd;
+}
+.win-instructions li{margin:8px 0}
+.social-links{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:15px;
+}
+.social-button{
+  padding:12px 7px;
+  font-size:12px;
+  background:#fff;
+}
+.note{
+  margin:23px 0 0;
+  font-size:11px;
+  line-height:1.7;
+  color:#858585;
+}
+.footer-link{
+  display:inline-block;
+  margin-top:21px;
+  color:#aaa;
+  font-size:12px;
+  text-decoration:none;
+}
+.footer-link:hover{color:white}
+.prize-info{
+  margin-top:20px;
+  padding-top:18px;
+  border-top:1px solid #333;
+  color:#aaa;
+  font-size:12px;
+  line-height:1.7;
+}
+.prize-info strong{color:#eee}
+@keyframes shake{
+  0%,100%{transform:translateX(0) rotate(0)}
+  20%{transform:translateX(-7px) rotate(-2deg)}
+  40%{transform:translateX(7px) rotate(2deg)}
+  60%{transform:translateX(-5px) rotate(-1deg)}
+  80%{transform:translateX(5px) rotate(1deg)}
+}
+@keyframes sad{
+  0%{transform:translateY(0) rotate(0)}
+  30%{transform:translateY(-7px) rotate(-8deg)}
+  60%{transform:translateY(0) rotate(7deg)}
+  100%{transform:translateY(0) rotate(0)}
+}
+@keyframes celebrate{
+  0%{transform:scale(.3) rotate(-15deg);opacity:0}
+  55%{transform:scale(1.18) rotate(5deg);opacity:1}
+  75%{transform:scale(.93) rotate(-3deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+@keyframes glow{
+  0%,100%{text-shadow:0 0 0 #fff}
+  50%{text-shadow:0 0 20px #fff9}
+}
+@keyframes sparkle{
+  0%{transform:translateY(0) scale(.5);opacity:0}
+  30%{opacity:1}
+  100%{transform:translateY(-38px) scale(1.4);opacity:0}
+}
+.mark.sad{animation:sad .65s ease}
+.mark.shake{animation:shake .45s ease}
+.mark.happy{animation:celebrate .75s cubic-bezier(.2,.8,.2,1)}
+.result.win .result-title{animation:glow 1.5s ease-in-out infinite}
+.sparkles{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.sparkle{
+  position:absolute;
+  top:55%;
+  font-size:19px;
+  animation:sparkle 1.3s ease-out forwards;
+}
+@media(max-width:380px){
+  .card{padding:28px 17px}
+  .social-links{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition:none!important;
+  }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <nav class="nav">
+    <span class="brand">🐺 Lista Lupo Nero</span>
+    <a href="../index.html">← Torna alla Home</a>
+  </nav>
+</header>
+
+<main>
+<section class="card" aria-labelledby="pageTitle">
+  <div class="sparkles" id="sparkles" aria-hidden="true"></div>
+
+  <div class="mark" id="wolf" aria-hidden="true">🐺</div>
+  <div class="eyebrow">Il destino del Branco</div>
+  <h1 id="pageTitle">Tenta la sorte.</h1>
+
+  <p class="subtitle">
+    Ogni 8 ore puoi tentare il sorteggio per vincere
+    merchandising ufficiale, adesivi, gadget e altre sorprese
+    della Lista Lupo Nero.
+  </p>
+
+  <div class="panel">
+    <div class="timer-label">Prossimo tentativo</div>
+    <div class="timer" id="timer">00:00:00</div>
+    <div class="status" id="status" aria-live="polite">
+      Puoi tentare adesso.
+    </div>
+  </div>
+
+  <div id="nicknameBox">
+    <input
+      id="nickname"
+      maxlength="30"
+      autocomplete="nickname"
+      placeholder="@tuonickname"
+      aria-label="Nickname Instagram"
+    >
+    <div class="input-help">
+      Inserisci il tuo nickname Instagram prima di tentare.
+    </div>
+  </div>
+
+  <button id="tryBtn" type="button" style="margin-top:17px">
+    🎲 TENTA LA SORTE
+  </button>
+
+  <section class="result" id="result" aria-live="polite"></section>
+
+  <div class="prize-info">
+    <strong>🎁 Le sorprese del Branco</strong><br>
+    Puoi vincere articoli di merchandising Lupo Nero,
+    adesivi, gadget e altri premi disponibili.
+    La disponibilità dei premi può variare.
+  </div>
+
+  <p class="note">
+    Hai vinto? Conserva uno screenshot della schermata con il tuo
+    codice e contatta @ReLupoNero oppure @Lista.LupoNero su Instagram
+    per verificare la vincita e concordare la consegna del premio.
+  </p>
+
+  <a class="footer-link" href="../index.html">Torna alla pagina iniziale</a>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const KEY = "lupo-nero-last-attempt-v1";
+const COOLDOWN = 8 * 60 * 60 * 1000;
+const WIN_KEY = "lupo-nero-win-code-v1";
+
+const SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbz5vQI1QYiWI22hec9r1SPDBHt8IiJvdf06_8328oPemFb0l10P4PNLZCuLAP4Ecfum/exec";
+
+const LOSING_PHRASES = [
+'Il branco ha ululato… ma non oggi. 🐺',
+'La sorte ti ha visto e ha pensato: “anche no”.',
+'Questa volta il lupo passa oltre. Tu invece puoi riprovare tra 8 ore.',
+'Non era il tuo momento. Ma almeno ci hai provato. 😏',
+'Quasi… ma il destino ha detto no. Con una certa soddisfazione.',
+'Niente gadget stavolta. La fortuna oggi aveva di meglio da fare.',
+'Hai sfidato la sorte. La sorte ha riso.',
+'Il lupo non molla. Tu però smettila di cliccare come un disperato. 🐺',
+'Hai ululato alla fortuna. Lei ha messo il telefono in silenzioso.',
+'Il gadget era lì. Poi ha visto te e si è nascosto.',
+'La fortuna ti sta evitando con una precisione inquietante.',
+'Niente ciccia, lupetto. Torna tra 8 ore.',
+'Oggi il branco ti guarda. E nessuno sa cosa dirti.',
+'Hai perso. Ma con stile. Forse.',
+'La luna non era dalla tua parte. Nemmeno il resto dell’universo, a quanto pare.',
+'La sfortuna si distrae. Magari tra 8 ore.',
+'Il destino ha pescato il tuo nome. Poi l’ha rimesso dentro.',
+'Nope. La zampa della fortuna oggi era occupata.',
+'Hai avuto una possibilità. Hai scelto di sprecarla. Complimenti, campione.',
+'La fortuna ti ha mandato affanculo con educazione.',
+'Hai perso. Non piangere, lupetto: fai più bella figura in silenzio.',
+'Il destino ti ha dato una sberla e tu hai pure detto grazie.',
+'Sei riuscito a perdere anche contro una probabilità microscopica. Applausi. 👏',
+'La fortuna oggi non ti vuole vedere nemmeno col binocolo.',
+'Hai cliccato con convinzione. Hai perso con altrettanta convinzione.',
+'Il gadget non è per te. Almeno oggi. Fattene una ragione.',
+'Che culo… ma al contrario.',
+'Il branco ha deciso: oggi fai da spettatore.',
+'Non sei sfortunato. Oggi sei proprio fuori dal giro.',
+'Hai sfidato il destino e il destino ti ha risposto: “ma levati”.',
+'La fortuna ha visto il tuo nickname e ha chiuso la porta.',
+'Riprova tra 8 ore, genio. Magari nel frattempo impari a vincere.',
+'Hai perso. Il branco ride. Tu fai finta di niente.',
+'Il tuo premio? Altri 8 ore di attesa. Che culo.',
+'La sorte ti ha guardato negli occhi e ha scelto qualcun altro.',
+'La fortuna oggi ti ha visto arrivare e ha cambiato strada.',
+'Hai perso. Ma tranquillo, poteva andare peggio. Forse.',
+'Il destino aveva una sorpresa per te. Era un altro no.',
+'La fortuna non ti odia. Semplicemente non ti considera.',
+'Hai bussato alla porta della fortuna. Nessuno ha aperto.',
+'Il lupo ha fiutato la fortuna. Tu evidentemente no. 🐺',
+'Oggi la sorte non è dalla tua parte. Domani vediamo, forse.',
+'Hai giocato la tua carta. Era quella sbagliata.',
+'La fortuna era vicina. Tu sei riuscito comunque a mancarla.',
+'Il destino ti ha concesso un tentativo. E hai fatto esattamente quello che pensavi.'
+];
+
+const WIN_PREFIX = "🐺 HAI VINTO, MIO/A CARO/A LUPETTO/A!";
+
+const timer = document.querySelector("#timer");
+const statusText = document.querySelector("#status");
+const btn = document.querySelector("#tryBtn");
+const result = document.querySelector("#result");
+const nickname = document.querySelector("#nickname");
+const wolf = document.querySelector("#wolf");
+const sparkles = document.querySelector("#sparkles");
+
+function lastAttempt() {
+  const n = Number(localStorage.getItem(KEY));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function fmt(ms) {
+  let s = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(s / 3600);
+  s %= 3600;
+  const m = Math.floor(s / 60);
+  s %= 60;
+  return [h, m, s].map(x => String(x).padStart(2, "0")).join(":");
+}
+
+function render() {
+  const previous = lastAttempt();
+  const remaining = previous ? COOLDOWN - (Date.now() - previous) : 0;
+
+  if (remaining > 0) {
+    timer.textContent = fmt(remaining);
+    statusText.textContent = "Prossimo tentativo disponibile tra:";
+    btn.disabled = true;
+  } else {
+    timer.textContent = "00:00:00";
+    statusText.textContent = "Puoi tentare adesso.";
+    btn.disabled = false;
+  }
+}
+
+function animateWolf(type) {
+  wolf.classList.remove("sad", "shake", "happy");
+  void wolf.offsetWidth;
+  wolf.classList.add(type);
+}
+
+function showSparkles() {
+  sparkles.replaceChildren();
+  const symbols = ["✦", "✧", "★", "🐺", "✦", "✧", "★", "🐺"];
+
+  symbols.forEach((symbol, i) => {
+    const item = document.createElement("span");
+    item.className = "sparkle";
+    item.textContent = symbol;
+    item.style.left = (7 + Math.random() * 86) + "%";
+    item.style.top = (35 + Math.random() * 40) + "%";
+    item.style.animationDelay = (i * 0.09) + "s";
+    sparkles.appendChild(item);
+  });
+
+  setTimeout(() => sparkles.replaceChildren(), 2300);
+}
+
+function showLoss(message) {
+  result.replaceChildren();
+  result.className = "result visible lose";
+
+  const title = document.createElement("div");
+  title.className = "result-title";
+  title.textContent = "NON QUESTA VOLTA…";
+
+  const text = document.createElement("div");
+  text.className = "result-message";
+  text.textContent = message + " Riprova tra 8 ore.";
+
+  result.append(title, text);
+  animateWolf("sad");
+}
+
+function showWin(code) {
+  result.replaceChildren();
+  result.className = "result visible win";
+
+  const title = document.createElement("div");
+  title.className = "result-title";
+  title.textContent = WIN_PREFIX;
+
+  const message = document.createElement("div");
+  message.className = "result-message";
+  message.textContent = "Il Branco ha scelto te! Hai conquistato una possibile sorpresa Lupo Nero.";
+
+  const codeLabel = document.createElement("div");
+  codeLabel.className = "win-code";
+  codeLabel.textContent = "CODICE: LN-" + code;
+
+  const instructions = document.createElement("div");
+  instructions.className = "win-instructions";
+
+  const heading = document.createElement("strong");
+  heading.textContent = "🐺 Come reclamare il premio";
+
+  const list = document.createElement("ol");
+  [
+    "Fai uno screenshot di questa schermata, includendo il codice.",
+    "Contatta @ReLupoNero oppure @Lista.LupoNero su Instagram.",
+    "Invia lo screenshot e il tuo nickname per verificare la vincita e concordare la consegna."
+  ].forEach(sentence => {
+    const li = document.createElement("li");
+    li.textContent = sentence;
+    list.appendChild(li);
+  });
+
+  const socials = document.createElement("div");
+  socials.className = "social-links";
+
+  const relupo = document.createElement("a");
+  relupo.className = "social-button";
+  relupo.href = "https://www.instagram.com/ReLupoNero/";
+  relupo.target = "_blank";
+  relupo.rel = "noopener noreferrer";
+  relupo.textContent = "Instagram ReLupoNero";
+
+  const lista = document.createElement("a");
+  lista.className = "social-button";
+  lista.href = "https://www.instagram.com/Lista.LupoNero/";
+  lista.target = "_blank";
+  lista.rel = "noopener noreferrer";
+  lista.textContent = "Instagram Lista";
+
+  socials.append(relupo, lista);
+  instructions.append(heading, list, socials);
+  result.append(title, message, codeLabel, instructions);
+
+  animateWolf("happy");
+  showSparkles();
+}
+
+async function logAttempt(nicknameValue, outcome, code) {
+  try {
+    await fetch(SHEET_URL, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({
+        nickname: nicknameValue,
+        risultato: outcome,
+        codice: code || ""
+      }),
+      mode: "no-cors",
+      keepalive: true
+    });
+  } catch (error) {
+    // Il sorteggio resta utilizzabile anche se il registro non risponde.
+    console.error("Registrazione del tentativo non riuscita.", error);
+  }
+}
+
+btn.addEventListener("click", async () => {
+  if (btn.disabled) return;
+
+  const nicknameValue = nickname.value.trim();
+
+  if (!nicknameValue) {
+    result.className = "result visible";
+    result.textContent = "Inserisci prima il tuo nickname Instagram.";
+    nickname.focus();
+    return;
+  }
+
+  if (lastAttempt() && Date.now() - lastAttempt() < COOLDOWN) {
+    render();
+    return;
+  }
+
+  btn.disabled = true;
+  nickname.disabled = true;
+  btn.textContent = "🐺 Il Lupo sta decidendo…";
+
+  // Il tempo di attesa parte al momento del tentativo.
+  localStorage.setItem(KEY, String(Date.now()));
+
+  // Probabilità interna invariata; non viene mostrata nella pagina.
+  const won = Math.floor(Math.random() * 1000) === 0;
+
+  if (won) {
+    const code = Date.now().toString(36).toUpperCase().slice(-6);
+    localStorage.setItem(WIN_KEY, code);
+    showWin(code);
+    await logAttempt(nicknameValue, "Vinto", "LN-" + code);
+  } else {
+    const phrase = LOSING_PHRASES[
+      Math.floor(Math.random() * LOSING_PHRASES.length)
+    ];
+    showLoss(phrase);
+    await logAttempt(nicknameValue, "Perso", "");
+  }
+
+  nickname.disabled = false;
+  btn.textContent = "🎲 TENTA LA SORTE";
+  render();
+});
+
+render();
+setInterval(render, 250);
+</script>
+</body>
+</html>
+
