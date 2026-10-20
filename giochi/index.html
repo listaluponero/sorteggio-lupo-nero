@@ -1,4 +1,4 @@
-
+```html
 <!doctype html>
 <html lang="it">
 <head>
@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
   <title>Lupo Games | Lista Lupo Nero</title>
-
   <link rel="stylesheet" href="gioco.css">
   <script src="gioco.js" defer></script>
 </head>
@@ -29,9 +28,7 @@
           type="button"
           aria-label="Attiva schermo intero"
           aria-pressed="false"
-        >
-          ⛶ SCHERMO INTERO
-        </button>
+        >⛶ SCHERMO INTERO</button>
       </div>
 
       <div class="canvas-wrapper">
@@ -103,69 +100,165 @@
       href="https://www.instagram.com/Lista.LupoNero/"
       target="_blank"
       rel="noopener noreferrer"
-    >
-      Instagram Lista Lupo Nero
-    </a>
+    >Instagram Lista Lupo Nero</a>
   </footer>
 
   <script>
     (() => {
       "use strict";
 
-      const gamePanel = document.getElementById("gamePlayPanel");
-      const fullscreenButton = document.getElementById("fullscreenGame");
+      const panel = document.getElementById("gamePlayPanel");
+      const button = document.getElementById("fullscreenGame");
 
-      if (!gamePanel || !fullscreenButton) return;
+      if (!panel || !button) return;
 
-      function isFullscreen() {
-        return document.fullscreenElement === gamePanel ||
-          document.webkitFullscreenElement === gamePanel;
+      let fallbackActive = false;
+      let previousOrientation = null;
+
+      function nativeFullscreen() {
+        return document.fullscreenElement === panel ||
+          document.webkitFullscreenElement === panel;
       }
 
-      function updateFullscreenButton() {
-        const active = isFullscreen();
+      function isActive() {
+        return nativeFullscreen() || fallbackActive;
+      }
 
-        fullscreenButton.textContent = active
-          ? "⛶ ESCI DA SCHERMO INTERO"
+      function updateButton() {
+        const active = isActive();
+
+        button.textContent = active
+          ? "✕ ESCI DALLO SCHERMO INTERO"
           : "⛶ SCHERMO INTERO";
 
-        fullscreenButton.setAttribute("aria-pressed", String(active));
-        fullscreenButton.setAttribute(
+        button.setAttribute("aria-pressed", String(active));
+        button.setAttribute(
           "aria-label",
           active ? "Esci dallo schermo intero" : "Attiva schermo intero"
         );
       }
 
-      fullscreenButton.addEventListener("click", async () => {
+      async function requestLandscape() {
         try {
-          if (isFullscreen()) {
+          if (screen.orientation &&
+              typeof screen.orientation.lock === "function") {
+            await screen.orientation.lock("landscape");
+          }
+        } catch (error) {
+          // Il browser o il dispositivo può non consentire
+          // il blocco automatico dell'orientamento.
+        }
+      }
+
+      function unlockOrientation() {
+        try {
+          if (screen.orientation &&
+              typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (error) {
+          // Nessuna azione necessaria.
+        }
+      }
+
+      async function enterFullscreen() {
+        if (panel.requestFullscreen) {
+          try {
+            await panel.requestFullscreen();
+            await requestLandscape();
+            updateButton();
+            return;
+          } catch (error) {
+            // Se il metodo nativo fallisce, usa la modalità alternativa.
+          }
+        }
+
+        if (panel.webkitRequestFullscreen) {
+          try {
+            panel.webkitRequestFullscreen();
+            await requestLandscape();
+            updateButton();
+            return;
+          } catch (error) {
+            // Continua con la modalità alternativa.
+          }
+        }
+
+        // Modalità alternativa per browser mobili senza
+        // fullscreen nativo per elementi HTML.
+        fallbackActive = true;
+        document.documentElement.classList.add("game-fullscreen-fallback");
+        document.body.classList.add("game-fullscreen-fallback");
+
+        previousOrientation = screen.orientation
+          ? screen.orientation.type
+          : null;
+
+        await requestLandscape();
+
+        updateButton();
+      }
+
+      async function exitFullscreen() {
+        if (nativeFullscreen()) {
+          try {
             if (document.exitFullscreen) {
               await document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
               document.webkitExitFullscreen();
             }
-          } else {
-            if (gamePanel.requestFullscreen) {
-              await gamePanel.requestFullscreen();
-            } else if (gamePanel.webkitRequestFullscreen) {
-              gamePanel.webkitRequestFullscreen();
-            } else {
-              alert(
-                "Lo schermo intero non è supportato da questo browser. " +
-                "Prova a ruotare il telefono in orizzontale."
-              );
-            }
+          } catch (error) {
+            console.warn("Impossibile uscire dallo schermo intero.", error);
           }
-        } catch (error) {
-          console.warn("Impossibile attivare lo schermo intero:", error);
         }
 
-        updateFullscreenButton();
+        fallbackActive = false;
+        document.documentElement.classList.remove("game-fullscreen-fallback");
+        document.body.classList.remove("game-fullscreen-fallback");
+
+        unlockOrientation();
+        updateButton();
+      }
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+
+        try {
+          if (isActive()) {
+            await exitFullscreen();
+          } else {
+            await enterFullscreen();
+          }
+        } finally {
+          button.disabled = false;
+          updateButton();
+        }
       });
 
-      document.addEventListener("fullscreenchange", updateFullscreenButton);
-      document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
+      document.addEventListener("fullscreenchange", () => {
+        if (!nativeFullscreen() && fallbackActive) {
+          fallbackActive = false;
+          document.documentElement.classList.remove(
+            "game-fullscreen-fallback"
+          );
+          document.body.classList.remove("game-fullscreen-fallback");
+          unlockOrientation();
+        }
+
+        updateButton();
+      });
+
+      document.addEventListener("webkitfullscreenchange", updateButton);
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && fallbackActive) {
+          exitFullscreen();
+        }
+      });
+
+      updateButton();
     })();
   </script>
 </body>
 </html>
+```
