@@ -1,1 +1,372 @@
-<img src="lupo.svg" alt="Lupo Nero" class="lupo-nero">
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 460">
+  <defs>
+    <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B0B7BC"/>
+      <stop offset=".48" stop-color="#7F888F"/>
+      <stop offset="1" stop-color="#5A6268"/>
+    </linearGradient>
+    <linearGradient id="hoodie" x1="0" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#F7F3ED"/>
+      <stop offset="1" stop-color="#D8D2C9"/>
+    </linearGradient>
+    <linearGradient id="tail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#AEB6BC"/>
+      <stop offset=".65" stop-color="#737D84"/>
+      <stop offset="1" stop-color="#4D555B"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#087581"/>
+      <stop offset="1" stop-color="#005B66"/>
+    </linearGradient>
+    <linearGradient id="nose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#655349"/>
+      <stop offset="1" stop-color="#3A2A22"/>
+    </linearGradient>
+    <pattern id="sherpa" width="13" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 4q2-3 4 0M8 10q2-3 4 0M1 11l2-2"
+        fill="none" stroke="#C2BDB8" stroke-width="1.2"
+        stroke-linecap="round" opacity=".55"/>
+    </pattern>
+    <style>
+      .outline {
+        stroke: #1E2022;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .fine {
+        stroke: #1E2022;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+    </style>
+  </defs>
+
+  <!-- Ombra sotto i piedi -->
+  <ellipse cx="178" cy="439" rx="92" ry="11"
+    fill="#1E2022" opacity=".13"/>
+
+  <!-- CODA: dietro al corpo -->
+  <path class="outline" fill="url(#tail)"
+    d="M222 321
+       Q254 302 270 270
+       Q280 248 300 253
+       L321 263
+       L308 282
+       Q302 307 279 329
+       Q260 348 232 349Z"/>
+  <path d="M279 261Q294 258 309 272
+       Q294 292 278 305Q264 317 248 324"
+    fill="none" stroke="#C0C6CA" stroke-width="5"
+    stroke-linecap="round" opacity=".65"/>
+  <path d="M301 265l-9 15m19-8-13 17m-5 5-13 14"
+    fill="none" stroke="#1E2022" stroke-width="2"
+    stroke-linecap="round" opacity=".45"/>
+
+  <!-- GAMBE -->
+  <path class="outline" fill="url(#fur)"
+    d="M125 359
+       Q119 382 121 406
+       L119 426
+       Q117 438 133 440
+       L163 440
+       Q174 436 168 424
+       L164 397
+       L172 370Z"/>
+  <path class="outline" fill="url(#fur)"
+    d="M181 370
+       L197 389
+       L202 417
+       Q203 430 216 433
+       L241 435
+       Q256 434 250 421
+       L235 404
+       L229 366Z"/>
+
+  <!-- Piedi e dita -->
+  <path class="outline" fill="#8A9399"
+    d="M120 423Q134 427 148 424L165 426
+       Q176 433 166 441L128 442
+       Q114 439 120 423Z"/>
+  <path class="outline" fill="#8A9399"
+    d="M203 416Q216 420 231 417L246 420
+       Q259 427 249 435L214 437
+       Q201 434 203 416Z"/>
+  <path class="fine" d="M133 432l-2 5m12-6-1 6m73-5-1 5m12-7 1 6"/>
+
+  <!-- BRACCIO SINISTRO -->
+  <path class="outline" fill="url(#fur)"
+    d="M120 205
+       Q101 207 96 227
+       L83 279
+       Q77 300 88 312
+       Q98 322 108 308
+       L128 265
+       L142 232Z"/>
+
+  <!-- BRACCIO DESTRO -->
+  <path class="outline" fill="url(#fur)"
+    d="M221 207
+       Q242 210 249 230
+       L265 279
+       Q272 299 261 311
+       Q250 321 240 305
+       L219 263
+       L205 232Z"/>
+
+  <!-- FELPA OVERSIZE -->
+  <path class="outline" fill="url(#hoodie)"
+    d="M132 183
+       Q145 172 158 173
+       L198 173
+       Q214 177 226 190
+       L241 221
+       Q248 236 238 252
+       L230 277
+       L230 357
+       Q178 374 119 356
+       L120 278
+       L110 248
+       Q104 231 114 213Z"/>
+
+  <!-- Ombre della felpa -->
+  <path d="M130 200Q119 227 132 252
+       L130 345Q153 357 171 358
+       L161 275Q158 240 151 216Z"
+    fill="#C2BDB8" opacity=".36"/>
+  <path d="M218 205Q235 233 223 257
+       L221 347Q210 354 198 356
+       L204 277Q207 238 198 215Z"
+    fill="#C2BDB8" opacity=".42"/>
+
+  <!-- Texture sherpa uniforme -->
+  <path d="M132 183
+       Q145 172 158 173L198 173
+       Q214 177 226 190L241 221
+       Q248 236 238 252L230 277L230 357
+       Q178 374 119 356L120 278L110 248
+       Q104 231 114 213Z"
+    fill="url(#sherpa)" opacity=".7"/>
+
+  <!-- Polsini -->
+  <path class="outline" fill="#EAE6DF"
+    d="M83 284Q96 295 111 301L105 315
+       Q91 318 81 305Z"/>
+  <path class="outline" fill="#EAE6DF"
+    d="M241 296Q254 290 267 282L272 299
+       Q264 315 251 317Z"/>
+
+  <!-- MANI -->
+  <path class="outline" fill="url(#fur)"
+    d="M83 306
+       Q77 313 81 323L88 337
+       Q91 344 96 339L98 350
+       Q102 357 107 349L108 338
+       Q115 342 117 334L112 315L104 307Z"/>
+  <path class="outline" fill="url(#fur)"
+    d="M252 307
+       Q246 315 248 325L252 339
+       Q255 347 260 341L263 350
+       Q268 356 271 348L270 337
+       Q277 339 280 330L272 311L264 303Z"/>
+
+  <!-- Artigli discreti -->
+  <path d="M89 337l4 3m11 1 2 3m153-7 4 3m10 0 2 3"
+    fill="none" stroke="#353A3E" stroke-width="2"
+    stroke-linecap="round"/>
+
+  <!-- TASCA A MARSUPIO -->
+  <path class="outline" fill="#EAE6DF"
+    d="M143 286
+       Q176 296 209 286
+       L215 323
+       Q212 337 198 339
+       L154 339
+       Q139 335 138 322Z"/>
+  <path d="M143 291Q176 301 209 291"
+    fill="none" stroke="#C2BDB8" stroke-width="2.5"
+    stroke-linecap="round"/>
+  <path d="M145 307q3-3 6 0m10 15q3-3 6 0m25-14q3-3 6 0"
+    fill="none" stroke="#C2BDB8" stroke-width="1.5"
+    stroke-linecap="round"/>
+
+  <!-- CAPPUCCIO: parte esterna -->
+  <path class="outline" fill="#EAE6DF"
+    d="M127 190
+       Q117 165 125 143
+       Q135 112 160 109
+       L199 111
+       Q224 122 230 151
+       Q234 173 220 192
+       L203 205
+       L145 205Z"/>
+
+  <!-- Interno ottanio -->
+  <path class="outline" fill="url(#teal)"
+    d="M143 174
+       Q133 153 145 134
+       Q157 120 178 121
+       Q202 121 213 141
+       Q222 159 208 180
+       L195 194L154 194Z"/>
+
+  <!-- Apertura morbida del cappuccio -->
+  <path d="M143 174Q151 186 176 187Q199 187 208 174"
+    fill="none" stroke="#003E46" stroke-width="3"
+    stroke-linecap="round"/>
+
+  <!-- LACCI BIANCHI -->
+  <path d="M157 188Q154 211 160 230"
+    fill="none" stroke="#BDB7AF" stroke-width="5"
+    stroke-linecap="round"/>
+  <path d="M157 188Q154 211 160 230"
+    fill="none" stroke="#FFFDF8" stroke-width="3"
+    stroke-linecap="round"/>
+  <path d="M194 188Q200 210 194 230"
+    fill="none" stroke="#BDB7AF" stroke-width="5"
+    stroke-linecap="round"/>
+  <path d="M194 188Q200 210 194 230"
+    fill="none" stroke="#FFFDF8" stroke-width="3"
+    stroke-linecap="round"/>
+  <rect x="156" y="227" width="7" height="12" rx="3"
+    fill="#BFC3C4" stroke="#1E2022" stroke-width="1.5"/>
+  <rect x="191" y="227" width="7" height="12" rx="3"
+    fill="#BFC3C4" stroke="#1E2022" stroke-width="1.5"/>
+
+  <!-- TESTA GRANDE -->
+  <path class="outline" fill="url(#fur)"
+    d="M110 91
+       L106 37
+       Q106 27 115 34
+       L143 56
+       Q176 39 207 57
+       L235 35
+       Q244 29 244 41
+       L240 96
+       Q250 116 242 137
+       L230 153
+       L219 164
+       L208 158
+       L197 169
+       L179 165
+       L163 170
+       L148 162
+       L135 165
+       L126 153
+       Q104 137 107 114Z"/>
+
+  <!-- Interno delle orecchie -->
+  <path d="M116 47L137 65L130 92L119 106Z"
+    fill="#A6AEB3" stroke="#1E2022" stroke-width="2.5"
+    stroke-linejoin="round"/>
+  <path d="M234 47L213 65L221 91L232 105Z"
+    fill="#A6AEB3" stroke="#1E2022" stroke-width="2.5"
+    stroke-linejoin="round"/>
+
+  <!-- Ciuffi sulla fronte -->
+  <path class="outline" fill="#69737A"
+    d="M143 63L154 48L165 60L178 43
+       L189 59L203 52L208 70L193 78
+       L177 72L161 79Z"/>
+
+  <!-- Ciuffi laterali delle guance -->
+  <path class="outline" fill="#929BA1"
+    d="M119 105L101 112L117 120L104 128
+       L128 136L139 119Z"/>
+  <path class="outline" fill="#929BA1"
+    d="M230 104L247 112L232 121L245 130
+       L222 138L211 119Z"/>
+
+  <!-- MUSO CHIARO -->
+  <path class="outline" fill="#B0B7BC"
+    d="M132 99
+       Q146 86 165 96
+       Q178 102 180 117
+       Q184 102 198 96
+       Q216 87 228 102
+       Q230 123 211 140
+       Q195 155 180 153
+       Q161 154 145 139
+       Q130 123 132 99Z"/>
+
+  <!-- Masque sombre du museau -->
+  <path d="M137 106Q154 95 170 111
+       L180 127L190 111Q207 95 223 106
+       Q218 130 200 140Q180 150 160 139
+       Q143 130 137 106Z"
+    fill="#69737A" opacity=".8"/>
+
+  <!-- OCCHI SEMICHIUSI -->
+  <path class="outline" fill="#EAE6DF"
+    d="M131 94Q147 80 164 94
+       Q150 106 134 99Z"/>
+  <path class="outline" fill="#EAE6DF"
+    d="M196 94Q213 80 229 94
+       L226 99Q209 106 196 94Z"/>
+
+  <path d="M135 94Q150 88 162 95"
+    fill="none" stroke="#1E2022" stroke-width="6"
+    stroke-linecap="round"/>
+  <path d="M199 95Q212 88 225 94"
+    fill="none" stroke="#1E2022" stroke-width="6"
+    stroke-linecap="round"/>
+
+  <!-- Iridi -->
+  <ellipse cx="149" cy="97" rx="5" ry="5.5" fill="#D6B77C"/>
+  <ellipse cx="213" cy="97" rx="5" ry="5.5" fill="#D6B77C"/>
+  <ellipse cx="150" cy="97" rx="2.5" ry="4" fill="#1E2022"/>
+  <ellipse cx="214" cy="97" rx="2.5" ry="4" fill="#1E2022"/>
+  <circle cx="151" cy="95" r="1.2" fill="#FFFFFF"/>
+  <circle cx="215" cy="95" r="1.2" fill="#FFFFFF"/>
+
+  <!-- SOPRACCIGLIA -->
+  <path d="M130 82Q147 73 164 84"
+    fill="none" stroke="#1E2022" stroke-width="6"
+    stroke-linecap="round"/>
+  <path d="M198 84Q214 73 230 82"
+    fill="none" stroke="#1E2022" stroke-width="6"
+    stroke-linecap="round"/>
+
+  <!-- NASO -->
+  <path class="outline" fill="url(#nose)"
+    d="M163 116
+       Q180 109 197 116
+       Q196 127 181 132
+       Q178 133 175 131
+       Q164 127 163 116Z"/>
+  <path d="M170 117Q180 113 188 117"
+    fill="none" stroke="#9A8171" stroke-width="3"
+    stroke-linecap="round"/>
+
+  <!-- BOCCA E SORRISO -->
+  <path class="fine" d="M180 132Q177 143 166 141"/>
+  <path d="M180 132Q194 145 205 135"
+    fill="none" stroke="#1E2022" stroke-width="3.2"
+    stroke-linecap="round"/>
+  <path d="M194 141l-2 4"
+    stroke="#1E2022" stroke-width="2"
+    stroke-linecap="round"/>
+
+  <!-- PUNTINI DELLE GUANCE -->
+  <g fill="#3A4146">
+    <circle cx="147" cy="119" r="1.8"/>
+    <circle cx="151" cy="124" r="1.8"/>
+    <circle cx="143" cy="125" r="1.8"/>
+    <circle cx="211" cy="119" r="1.8"/>
+    <circle cx="215" cy="124" r="1.8"/>
+    <circle cx="207" cy="125" r="1.8"/>
+  </g>
+
+  <!-- Ciuffi morbidi sulla fronte -->
+  <path d="M166 68l8 7 6-7 8 7"
+    fill="none" stroke="#B0B7BC" stroke-width="2"
+    stroke-linecap="round" opacity=".8"/>
+
+  <!-- Pieghe pulite della felpa -->
+  <path d="M135 250q9 8 9 20m57-20q-8 9-8 20"
+    fill="none" stroke="#C2BDB8" stroke-width="2"
+    stroke-linecap="round"/>
+</svg>
