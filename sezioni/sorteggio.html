@@ -82,7 +82,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div class="panel">
 <div class="timer-label">Prossimo tentativo</div>
 <div class="timer" id="timer">00:00:00</div>
-<div class="status" id="status" aria-live="polite">Puoi tentare adesso.</div>
+<div class="status" id="status" aria-live="polite">Inserisci il nickname per verificare il prossimo tentativo.</div>
 </div>
 
 <div id="nicknameBox">
@@ -106,9 +106,7 @@ Puoi vincere articoli di merchandising Lupo Nero, adesivi, gadget e altri premi 
 <script>
 "use strict";
 
-// NUOVO INDIRIZZO GOOGLE APPS SCRIPT
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbxJDQfddop9mB3vX_nNjAMDSWBs4T4D1xYbOWvECZe88nfQMeaFAuHIgQ3O3jhwsC_9/exec";
-
 const COOLDOWN = 8 * 60 * 60 * 1000;
 
 const LOSING_PHRASES = [
@@ -166,6 +164,7 @@ const sparkles = document.querySelector("#sparkles");
 
 let nextAllowedAt = 0;
 let busy = false;
+let statusRequestId = 0;
 
 function fmt(ms) {
   let s = Math.max(0, Math.ceil(ms / 1000));
@@ -290,8 +289,8 @@ function showWin(code, prize) {
   showSparkles();
 }
 
-// Richiesta JSONP compatibile con la Web App Apps Script.
-function requestAttempt(nick) {
+// Richiesta JSONP per il server Google Apps Script.
+function requestAttempt(nick, action = "attempt") {
   return new Promise((resolve, reject) => {
     const callback = "lupoJsonp_" + Date.now() + "_" +
       Math.floor(Math.random() * 100000);
@@ -329,7 +328,7 @@ function requestAttempt(nick) {
     };
 
     const url = new URL(SHEET_URL);
-    url.searchParams.set("action", "attempt");
+    url.searchParams.set("action", action);
     url.searchParams.set("nickname", nick);
     url.searchParams.set("callback", callback);
     url.searchParams.set("_", String(Date.now()));
@@ -338,6 +337,68 @@ function requestAttempt(nick) {
     document.head.appendChild(script);
   });
 }
+
+// Controlla il cooldown del nickname senza consumare un tentativo.
+async function checkCooldown(rawNick) {
+  const nick = String(rawNick || "")
+    .trim()
+    .replace(/^@+/, "")
+    .slice(0, 30);
+
+  const requestId = ++statusRequestId;
+
+  if (!nick || busy) return;
+
+  try {
+    const data = await requestAttempt(nick, "status");
+
+    // Ignora risposte vecchie se il nickname è stato cambiato.
+    const currentNick = nickname.value.trim()
+      .replace(/^@+/, "")
+      .slice(0, 30);
+
+    if (requestId !== statusRequestId ||
+        nick.toLowerCase() !== currentNick.toLowerCase() ||
+        busy) {
+      return;
+    }
+
+    if (!data || !data.success) {
+      statusText.textContent = "Non riesco a verificare il timer. Riprova tra poco.";
+      return;
+    }
+
+    nextAllowedAt = Date.now() + Math.max(
+      0,
+      Number(data.remainingMs || 0)
+    );
+
+    renderTimer();
+
+  } catch (error) {
+    if (requestId === statusRequestId && !busy) {
+      statusText.textContent = "Verifica non riuscita. Il server controllerà comunque il tentativo.";
+    }
+  }
+}
+
+nickname.addEventListener("input", () => {
+  // Non riutilizzare il countdown del nickname precedente.
+  nextAllowedAt = 0;
+  renderTimer();
+});
+
+nickname.addEventListener("change", () => {
+  const nick = nickname.value.trim();
+
+  if (!nick) return;
+
+  try {
+    localStorage.setItem("lupoNickname", nick);
+  } catch (error) {}
+
+  checkCooldown(nick);
+});
 
 btn.addEventListener("click", async () => {
   if (busy || Date.now() < nextAllowedAt) return;
@@ -350,6 +411,10 @@ btn.addEventListener("click", async () => {
     return;
   }
 
+  try {
+    localStorage.setItem("lupoNickname", nicknameValue);
+  } catch (error) {}
+
   busy = true;
   btn.disabled = true;
   nickname.disabled = true;
@@ -357,7 +422,7 @@ btn.addEventListener("click", async () => {
   statusText.textContent = "Sto verificando il tentativo…";
 
   try {
-    const data = await requestAttempt(nicknameValue);
+    const data = await requestAttempt(nicknameValue, "attempt");
 
     if (!data || !data.success) {
       showMessage(
@@ -371,6 +436,7 @@ btn.addEventListener("click", async () => {
 
     if (data.allowed === false && data.code === "COOLDOWN") {
       nextAllowedAt = Date.now() + Number(data.remainingMs || COOLDOWN);
+
       showMessage(
         "IL BRANCO TI HA GIÀ VISTO",
         "Potrai riprovare quando il conto alla rovescia sarà terminato."
@@ -378,7 +444,7 @@ btn.addEventListener("click", async () => {
       return;
     }
 
-    nextAllowedAt = Date.now() + COOLDOWN;
+    nextAllowedAt = Date.now() + Number(data.remainingMs || COOLDOWN);
 
     if (data.won) {
       showWin(data.code, data.prize);
@@ -400,6 +466,17 @@ btn.addEventListener("click", async () => {
     renderTimer();
   }
 });
+
+// Recupera il nickname salvato e verifica il countdown sul server.
+try {
+  const savedNickname = localStorage.getItem("lupoNickname") || "";
+
+  if (savedNickname) {
+    nickname.value = savedNickname;
+    statusText.textContent = "Verifico il prossimo tentativo…";
+    checkCooldown(savedNickname);
+  }
+} catch (error) {}
 
 renderTimer();
 setInterval(renderTimer, 250);
