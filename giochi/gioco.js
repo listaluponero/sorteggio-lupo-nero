@@ -3,8 +3,6 @@
 
 // ======================================
 // LUPO GAMES - LUPO RUNNER: MODALITA INCUBO
-// Difficolta estrema, velocita progressiva,
-// sequenze variabili e angelo volante.
 // ======================================
 
 const LEADERBOARD_API_URL =
@@ -32,14 +30,19 @@ const groundY = H - 80;
 
 const START_SPEED = 4;
 const MAX_SPEED = 8;
-
-// Le combinazioni restano affrontabili anche alla velocita massima.
 const MIN_COMBO_GAP = 305;
 
-// Angelo variabile: il bordo inferiore resta sopra Lupetto.
 const ANGEL_MIN_HEIGHT = 100;
 const ANGEL_MAX_HEIGHT = 150;
 const ANGEL_FLOAT_AMPLITUDE = 3;
+
+// ======================================
+// IMMAGINE LUPO
+// Il file lupo.svg deve stare nella cartella giochi.
+// ======================================
+
+const wolfImage = new Image();
+wolfImage.src = "lupo.svg";
 
 let running = false;
 let paused = false;
@@ -114,7 +117,7 @@ function updatePauseButton() {
 }
 
 // ======================================
-// DIFFICOLTA: LE FASI ARRIVANO PRIMA
+// DIFFICOLTA
 // ======================================
 
 function getDifficultyStage() {
@@ -225,23 +228,20 @@ function drawBackground() {
 }
 
 // ======================================
-// LUPETTO
+// LUPETTO - USA L'IMMAGINE lupo.svg
 // ======================================
 
 function drawWolf() {
   const x = player.x;
   const y = player.y;
 
-  const run = running && !paused && player.grounded
-    ? Math.sin(distance * 0.2) * 4
-    : 0;
-
   ctx.save();
 
+  // Ombra sotto il personaggio.
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
   ctx.ellipse(
-    x + 23,
+    x + player.w / 2,
     groundY + 5,
     player.grounded ? 25 : 16,
     5,
@@ -251,86 +251,27 @@ function drawWolf() {
   );
   ctx.fill();
 
-  ctx.strokeStyle = "#242832";
-  ctx.lineWidth = 8;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(x + 10, y + 30);
-  ctx.quadraticCurveTo(x - 2, y + 24, x + 3, y + 17);
-  ctx.stroke();
+  // Disegna il lupo quando l'immagine è pronta.
+  if (wolfImage.complete && wolfImage.naturalWidth > 0) {
+    const maxW = 62;
+    const maxH = 62;
 
-  ctx.fillStyle = "#171a21";
-  ctx.beginPath();
-  ctx.ellipse(x + 22, y + 31, 19, 13, -0.08, 0, Math.PI * 2);
-  ctx.fill();
+    const scale = Math.min(
+      maxW / wolfImage.naturalWidth,
+      maxH / wolfImage.naturalHeight
+    );
 
-  ctx.fillStyle = "#2b3039";
-  ctx.beginPath();
-  ctx.ellipse(x + 22, y + 25, 17, 10, -0.1, Math.PI, Math.PI * 2);
-  ctx.fill();
+    const drawW = wolfImage.naturalWidth * scale;
+    const drawH = wolfImage.naturalHeight * scale;
 
-  ctx.fillStyle = "#08090d";
-  ctx.fillRect(x + 10, y + 35, 8, 10 + run);
-  ctx.fillRect(x + 28, y + 35, 8, 10 - run);
-
-  ctx.fillStyle = "#252a33";
-  ctx.beginPath();
-  ctx.moveTo(x + 6, y + 19);
-  ctx.lineTo(x + 8, y + 1);
-  ctx.lineTo(x + 20, y + 15);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 24, y + 15);
-  ctx.lineTo(x + 38, y + 1);
-  ctx.lineTo(x + 41, y + 22);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#711f34";
-  ctx.beginPath();
-  ctx.moveTo(x + 10, y + 14);
-  ctx.lineTo(x + 10, y + 6);
-  ctx.lineTo(x + 16, y + 14);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 29, y + 14);
-  ctx.lineTo(x + 36, y + 6);
-  ctx.lineTo(x + 36, y + 16);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#343944";
-  ctx.beginPath();
-  ctx.ellipse(x + 24, y + 22, 19, 17, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#777d88";
-  ctx.beginPath();
-  ctx.moveTo(x + 29, y + 23);
-  ctx.lineTo(x + 46, y + 29);
-  ctx.lineTo(x + 31, y + 35);
-  ctx.lineTo(x + 23, y + 29);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#f0e7d6";
-  ctx.beginPath();
-  ctx.arc(x + 30, y + 19, 3.2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#d52b48";
-  ctx.beginPath();
-  ctx.arc(x + 31, y + 19, 1.7, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#070709";
-  ctx.beginPath();
-  ctx.arc(x + 44, y + 29, 2.8, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.drawImage(
+      wolfImage,
+      x + player.w / 2 - drawW / 2,
+      y + player.h - drawH,
+      drawW,
+      drawH
+    );
+  }
 
   ctx.restore();
 }
@@ -381,7 +322,6 @@ function choosePattern() {
   const groundTypes = ["spike", "crate", "heart", "snake"];
   const allTypes = ["spike", "crate", "heart", "angel", "snake"];
 
-  // La prima fase serve ancora a prendere confidenza.
   if (stage === 0) {
     return {
       types: [pickRandom(["spike", "crate", "heart"])],
@@ -389,7 +329,6 @@ function choosePattern() {
     };
   }
 
-  // Le combinazioni aumentano progressivamente.
   const comboChance = [0, 0.42, 0.62, 0.76, 0.84][stage];
 
   if (Math.random() < comboChance) {
@@ -405,15 +344,12 @@ function choosePattern() {
     const gapVariation = [0, 20, 35, 45, 55][stage];
     const gap = MIN_COMBO_GAP + Math.random() * gapVariation;
 
-    // Due ostacoli a terra: la distanza rimane affrontabile
-    // anche quando la velocita arriva a 8.
     return {
       types: [first, second],
       gap
     };
   }
 
-  // L'angelo può apparire da solo e a diverse altezze.
   return {
     types: [pickRandom(allTypes)],
     gap: 0
@@ -432,7 +368,6 @@ function spawnPattern() {
 
   const stage = getDifficultyStage();
 
-  // Intervalli più corti nelle fasi avanzate.
   const rests = [
     [620, 850],
     [440, 610],
@@ -530,7 +465,6 @@ function drawAngel(o) {
 
   ctx.save();
 
-  // Ali neri.
   ctx.fillStyle = "#050507";
 
   ctx.beginPath();
@@ -547,7 +481,6 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
-  // Corpo.
   ctx.fillStyle = "#08080a";
   ctx.beginPath();
   ctx.moveTo(x + 13, y + 18);
@@ -557,18 +490,15 @@ function drawAngel(o) {
   ctx.closePath();
   ctx.fill();
 
-  // Testa.
   ctx.fillStyle = "#020203";
   ctx.beginPath();
   ctx.arc(x + 20, y + 12, 8, 0, Math.PI * 2);
   ctx.fill();
 
-  // Occhi rossi.
   ctx.fillStyle = "#c51e39";
   ctx.fillRect(x + 15, y + 11, 3, 2);
   ctx.fillRect(x + 22, y + 11, 3, 2);
 
-  // Alone rosso.
   ctx.strokeStyle = "rgba(197, 30, 57, 0.7)";
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -738,8 +668,7 @@ function drawParticles() {
 }
 
 // ======================================
-// VELOCITA: RAGGIUNGE 8 PIU RAPIDAMENTE
-// Il limite massimo rimane invariato.
+// VELOCITA
 // ======================================
 
 function updateSpeed(dt) {
@@ -987,8 +916,6 @@ function updateGame(dt) {
   for (const obstacle of obstacles) {
     obstacle.x -= speed * dt;
 
-    // L'angelo varia quota entro limiti controllati.
-    // Il movimento non lo porta a contatto col terreno.
     if (obstacle.type === "angel") {
       const wave =
         Math.sin(distance * 0.018 + obstacle.phase);
@@ -1005,7 +932,6 @@ function updateGame(dt) {
         Math.sin(distance * 0.035 + obstacle.phase) *
         ANGEL_FLOAT_AMPLITUDE;
 
-      // Aggiorna la hitbox alla quota effettiva.
       obstacle.y = Math.max(
         groundY - ANGEL_MAX_HEIGHT - ANGEL_FLOAT_AMPLITUDE,
         Math.min(
@@ -1275,4 +1201,3 @@ updateScoreboard();
 updatePauseButton();
 drawGame();
 loadLeaderboard();
-
