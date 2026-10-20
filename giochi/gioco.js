@@ -37,12 +37,297 @@ const ANGEL_MAX_HEIGHT = 150;
 const ANGEL_FLOAT_AMPLITUDE = 3;
 
 // ======================================
-// IMMAGINE LUPO
-// Il file lupo.svg deve stare nella cartella giochi.
+// LUPO DI PROFILO - SPRITE ANIMATO
+// Disegnato direttamente tramite SVG e JavaScript.
+// Non richiede immagini esterne.
 // ======================================
 
 const wolfImage = new Image();
-wolfImage.src = "lupo.svg";
+
+const wolfFrames = [
+  // Frame 1: falcata distesa
+  {
+    back: "M36 62 L26 72 L17 83 L12 88 L29 90 L43 75 L49 65",
+    front: "M54 63 L65 73 L76 79 L87 83 L83 89 L72 87 L59 78",
+    arm: "M56 44 L66 51 L77 57"
+  },
+
+  // Frame 2: zampe raccolte
+  {
+    back: "M37 63 L31 74 L36 84 L47 88 L51 84 L43 75 L46 65",
+    front: "M55 64 L63 74 L61 83 L70 89 L81 88 L77 82 L67 75",
+    arm: "M56 44 L63 53 L70 60"
+  },
+
+  // Frame 3: falcata opposta
+  {
+    back: "M37 63 L28 73 L17 77 L10 84 L14 89 L28 87 L42 75 L48 65",
+    front: "M54 63 L64 73 L77 74 L87 81 L84 87 L71 84 L58 77",
+    arm: "M56 44 L66 48 L76 53"
+  },
+
+  // Frame 4: fase di spinta
+  {
+    back: "M37 63 L43 73 L50 82 L47 89 L35 87 L28 76 L31 66",
+    front: "M55 63 L57 75 L68 84 L80 87 L84 83 L70 76 L65 65",
+    arm: "M56 44 L63 51 L73 54"
+  }
+];
+
+function buildWolfSprite() {
+  const frames = wolfFrames.map((frame, index) => `
+    <g transform="translate(${index * 100},0)">
+
+      <!-- CODA FOLTA -->
+      <path
+        d="M40 53 Q28 47 20 52 Q10 57 15 65
+           Q22 70 39 61"
+        fill="#555963"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+      />
+
+      <path
+        d="M17 60 Q24 63 32 59"
+        fill="none"
+        stroke="#a6a7ae"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+
+      <!-- GAMBE -->
+      <path
+        d="${frame.back}"
+        fill="#777b85"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      />
+
+      <path
+        d="${frame.front}"
+        fill="#777b85"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      />
+
+      <!-- SCARPE -->
+      <path
+        d="M11 86 L27 87 L31 92 L10 92 Z"
+        fill="#24252d"
+        stroke="#111218"
+        stroke-width="2"
+      />
+
+      <path
+        d="M43 86 L51 86 L55 91 L40 92 Z"
+        fill="#24252d"
+        stroke="#111218"
+        stroke-width="2"
+      />
+
+      <path
+        d="M67 85 L81 86 L85 91 L66 92 Z"
+        fill="#24252d"
+        stroke="#111218"
+        stroke-width="2"
+      />
+
+      <!-- CORPO E FELPA PANNA -->
+      <path
+        d="M36 42
+           Q44 38 55 42
+           L64 62
+           Q58 69 40 65
+           L33 52 Z"
+        fill="#eee5d7"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+      />
+
+      <!-- PIEGHE FELPA -->
+      <path
+        d="M39 50 L44 55 L41 61
+           M52 48 L56 54"
+        fill="none"
+        stroke="#c9bdad"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+
+      <!-- BRACCIO -->
+      <path
+        d="${frame.arm}"
+        fill="none"
+        stroke="#252630"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+
+      <path
+        d="${frame.arm}"
+        fill="none"
+        stroke="#eee5d7"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+
+      <!-- MANO -->
+      <circle
+        cx="77"
+        cy="58"
+        r="5"
+        fill="#777b85"
+        stroke="#252630"
+        stroke-width="2"
+      />
+
+      <!-- CAPPUCCIO OTTANIO -->
+      <path
+        d="M35 43
+           Q27 36 32 29
+           Q37 23 47 28
+           L57 41
+           L49 48 Z"
+        fill="#168b87"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+      />
+
+      <!-- INTERNO CAPPUCCIO -->
+      <path
+        d="M34 31
+           Q38 26 44 30
+           L51 41
+           L44 43 Z"
+        fill="#0d5556"
+      />
+
+      <!-- TESTA DI PROFILO -->
+      <path
+        d="M38 35
+           L32 18
+           L43 25
+           Q49 18 58 25
+           L67 31
+           L80 35
+           L88 40
+           L84 44
+           L75 46
+           L66 45
+           Q58 52 47 45
+           L39 42 Z"
+        fill="#858993"
+        stroke="#252630"
+        stroke-width="3"
+        stroke-linejoin="round"
+      />
+
+      <!-- ORECCHIO -->
+      <path
+        d="M35 26 L32 18 L42 25 L42 30 Z"
+        fill="#666a75"
+        stroke="#252630"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+
+      <path
+        d="M36 24 L35 22 L39 26"
+        fill="none"
+        stroke="#d7a5a5"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+
+      <!-- MUSETTO -->
+      <path
+        d="M67 36
+           L82 37
+           L88 40
+           L83 44
+           L69 44
+           L64 41 Z"
+        fill="#ded9d1"
+        stroke="#252630"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+
+      <!-- NASO -->
+      <path
+        d="M84 37 L90 40 L86 44 L81 41 Z"
+        fill="#17171c"
+      />
+
+      <!-- OCCHIO -->
+      <path
+        d="M58 33 Q63 30 68 33"
+        fill="none"
+        stroke="#17171c"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      />
+
+      <circle cx="65" cy="33" r="1.2" fill="#f5eee6"/>
+
+      <!-- SOPRACCIGLIO -->
+      <path
+        d="M58 29 L67 30"
+        fill="none"
+        stroke="#353640"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      />
+
+      <!-- BOCCA -->
+      <path
+        d="M73 42 L80 42"
+        fill="none"
+        stroke="#55545a"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+
+      <!-- LACCI FELPA -->
+      <path
+        d="M47 45 L46 52 M52 45 L53 51"
+        fill="none"
+        stroke="#168b87"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+
+    </g>
+  `).join("");
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="400"
+         height="100"
+         viewBox="0 0 400 100">
+      ${frames}
+    </svg>
+  `;
+
+  wolfImage.onload = () => {
+    drawGame();
+  };
+
+  wolfImage.src =
+    "data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(svg);
+}
+
+buildWolfSprite();
 
 let running = false;
 let paused = false;
@@ -228,7 +513,8 @@ function drawBackground() {
 }
 
 // ======================================
-// LUPETTO - USA L'IMMAGINE lupo.svg
+// DISEGNO LUPO
+// Profilo verso destra, 4 fotogrammi.
 // ======================================
 
 function drawWolf() {
@@ -251,23 +537,29 @@ function drawWolf() {
   );
   ctx.fill();
 
-  // Disegna il lupo quando l'immagine è pronta.
   if (wolfImage.complete && wolfImage.naturalWidth > 0) {
-    const maxW = 62;
-    const maxH = 62;
+    const frameWidth = 100;
+    const frameHeight = 100;
 
-    const scale = Math.min(
-      maxW / wolfImage.naturalWidth,
-      maxH / wolfImage.naturalHeight
-    );
+    // Cambia posa durante la corsa.
+    // In salto mantiene una posa raccolta.
+    const frame = player.grounded
+      ? Math.floor(distance / 12) % wolfFrames.length
+      : 1;
 
-    const drawW = wolfImage.naturalWidth * scale;
-    const drawH = wolfImage.naturalHeight * scale;
+    const drawW = 66;
+    const drawH = 66;
+
+    ctx.imageSmoothingEnabled = true;
 
     ctx.drawImage(
       wolfImage,
-      x + player.w / 2 - drawW / 2,
-      y + player.h - drawH,
+      frame * frameWidth,
+      0,
+      frameWidth,
+      frameHeight,
+      x - 12,
+      y + player.h - drawH + 4,
       drawW,
       drawH
     );
@@ -1201,3 +1493,4 @@ updateScoreboard();
 updatePauseButton();
 drawGame();
 loadLeaderboard();
+
