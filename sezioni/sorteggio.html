@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090909">
 <title>Sorteggio | Lista Lupo Nero</title>
+
 <style>
 :root{--bg:#090909;--panel:#151515;--text:#f5f5f5;--muted:#aaa;--border:#333}
 *{box-sizing:border-box}
@@ -61,6 +62,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
 </head>
+
 <body>
 <header>
 <nav>
@@ -104,8 +106,8 @@ Puoi vincere articoli di merchandising Lupo Nero, adesivi, gadget e altri premi 
 <script>
 "use strict";
 
-// Deve coincidere con l'URL /exec del deployment Apps Script aggiornato.
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwyFjIpUdI_m6_510xxzcwW9BquuovW_KE__XrZAAuaggvsDYYalMgzY4RdyeFHt7W7/exec";
+// NUOVO INDIRIZZO GOOGLE APPS SCRIPT
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxJDQfddop9mB3vX_nNjAMDSWBs4T4D1xYbOWvECZe88nfQMeaFAuHIgQ3O3jhwsC_9/exec";
 
 const COOLDOWN = 8 * 60 * 60 * 1000;
 
@@ -288,7 +290,7 @@ function showWin(code, prize) {
   showSparkles();
 }
 
-// JSONP: consente alla pagina GitHub Pages di leggere la risposta Apps Script.
+// Richiesta JSONP compatibile con la Web App Apps Script.
 function requestAttempt(nick) {
   return new Promise((resolve, reject) => {
     const callback = "lupoJsonp_" + Date.now() + "_" +
@@ -306,11 +308,13 @@ function requestAttempt(nick) {
       if (finished) return;
       finished = true;
       clearTimeout(timeout);
+
       try {
         delete window[callback];
       } catch (e) {
         window[callback] = undefined;
       }
+
       script.remove();
     }
 
@@ -324,10 +328,13 @@ function requestAttempt(nick) {
       reject(new Error("network"));
     };
 
-    script.src = SHEET_URL +
-      "?action=attempt&nickname=" + encodeURIComponent(nick) +
-      "&callback=" + callback + "&_=" + Date.now();
+    const url = new URL(SHEET_URL);
+    url.searchParams.set("action", "attempt");
+    url.searchParams.set("nickname", nick);
+    url.searchParams.set("callback", callback);
+    url.searchParams.set("_", String(Date.now()));
 
+    script.src = url.toString();
     document.head.appendChild(script);
   });
 }
@@ -355,8 +362,8 @@ btn.addEventListener("click", async () => {
     if (!data || !data.success) {
       showMessage(
         "ATTENZIONE",
-        data && data.message
-          ? data.message
+        data && (data.message || data.error)
+          ? (data.message || data.error)
           : "Non è stato possibile completare il tentativo. Riprova più tardi."
       );
       return;
@@ -399,3 +406,4 @@ setInterval(renderTimer, 250);
 </script>
 </body>
 </html>
+
