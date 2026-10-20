@@ -1,4 +1,4 @@
-
+```css
 :root {
   --bg: #090909;
   --panel: #151515;
@@ -293,63 +293,201 @@ th {
   color: var(--text);
 }
 
-/* Schermo intero: solo area di gioco */
-.game-play-panel:fullscreen {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: clamp(10px, 2vw, 24px);
-  overflow-y: auto;
-  border: 0;
-  border-radius: 0;
-  background: #090909;
+/* Schermo intero nativo */
+.game-play-panel:fullscreen,
+.game-play-panel:-webkit-full-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.game-play-panel:fullscreen h2 {
-  margin-bottom: 2px;
-}
-
-.game-play-panel:fullscreen > p {
-  margin-top: 4px;
-  margin-bottom: 6px;
-}
-
-.game-play-panel:fullscreen .fullscreen-row {
-  margin: 4px 0;
-}
-
-.game-play-panel:fullscreen .canvas-wrapper {
-  width: 100%;
-  max-width: 1500px;
-  margin: 6px auto 10px;
-}
-
-.game-play-panel:fullscreen .game-buttons button {
-  min-height: 44px;
-}
-
-.game-play-panel:fullscreen .scoreboard {
-  margin-top: 8px;
-}
-
-.game-play-panel:fullscreen #gameMessage {
-  min-height: 24px;
-}
-
-.game-play-panel:-webkit-full-screen {
   width: 100%;
   height: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
   margin: 0;
-  padding: 12px;
-  overflow-y: auto;
+  padding: clamp(8px, 2vw, 22px);
+  overflow: hidden;
   border: 0;
   border-radius: 0;
   background: #090909;
+}
+
+/* Mantiene visibili titolo, pulsante, canvas e comandi */
+.game-play-panel:fullscreen .canvas-wrapper,
+.game-play-panel:-webkit-full-screen .canvas-wrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1500px;
+  margin: 5px auto;
+}
+
+.game-play-panel:fullscreen #gameCanvas,
+.game-play-panel:-webkit-full-screen #gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+.game-play-panel:fullscreen .fullscreen-row,
+.game-play-panel:-webkit-full-screen .fullscreen-row {
+  flex: 0 0 auto;
+  margin: 4px 0;
+}
+
+.game-play-panel:fullscreen .game-buttons,
+.game-play-panel:-webkit-full-screen .game-buttons {
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.game-play-panel:fullscreen .game-buttons button,
+.game-play-panel:-webkit-full-screen .game-buttons button {
+  min-height: 40px;
+}
+
+.game-play-panel:fullscreen .scoreboard,
+.game-play-panel:-webkit-full-screen .scoreboard {
+  flex: 0 0 auto;
+  margin-top: 5px;
+  padding: 6px 10px;
+}
+
+.game-play-panel:fullscreen #gameMessage,
+.game-play-panel:-webkit-full-screen #gameMessage {
+  flex: 0 0 auto;
+  min-height: 20px;
+  margin-top: 4px;
+}
+
+/*
+  Modalità alternativa per browser mobili senza fullscreen nativo.
+  Si attiva tramite la classe game-fullscreen-fallback.
+*/
+html.game-fullscreen-fallback,
+body.game-fullscreen-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body.game-fullscreen-fallback .game-header,
+body.game-fullscreen-fallback .leaderboard-panel,
+body.game-fullscreen-fallback .game-footer {
+  display: none !important;
+}
+
+body.game-fullscreen-fallback .game-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
+body.game-fullscreen-fallback .game-play-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  min-width: 0;
+  margin: 0;
+  padding:
+    max(6px, env(safe-area-inset-top))
+    max(8px, env(safe-area-inset-right))
+    max(6px, env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #090909;
+}
+
+body.game-fullscreen-fallback .game-play-panel h2,
+body.game-fullscreen-fallback .game-play-panel > p:not(#gameMessage) {
+  display: none;
+}
+
+body.game-fullscreen-fallback .fullscreen-row {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  margin: 0 0 4px;
+}
+
+body.game-fullscreen-fallback .fullscreen-button {
+  min-height: 34px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+
+body.game-fullscreen-fallback .canvas-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 2px auto;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+body.game-fullscreen-fallback #gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+body.game-fullscreen-fallback .game-buttons {
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+body.game-fullscreen-fallback .game-buttons button {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+body.game-fullscreen-fallback .scoreboard {
+  flex: 0 0 auto;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-top: 4px;
+  padding: 5px 8px;
+  font-size: 0.82rem;
+}
+
+body.game-fullscreen-fallback #gameMessage {
+  flex: 0 0 auto;
+  min-height: 0;
+  margin-top: 3px;
+  font-size: 0.8rem;
 }
 
 /* Desktop ampio: più spazio orizzontale al gioco */
@@ -509,53 +647,103 @@ th {
   }
 }
 
-/* Cellulare in orizzontale: sfrutta l'altezza disponibile */
+/* Cellulare in orizzontale */
 @media (max-width: 900px) and (orientation: landscape) {
-  .game-play-panel:fullscreen {
+  .game-play-panel:fullscreen,
+  .game-play-panel:-webkit-full-screen {
     justify-content: flex-start;
-    padding: 6px 12px;
-  }
-
-  .game-play-panel:fullscreen h2 {
-    font-size: 1.15rem;
-  }
-
-  .game-play-panel:fullscreen > p {
-    font-size: 0.8rem;
-  }
-
-  .game-play-panel:fullscreen .fullscreen-row {
-    margin: 2px 0;
-  }
-
-  .game-play-panel:fullscreen .fullscreen-button {
-    min-height: 32px;
     padding: 5px 10px;
   }
 
-  .game-play-panel:fullscreen .canvas-wrapper {
-    width: auto;
-    max-width: 100%;
-    margin: 4px auto;
+  .game-play-panel:fullscreen h2,
+  .game-play-panel:-webkit-full-screen h2 {
+    display: none;
   }
 
-  .game-play-panel:fullscreen .game-buttons {
-    gap: 6px;
+  .game-play-panel:fullscreen > p:not(#gameMessage),
+  .game-play-panel:-webkit-full-screen > p:not(#gameMessage) {
+    display: none;
   }
 
-  .game-play-panel:fullscreen .game-buttons button {
-    min-height: 36px;
-    padding: 6px 12px;
+  .game-play-panel:fullscreen .fullscreen-row,
+  .game-play-panel:-webkit-full-screen .fullscreen-row {
+    margin: 0 0 3px;
   }
 
-  .game-play-panel:fullscreen .scoreboard {
-    margin-top: 4px;
-    padding: 6px 10px;
+  .game-play-panel:fullscreen .fullscreen-button,
+  .game-play-panel:-webkit-full-screen .fullscreen-button {
+    min-height: 30px;
+    padding: 4px 10px;
   }
 
-  .game-play-panel:fullscreen #gameMessage {
-    min-height: 20px;
-    margin-top: 4px;
+  .game-play-panel:fullscreen .canvas-wrapper,
+  .game-play-panel:-webkit-full-screen .canvas-wrapper {
+    margin: 2px auto;
+  }
+
+  .game-play-panel:fullscreen .game-buttons button,
+  .game-play-panel:-webkit-full-screen .game-buttons button {
+    min-height: 32px;
+    padding: 4px 10px;
+  }
+
+  .game-play-panel:fullscreen .scoreboard,
+  .game-play-panel:-webkit-full-screen .scoreboard {
+    margin-top: 3px;
+    padding: 4px 8px;
+  }
+
+  .game-play-panel:fullscreen #gameMessage,
+  .game-play-panel:-webkit-full-screen #gameMessage {
+    margin-top: 2px;
+  }
+}
+
+/* Modalità alternativa in orizzontale */
+@media (max-width: 900px) and (orientation: landscape) {
+  body.game-fullscreen-fallback .game-play-panel {
+    justify-content: flex-start;
+    padding: 4px 10px;
+  }
+
+  body.game-fullscreen-fallback .canvas-wrapper {
+    margin: 1px auto;
+  }
+
+  body.game-fullscreen-fallback .scoreboard {
+    margin-top: 2px;
+    padding: 3px 8px;
+  }
+
+  body.game-fullscreen-fallback #gameMessage {
+    margin-top: 1px;
+  }
+}
+
+/* Telefoni bassi: riduce gli elementi non essenziali */
+@media (max-height: 500px) {
+  body.game-fullscreen-fallback .game-play-panel h2,
+  body.game-fullscreen-fallback .game-play-panel > p:not(#gameMessage) {
+    display: none;
+  }
+
+  body.game-fullscreen-fallback .fullscreen-row {
+    margin: 0 0 2px;
+  }
+
+  body.game-fullscreen-fallback .fullscreen-button {
+    min-height: 28px;
+    padding: 3px 8px;
+  }
+
+  body.game-fullscreen-fallback .game-buttons button {
+    min-height: 30px;
+    padding: 3px 8px;
+  }
+
+  body.game-fullscreen-fallback .scoreboard {
+    margin-top: 2px;
+    padding: 2px 6px;
   }
 }
 
@@ -569,3 +757,4 @@ th {
     transition: none;
   }
 }
+```
