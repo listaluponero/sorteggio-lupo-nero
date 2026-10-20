@@ -1,11 +1,10 @@
-
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090909">
-  <meta name="description" content="Lista Lupo Nero: eventi, biglietti, musica, merchandising e iniziative del Branco.">
+  <meta name="description" content="Lista Lupo Nero: eventi, biglietti, musica e iniziative del Branco.">
   <title>Lista Lupo Nero | Il Branco</title>
 
   <style>
@@ -50,7 +49,7 @@
       margin-inline: auto;
     }
 
-    /* MENU */
+    /* MENU SUPERIORE */
 
     .site-header {
       position: sticky;
@@ -104,15 +103,88 @@
       color: var(--text);
     }
 
-    /* PRESENTAZIONE */
+    /* HOME PRINCIPALE */
 
     .hero {
-      padding: 66px 0 52px;
+      padding: 28px 0 46px;
       text-align: center;
       border-bottom: 1px solid var(--border);
       background:
-        radial-gradient(ellipse at 50% 0%, #292929 0%, transparent 65%),
+        radial-gradient(
+          ellipse at 50% 0%,
+          #202432 0%,
+          transparent 62%
+        ),
         var(--bg);
+    }
+
+    /* IMMAGINE DEL CIELO STELLATO */
+
+    .hero-artwork-wrap {
+      width: min(100%, 1200px);
+      margin: 0 auto 28px;
+      padding: 0 16px;
+    }
+
+    .hero-artwork {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 74vh;
+      object-fit: contain;
+      margin: 0 auto;
+      border-radius: 12px;
+      filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.5));
+    }
+
+    /* Messaggio visibile se l'immagine non è stata caricata */
+
+    .hero-artwork-placeholder {
+      display: none;
+      width: 100%;
+      min-height: 340px;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      border: 1px dashed #626777;
+      border-radius: 12px;
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          rgba(103, 119, 160, 0.18),
+          transparent 42%
+        ),
+        radial-gradient(
+          circle at 20% 25%,
+          #283047 0 1px,
+          transparent 2px
+        ),
+        radial-gradient(
+          circle at 72% 32%,
+          #b9c6ef 0 1px,
+          transparent 2px
+        ),
+        radial-gradient(
+          circle at 80% 72%,
+          #8798c8 0 1px,
+          transparent 2px
+        ),
+        radial-gradient(
+          circle at 33% 75%,
+          #8798c8 0 1px,
+          transparent 2px
+        ),
+        #070910;
+      color: #c8ccda;
+      text-align: center;
+    }
+
+    .hero-artwork-placeholder strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #fff;
+      font-size: clamp(22px, 4vw, 38px);
+      letter-spacing: 2px;
     }
 
     .eyebrow {
@@ -124,16 +196,15 @@
     }
 
     .hero h1 {
-      margin: 15px 0;
-      font-size: clamp(42px, 8vw, 76px);
+      margin: 10px 0 14px;
+      font-size: clamp(36px, 7vw, 62px);
       font-weight: 900;
       letter-spacing: 2px;
       line-height: 1;
     }
 
     .hero h1 span {
-      display: block;
-      margin-top: 8px;
+      display: inline;
       color: #a9a9a9;
     }
 
@@ -141,21 +212,28 @@
       max-width: 650px;
       margin: 0 auto;
       color: var(--muted);
-      font-size: clamp(15px, 2vw, 18px);
+      font-size: clamp(14px, 2vw, 17px);
     }
+
+    /* TRE PULSANTI SEMPRE IN ORIZZONTALE */
 
     .hero-actions {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch;
       justify-content: center;
       gap: 10px;
-      margin-top: 24px;
+      margin: 24px auto 0;
+      width: 100%;
     }
 
     .button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex: 0 1 auto;
+      min-width: 0;
       min-height: 43px;
       padding: 10px 17px;
       border: 1px solid var(--border);
@@ -163,11 +241,17 @@
       background: var(--panel);
       font-size: 13px;
       font-weight: bold;
-      transition: background 0.2s, transform 0.2s;
+      line-height: 1.3;
+      text-align: center;
+      transition:
+        background 0.2s,
+        transform 0.2s,
+        border-color 0.2s;
     }
 
     .button:hover {
       background: var(--panel-hover);
+      border-color: #777;
       transform: translateY(-2px);
     }
 
@@ -181,7 +265,7 @@
       background: #d7d7d7;
     }
 
-    /* GRIGLIA DELLE SEZIONI */
+    /* SEZIONI DEL SITO */
 
     .sections {
       padding: 48px 0 58px;
@@ -219,9 +303,11 @@
       overflow-wrap: anywhere;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background:
-        linear-gradient(140deg, #191919, #101010);
-      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      background: linear-gradient(140deg, #191919, #101010);
+      transition:
+        border-color 0.2s,
+        transform 0.2s,
+        background 0.2s;
     }
 
     .card:hover {
@@ -266,11 +352,13 @@
       margin-left: 5px;
     }
 
-    /* EVENTI E BIGLIETTI IN EVIDENZA */
-
     .card-featured {
       background:
-        radial-gradient(ellipse at 100% 0%, #343434 0%, transparent 70%),
+        radial-gradient(
+          ellipse at 100% 0%,
+          #343434 0%,
+          transparent 70%
+        ),
         #171717;
     }
 
@@ -279,7 +367,7 @@
       color: #090909;
     }
 
-    /* FOOTER */
+    /* PIEDE PAGINA */
 
     .site-footer {
       padding: 28px 0;
@@ -322,7 +410,7 @@
       color: white;
     }
 
-    /* TABLET E TELEFONI */
+    /* TABLET */
 
     @media (max-width: 780px) {
       .nav-wrap {
@@ -334,28 +422,62 @@
       .nav-links {
         justify-content: flex-start;
       }
+
+      .hero-artwork {
+        max-height: none;
+      }
     }
 
-    @media (max-width: 480px) {
+    /* TELEFONI */
+
+    @media (max-width: 520px) {
       .container {
         width: min(100% - 20px, var(--max-width));
       }
 
       .hero {
-        padding: 48px 0 40px;
+        padding: 18px 0 34px;
+      }
+
+      .hero-artwork-wrap {
+        padding: 0 10px;
+        margin-bottom: 22px;
+      }
+
+      .hero-artwork {
+        border-radius: 8px;
+      }
+
+      .eyebrow {
+        font-size: 9px;
+        letter-spacing: 2px;
       }
 
       .hero h1 {
-        font-size: clamp(37px, 10vw, 50px);
+        font-size: clamp(29px, 8vw, 40px);
         letter-spacing: 1px;
       }
 
-      .hero-actions {
-        flex-direction: column;
+      .hero p {
+        font-size: 13px;
       }
 
-      .hero-actions .button {
-        width: 100%;
+      /* I tre pulsanti restano affiancati anche sul telefono */
+
+      .hero-actions {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 6px;
+        margin-top: 19px;
+      }
+
+      .button {
+        flex: 1 1 0;
+        padding: 10px 5px;
+        min-height: 44px;
+        font-size: 10px;
+        border-radius: 7px;
+        overflow-wrap: anywhere;
       }
 
       .sections {
@@ -400,8 +522,12 @@
 </head>
 
 <body>
+
+  <!-- MENU SUPERIORE -->
+
   <header class="site-header">
     <div class="container nav-wrap">
+
       <a class="brand" href="index.html">
         LISTA LUPO NERO
         <span>IL BRANCO</span>
@@ -420,17 +546,53 @@
         <a href="sezioni/sostieni.html">Sostieni</a>
         <a href="sezioni/volontariato.html">Volontariato</a>
       </nav>
+
     </div>
   </header>
 
   <main>
+
+    <!-- HOME PRINCIPALE -->
+
     <section class="hero">
+
+      <!--
+        IMMAGINE DELLA HOME
+
+        Percorso:
+        assets/home/cielo-lupo-nero.png
+
+        Carica la tua immagine in quella cartella
+        e assegnale esattamente quel nome.
+      -->
+
+      <div class="hero-artwork-wrap">
+
+        <img
+          class="hero-artwork"
+          src="assets/home/cielo-lupo-nero.png"
+          alt="Cielo stellato della Lista Lupo Nero con stemma circolare e cornici fotografiche"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+
+        <div class="hero-artwork-placeholder">
+          <div>
+            <strong>QUI ANDRÀ LA GRAFICA DEL BRANCO</strong>
+            Carica la tua immagine in
+            <b>assets/home/cielo-lupo-nero.png</b>
+          </div>
+        </div>
+
+      </div>
+
       <div class="container">
-        <div class="eyebrow">Libertà · Musica · Branco</div>
+
+        <div class="eyebrow">
+          Libertà · Musica · Branco
+        </div>
 
         <h1>
-          LISTA
-          <span>LUPO NERO</span>
+          LISTA <span>LUPO NERO</span>
         </h1>
 
         <p>
@@ -439,22 +601,43 @@
           la notte insieme.
         </p>
 
+        <!-- TRE PULSANTI PRINCIPALI -->
+
         <div class="hero-actions">
-          <a class="button button-primary" href="sezioni/eventi.html">
+
+          <a
+            class="button button-primary"
+            href="sezioni/eventi.html"
+          >
             🎟️ Scopri eventi e biglietti
           </a>
-          <a class="button" href="sezioni/sorteggio.html">
+
+          <a
+            class="button"
+            href="sezioni/sorteggio.html"
+          >
             🐺 Tenta la sorte
           </a>
-          <a class="button" href="giochi/index.html">
+
+          <a
+            class="button"
+            href="giochi/index.html"
+          >
             🎮 Entra in Lupo Games
           </a>
+
         </div>
+
       </div>
+
     </section>
 
+    <!-- SEZIONI DEL SITO -->
+
     <section class="sections" id="mondo-del-branco">
+
       <div class="container">
+
         <div class="section-heading">
           <h2>Il mondo del Branco</h2>
           <p>
@@ -469,11 +652,12 @@
             <div class="card-icon" aria-hidden="true">🎟️</div>
             <h3>Eventi e biglietti</h3>
             <p>
-              Scopri le serate, consulta le informazioni e le eventuali
-              agevolazioni per la lista. L'acquisto dei biglietti
-              viene completato sulla piattaforma esterna indicata.
+              Scopri le serate, consulta le informazioni
+              e le eventuali agevolazioni per la lista.
             </p>
-            <span class="card-link">Scopri eventi e biglietti <span>→</span></span>
+            <span class="card-link">
+              Scopri eventi e biglietti <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/sorteggio.html">
@@ -483,7 +667,9 @@
               Scopri le iniziative promozionali e visita
               la pagina dedicata al sorteggio.
             </p>
-            <span class="card-link">Tenta la sorte <span>→</span></span>
+            <span class="card-link">
+              Tenta la sorte <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="giochi/index.html">
@@ -493,7 +679,9 @@
               Entra nei giochi del Branco, mettiti alla prova
               e prova a battere i record.
             </p>
-            <span class="card-link">Entra nei giochi <span>→</span></span>
+            <span class="card-link">
+              Entra nei giochi <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/dj.html">
@@ -503,7 +691,9 @@
               Scopri set, progetti musicali e il percorso
               di ReLupoNero.
             </p>
-            <span class="card-link">Scopri la musica <span>→</span></span>
+            <span class="card-link">
+              Scopri la musica <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/merch.html">
@@ -513,17 +703,21 @@
               Scopri i prodotti ufficiali della Lista Lupo Nero
               e il merchandising del Branco.
             </p>
-            <span class="card-link">Scopri i prodotti <span>→</span></span>
+            <span class="card-link">
+              Scopri i prodotti <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/partner.html">
             <div class="card-icon" aria-hidden="true">🤝</div>
             <h3>Partner e collaborazioni</h3>
             <p>
-              Esplora le collaborazioni e le realtà
-              legate al progetto Lupo Nero.
+              Esplora le collaborazioni e le realtà legate
+              al progetto Lupo Nero.
             </p>
-            <span class="card-link">Scopri i partner <span>→</span></span>
+            <span class="card-link">
+              Scopri i partner <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/volontariato.html">
@@ -533,7 +727,9 @@
               Scopri come partecipare alle iniziative
               e contribuire alle attività del Branco.
             </p>
-            <span class="card-link">Partecipa <span>→</span></span>
+            <span class="card-link">
+              Partecipa <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/sostieni.html">
@@ -543,7 +739,9 @@
               Scopri come sostenere il progetto e contribuire
               alla crescita delle sue attività.
             </p>
-            <span class="card-link">Scopri come sostenere <span>→</span></span>
+            <span class="card-link">
+              Scopri come sostenere <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/gallery.html">
@@ -553,7 +751,9 @@
               Rivivi i momenti del Branco attraverso foto
               e ricordi delle nostre esperienze.
             </p>
-            <span class="card-link">Guarda la gallery <span>→</span></span>
+            <span class="card-link">
+              Guarda la gallery <span>→</span>
+            </span>
           </a>
 
           <a class="card" href="sezioni/youtube.html">
@@ -563,16 +763,24 @@
               Video, set musicali e contenuti dal mondo
               della Lista Lupo Nero.
             </p>
-            <span class="card-link">Guarda i contenuti <span>→</span></span>
+            <span class="card-link">
+              Guarda i contenuti <span>→</span>
+            </span>
           </a>
 
         </div>
       </div>
+
     </section>
+
   </main>
 
+  <!-- PIEDE PAGINA -->
+
   <footer class="site-footer">
+
     <div class="container footer-inner">
+
       <div>
         <div class="footer-brand">LISTA LUPO NERO</div>
         <p class="footer-note">
@@ -581,17 +789,30 @@
       </div>
 
       <div class="footer-links">
-        <a href="https://www.instagram.com/Lista.LupoNero/"
-           target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://www.instagram.com/Lista.LupoNero/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Instagram Lista
         </a>
-        <a href="https://www.instagram.com/ReLupoNero/"
-           target="_blank" rel="noopener noreferrer">
+
+        <a
+          href="https://www.instagram.com/ReLupoNero/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Instagram DJ
         </a>
-        <a href="sezioni/eventi.html">Eventi e biglietti</a>
+
+        <a href="sezioni/eventi.html">
+          Eventi e biglietti
+        </a>
       </div>
+
     </div>
+
   </footer>
+
 </body>
 </html>
