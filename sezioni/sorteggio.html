@@ -18,9 +18,7 @@
       --border: #333;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -29,16 +27,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background:
-        radial-gradient(ellipse at top, #211012 0%, transparent 55%),
-        var(--bg);
+      background: radial-gradient(ellipse at top, #211012 0%, transparent 55%), var(--bg);
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
     }
 
     .container {
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       padding: 30px;
       background: var(--panel);
       border: 1px solid var(--border);
@@ -46,25 +42,31 @@
       box-shadow: 0 18px 60px #0009;
     }
 
-    .home-button {
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .nav-button {
+      flex: 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       min-height: 42px;
-      margin-bottom: 25px;
-      padding: 10px 15px;
+      padding: 10px 12px;
       border: 1px solid #444;
       border-radius: 9px;
       background: #0d0d0d;
       color: var(--text);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       text-decoration: none;
       transition: background .2s, border-color .2s;
     }
 
-    .home-button:hover {
+    .nav-button:hover {
       background: var(--red);
       border-color: var(--red-light);
     }
@@ -81,17 +83,52 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(26px, 6vw, 38px);
+      font-size: clamp(26px, 6vw, 36px);
       text-align: center;
       letter-spacing: 1px;
     }
 
     .description {
-      margin: 14px 0 24px;
+      margin: 14px 0 20px;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
       text-align: center;
+    }
+
+    /* Sezione Anteprima Premi */
+    .prizes-box {
+      margin-bottom: 24px;
+      padding: 14px;
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .prizes-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--red-light);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .prizes-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .prize-tag {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text);
     }
 
     label {
@@ -113,9 +150,7 @@
       font-size: 16px;
     }
 
-    input:focus {
-      border-color: var(--red-light);
-    }
+    input:focus { border-color: var(--red-light); }
 
     button {
       width: 100%;
@@ -133,14 +168,8 @@
       transition: background .2s, opacity .2s;
     }
 
-    button:hover:not(:disabled) {
-      background: var(--red-light);
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: .5;
-    }
+    button:hover:not(:disabled) { background: var(--red-light); }
+    button:disabled { cursor: not-allowed; opacity: .5; }
 
     .status {
       margin-top: 18px;
@@ -178,9 +207,7 @@
       overflow-wrap: anywhere;
     }
 
-    #message:empty {
-      display: none;
-    }
+    #message:empty { display: none; }
 
     .notice {
       margin: 20px 0 0;
@@ -193,16 +220,33 @@
 <body>
 
   <div class="container">
-    <a href="../index.html" class="home-button">← Torna alla Home</a>
+    <div class="nav-buttons">
+      <a href="../index.html" class="nav-button">← Home</a>
+      <a href="merch.html" class="nav-button">🔥 Scopri il Merch</a>
+    </div>
 
-    <div class="eyebrow">Partecipa ora</div>
+    <div class="eyebrow">Tenta la fortuna</div>
     <h1>SORTEGGIO</h1>
-    <p class="description">Inserisci il tuo nome utente Instagram per partecipare al sorteggio ufficiale Lista Lupo Nero.</p>
+    <p class="description">Inserisci il tuo nickname Instagram e scopri subito se hai vinto uno dei fantastici premi in palio!</p>
+
+    <!-- Anteprima premi -->
+    <div class="prizes-box">
+      <div class="prizes-title">🎁 Premi in palio</div>
+      <div class="prizes-grid">
+        <span class="prize-tag">🏷️ Sticker</span>
+        <span class="prize-tag">🔑 Portachiavi</span>
+        <span class="prize-tag">🪭 Ventagli</span>
+        <span class="prize-tag">🎟️ Riduzioni</span>
+        <span class="prize-tag">🩳 Pantaloncini</span>
+        <span class="prize-tag">👕 Magliette</span>
+        <span class="prize-tag">🧥 Felpe</span>
+      </div>
+    </div>
 
     <form id="drawForm">
       <label for="instagram">Username Instagram (@tuonome)</label>
       <input type="text" id="instagram" placeholder="@es. luponero_official" required autocomplete="off">
-      <button type="submit" id="submitBtn">PARTECIPA AL SORTEGGIO</button>
+      <button type="submit" id="submitBtn">ESTRAI IL PREMIO</button>
     </form>
 
     <div class="status" id="statusBox">
@@ -212,15 +256,12 @@
 
     <div id="message"></div>
 
-    <p class="notice">⚠️ Nota: È consentito un solo tentativo ogni 8 ore per dispositivo ed account Instagram.</p>
+    <p class="notice">⚠️ Tentativo consentito ogni 8 ore per dispositivo ed account.</p>
   </div>
 
   <script>
-    // 🔗 INCOLLA QUI IL TUO LINK GOOGLE APPS SCRIPT / SHEET
-    const GOOGLE_SCRIPT_URL = "INSERISCI_QUI_URL_GOOGLE_APPS_SCRIPT"; 
-
-    const COOLDOWN_HOURS = 8;
-    const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
+    // 🔗 INCOLLA QUI IL TUO URL DI DEPLOY WEB APP DI APPS SCRIPT
+    const SCRIPT_URL = "INSERISCI_QUI_IL_TUO_URL_APPS_SCRIPT"; 
 
     const form = document.getElementById('drawForm');
     const instagramInput = document.getElementById('instagram');
@@ -231,141 +272,121 @@
 
     let timerInterval = null;
 
-    // Genera o recupera un ID unico per il dispositivo
     function getDeviceId() {
-      let devId = localStorage.getItem('ln_device_id');
-      if (!devId) {
-        devId = 'DEV-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-        localStorage.setItem('ln_device_id', devId);
+      let id = localStorage.getItem('ln_uuid');
+      if (!id) {
+        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+        localStorage.setItem('ln_uuid', id);
       }
-      return devId;
+      return id;
     }
 
-    function checkCooldown() {
-      const lastSubmit = localStorage.getItem('ln_last_submit');
-      const savedIg = localStorage.getItem('ln_last_ig');
+    function jsonp(url, params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data);
+        };
 
-      if (lastSubmit) {
-        const timePassed = Date.now() - parseInt(lastSubmit, 10);
-        const timeLeft = COOLDOWN_MS - timePassed;
+        const script = document.createElement('script');
+        const queryParams = new URLSearchParams({ ...params, callback: callbackName });
+        script.src = url + '?' + queryParams.toString();
+        script.onerror = () => {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          reject(new Error('Errore di connessione'));
+        };
 
-        if (timeLeft > 0) {
-          disableForm(savedIg);
-          startTimer(timeLeft);
-          return true;
-        } else {
-          enableForm();
-          localStorage.removeItem('ln_last_submit');
-          return false;
-        }
-      }
-      return false;
+        document.body.appendChild(script);
+      });
     }
 
-    function disableForm(igUser) {
+    function startTimer(ms) {
+      if (timerInterval) clearInterval(timerInterval);
+      let endTime = Date.now() + ms;
+
+      statusBox.style.display = 'block';
       submitBtn.disabled = true;
       instagramInput.disabled = true;
-      if (igUser) instagramInput.value = igUser;
-      statusBox.style.display = 'block';
-    }
-
-    function enableForm() {
-      submitBtn.disabled = false;
-      instagramInput.disabled = false;
-      statusBox.style.display = 'none';
-      if (timerInterval) clearInterval(timerInterval);
-    }
-
-    function startTimer(durationMs) {
-      if (timerInterval) clearInterval(timerInterval);
-
-      let endTime = Date.now() + durationMs;
 
       function update() {
         let remaining = endTime - Date.now();
-
         if (remaining <= 0) {
           clearInterval(timerInterval);
-          enableForm();
+          statusBox.style.display = 'none';
+          submitBtn.disabled = false;
+          instagramInput.disabled = false;
           showMessage("Ora puoi effettuare un nuovo tentativo!", "#28a745");
           return;
         }
 
-        let hours = Math.floor((remaining / (1000 * 60 * 60)) % 24);
-        let minutes = Math.floor((remaining / (1000 * 60)) % 60);
-        let seconds = Math.floor((remaining / 1000) % 60);
+        let h = Math.floor((remaining / 3600000) % 24);
+        let m = Math.floor((remaining / 60000) % 60);
+        let s = Math.floor((remaining / 1000) % 60);
 
         timerElement.textContent = 
-          String(hours).padStart(2, '0') + ':' +
-          String(minutes).padStart(2, '0') + ':' +
-          String(seconds).padStart(2, '0');
+          String(h).padStart(2, '0') + ':' + 
+          String(m).padStart(2, '0') + ':' + 
+          String(s).padStart(2, '0');
       }
 
       update();
       timerInterval = setInterval(update, 1000);
     }
 
-    function showMessage(text, color = '#f4f4f4') {
-      messageElement.textContent = text;
+    function showMessage(html, color = '#f4f4f4') {
+      messageElement.innerHTML = html;
       messageElement.style.color = color;
     }
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-
-      let igUser = instagramInput.value.trim().toLowerCase();
-      if (!igUser) return;
-
-      if (!igUser.startsWith('@')) {
-        igUser = '@' + igUser;
-      }
-
-      const lastIg = (localStorage.getItem('ln_last_ig') || '').toLowerCase();
-      if (checkCooldown()) {
-        showMessage("Hai già partecipato di recente. Attendi lo scadere del timer.", "#e52b38");
-        return;
-      }
+      const nickname = instagramInput.value.trim();
+      if (!nickname) return;
 
       submitBtn.disabled = true;
-      submitBtn.textContent = "INVIO IN CORSO...";
-
-      const payload = {
-        instagram: igUser,
-        deviceId: getDeviceId(),
-        timestamp: new Date().toISOString()
-      };
+      submitBtn.textContent = "ESTRAZIONE IN CORSO...";
 
       try {
-        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
+        const res = await jsonp(SCRIPT_URL, {
+          action: 'attempt',
+          nickname: nickname,
+          deviceId: getDeviceId()
+        });
+
+        if (!res.success) {
+          showMessage("❌ " + (res.message || "Errore. Riprova più tardi."), "#e52b38");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "ESTRAI IL PREMIO";
+          return;
         }
 
-        // Salva stato locale (8 ore)
-        const now = Date.now();
-        localStorage.setItem('ln_last_submit', now.toString());
-        localStorage.setItem('ln_last_ig', igUser);
+        if (!res.allowed) {
+          showMessage("⏱️ Hai già partecipato. Attendi lo scadere del timer.", "#e52b38");
+          startTimer(res.remainingMs);
+          return;
+        }
 
-        showMessage("✅ Partecipazione registrata con successo! Buona fortuna!", "#28a745");
-        submitBtn.textContent = "PARTECIPA AL SORTEGGIO";
-        disableForm(igUser);
-        startTimer(COOLDOWN_MS);
+        if (res.won) {
+          showMessage(`🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br>Premio: <strong>${res.prize}</strong><br>Codice da mostrare: <strong>LN-${res.code}</strong>`, "#28a745");
+        } else {
+          showMessage("😔 Peccato! Non hai vinto questa volta. Riprova tra 8 ore!", "#aaa");
+        }
+
+        startTimer(res.remainingMs || 28800000);
 
       } catch (err) {
-        console.error(err);
-        showMessage("❌ Si è verificato un errore durante l'invio. Riprova.", "#e52b38");
+        showMessage("❌ Errore di rete. Controlla la connessione e riprova.", "#e52b38");
         submitBtn.disabled = false;
-        submitBtn.textContent = "PARTECIPA AL SORTEGGIO";
+      } finally {
+        submitBtn.textContent = "ESTRAI IL PREMIO";
       }
     });
-
-    // Controllo al caricamento pagina
-    checkCooldown();
   </script>
 </body>
 </html>
-
