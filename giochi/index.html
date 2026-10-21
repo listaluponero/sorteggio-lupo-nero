@@ -1,189 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#090909">
-  <title>Lupo Games | Lupo Runner</title>
-  <link rel="stylesheet" href="gioco.css">
-  <script src="gioco.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lupo Runner</title>
+    <link rel="stylesheet" href="gioco.css">
+    <style>
+        body { 
+            background-color: #090b14; 
+            color: #fff; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        #loadingScreen { text-align: center; }
+        .spinner { 
+            border: 4px solid rgba(255,255,255,0.1); 
+            border-left-color: #168b87; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 1s linear infinite; 
+            margin: 10px auto; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #gameArea { display: none; text-align: center; }
+    </style>
 </head>
 <body>
-  <header class="game-header">
-    <a href="../index.html" class="back-link">← Torna alla Home</a>
-    <h1>LUPO GAMES</h1>
-    <p>Benvenuto nel branco. Quanto riuscirai a resistere?</p>
-  </header>
 
-  <main class="game-container">
-    <section class="game-panel game-play-panel" id="gamePlayPanel">
-      <h2>Lupo Runner</h2>
-      <p>Salta gli ostacoli e cerca di stabilire il tuo record!</p>
+    <!-- Schermata di Caricamento per evitare schermate nere -->
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <p>Caricamento modelli del lupo...</p>
+    </div>
 
-      <div class="fullscreen-row">
-        <button
-          id="fullscreenGame"
-          class="fullscreen-button"
-          type="button"
-          aria-label="Attiva schermo intero"
-          aria-pressed="false"
-        >⛶ SCHERMO INTERO</button>
-      </div>
+    <!-- Area di Gioco -->
+    <div id="gameArea">
+        <div class="header-ui" style="margin-bottom: 10px; font-size: 18px; font-weight: bold;">
+            <span>PUNTI: <span id="score">0</span></span> | 
+            <span>RECORD: <span id="personalBest">0</span></span>
+        </div>
+        
+        <canvas id="gameCanvas" width="800" height="400" style="border: 2px solid #168b87; max-width: 100%; height: auto;"></canvas>
+        
+        <div class="controls-ui" style="margin-top: 15px;">
+            <button id="startGame" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">INIZIA PARTITA</button>
+            <button id="jumpGame" style="padding: 10px 20px; font-size: 16px; cursor: pointer;" disabled>SALTA (Spazio)</button>
+            <button id="pauseGame" style="padding: 10px 20px; font-size: 16px; cursor: pointer;" disabled>PAUSA</button>
+        </div>
+    </div>
 
-      <div class="canvas-wrapper">
-        <canvas id="gameCanvas" width="900" height="420">
-          Il tuo browser non supporta il canvas.
-        </canvas>
-      </div>
-
-      <div class="game-buttons">
-        <button id="startGame" type="button">Inizia partita</button>
-        <button id="jumpGame" type="button">SALTA</button>
-        <button id="pauseGame" type="button" disabled>PAUSA</button>
-      </div>
-
-      <div class="scoreboard">
-        <p>Punteggio: <strong id="score">0</strong></p>
-        <p>Record personale: <strong id="personalBest">0</strong></p>
-      </div>
-
-      <p id="gameMessage" role="status" aria-live="polite">
-        Premi «Inizia partita» o tocca lo schermo per giocare.
-      </p>
-    </section>
-
-    <section class="game-panel leaderboard-panel">
-      <h2>Classifica del branco</h2>
-      <p>Inserisci il tuo nickname Instagram per inviare il punteggio.</p>
-
-      <label for="playerName">Nickname Instagram</label>
-      <input
-        id="playerName"
-        type="text"
-        maxlength="30"
-        placeholder="@tuonickname"
-        autocomplete="nickname"
-      >
-
-      <div class="leaderboard-buttons">
-        <button id="submitScore" type="button">Invia punteggio</button>
-        <button id="refreshBoard" type="button">Aggiorna classifica</button>
-      </div>
-
-      <p id="leaderboardStatus" role="status" aria-live="polite">
-        Caricamento classifica...
-      </p>
-
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Pos.</th>
-              <th>Nickname</th>
-              <th>Punteggio</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody">
-            <tr>
-              <td colspan="3">Classifica in caricamento...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <footer class="game-footer">
-    <p>Lista Lupo Nero · Il branco gioca insieme.</p>
-    <a
-      href="https://www.instagram.com/Lista.LupoNero/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >Instagram Lista Lupo Nero</a>
-  </footer>
-
-  <script>
-    (() => {
-      "use strict";
-
-      const panel = document.getElementById("gamePlayPanel");
-      const button = document.getElementById("fullscreenGame");
-
-      if (!panel || !button) return;
-
-      let fallbackActive = false;
-
-      function nativeFullscreen() {
-        return document.fullscreenElement === panel ||
-          document.webkitFullscreenElement === panel;
-      }
-
-      function isActive() {
-        return nativeFullscreen() || fallbackActive;
-      }
-
-      function updateButton() {
-        const active = isActive();
-        button.textContent = active ? "✕ ESCI DALLO SCHERMO INTERO" : "⛶ SCHERMO INTERO";
-        button.setAttribute("aria-pressed", String(active));
-      }
-
-      async function enterFullscreen() {
-        if (panel.requestFullscreen) {
-          try {
-            await panel.requestFullscreen();
-            updateButton();
-            return;
-          } catch (error) {}
-        }
-        if (panel.webkitRequestFullscreen) {
-          try {
-            panel.webkitRequestFullscreen();
-            updateButton();
-            return;
-          } catch (error) {}
-        }
-        fallbackActive = true;
-        document.documentElement.classList.add("game-fullscreen-fallback");
-        document.body.classList.add("game-fullscreen-fallback");
-        updateButton();
-      }
-
-      async function exitFullscreen() {
-        if (nativeFullscreen()) {
-          try {
-            if (document.exitFullscreen) await document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          } catch (error) {}
-        }
-        fallbackActive = false;
-        document.documentElement.classList.remove("game-fullscreen-fallback");
-        document.body.classList.remove("game-fullscreen-fallback");
-        updateButton();
-      }
-
-      button.addEventListener("click", async () => {
-        button.disabled = true;
-        try {
-          if (isActive()) await exitFullscreen();
-          else await enterFullscreen();
-        } finally {
-          button.disabled = false;
-          updateButton();
-        }
-      });
-
-      document.addEventListener("fullscreenchange", () => {
-        if (!nativeFullscreen() && fallbackActive) {
-          fallbackActive = false;
-          document.documentElement.classList.remove("game-fullscreen-fallback");
-          document.body.classList.remove("game-fullscreen-fallback");
-        }
-        updateButton();
-      });
-
-      updateButton();
-    })();
-  </script>
+    <script src="gioco.js"></script>
 </body>
 </html>
