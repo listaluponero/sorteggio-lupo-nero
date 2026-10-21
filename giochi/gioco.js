@@ -27,9 +27,9 @@ const START_SPEED = 4;
 const MAX_SPEED = 8;
 const MIN_COMBO_GAP = 305;
 
-const ANGEL_MIN_HEIGHT = 100;
-const ANGEL_MAX_HEIGHT = 150;
-const ANGEL_FLOAT_AMPLITUDE = 3;
+// ======================================
+// SPRITE DEL LUPO DI PROFILO
+// ======================================
 
 const wolfImage = new Image();
 
@@ -88,11 +88,17 @@ function buildWolfSprite() {
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100">${frames}</svg>`;
 
-  wolfImage.onload = () => { drawGame(); };
+  wolfImage.onload = () => {
+    drawGame(); // Disegna subito il gioco appena l'immagine è pronta
+  };
   wolfImage.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
 buildWolfSprite();
+
+// ======================================
+// STATO DEL GIOCO
+// ======================================
 
 let running = false;
 let paused = false;
@@ -103,27 +109,13 @@ let lastTime = 0;
 let distance = 0;
 let score = 0;
 let finalScore = 0;
-
 let speed = START_SPEED;
+
 let obstacles = [];
-let particles = [];
+let spawnDistance = 0;
+let nextSpawnDistance = 400;
 
-let pointerStartX = 0;
-let pointerStartY = 0;
-let pointerMoved = false;
-let pointerIsDown = false;
-
-function loadBest() {
-  try { return Number(localStorage.getItem(BEST_KEY)) || 0; }
-  catch { return 0; }
-}
-
-function saveBest(value) {
-  try { localStorage.setItem(BEST_KEY, String(value)); }
-  catch {}
-}
-
-let best = loadBest();
+let best = Number(localStorage.getItem(BEST_KEY)) || 0;
 
 const player = {
   x: 75,
@@ -147,18 +139,9 @@ function updatePauseButton() {
   pauseButton.disabled = !running && !paused;
 }
 
-function getDifficultyStage() {
-  if (score < 300) return 0;
-  if (score < 800) return 1;
-  if (score < 1600) return 2;
-  if (score < 2800) return 3;
-  return 4;
-}
-
-function getStageName() {
-  const names = ["APPRENDIMENTO", "ATTENZIONE", "SOPRAVVIVENZA", "LUPO NERO", "INCUBO"];
-  return names[getDifficultyStage()];
-}
+// ======================================
+// DISEGNO
+// ======================================
 
 function drawBackground() {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
@@ -201,60 +184,29 @@ function drawWolf() {
   ctx.restore();
 }
 
+// ======================================
+// OSTACOLI
+// ======================================
+
 const OBSTACLE_SIZES = {
   spike: { w: 35, h: 35 },
   crate: { w: 35, h: 38 },
-  heart: { w: 36, h: 36 },
-  angel: { w: 40, h: 44 },
-  snake: { w: 52, h: 28 }
+  heart: { w: 36, h: 36 }
 };
 
-function createObstacle(type, offset = 0) {
+function createObstacle() {
+  const types = ["spike", "crate", "heart"];
+  const type = types[Math.floor(Math.random() * types.length)];
   const size = OBSTACLE_SIZES[type];
-  const angelHeight = type === "angel" ? ANGEL_MIN_HEIGHT + Math.random() * (ANGEL_MAX_HEIGHT - ANGEL_MIN_HEIGHT) : 0;
-  const baseY = type === "angel" ? groundY - angelHeight : groundY - size.h;
 
   obstacles.push({
     type,
-    x: W + 10 + offset,
-    y: baseY,
-    baseY,
+    x: W + 10,
+    y: groundY - size.h,
     w: size.w,
-    h: size.h,
-    angelHeight,
-    phase: Math.random() * Math.PI * 2
+    h: size.h
   });
 }
-
-function pickRandom(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function choosePattern() {
-  const stage = getDifficultyStage();
-  const groundTypes = ["spike", "crate", "heart", "snake"];
-  const allTypes = ["spike", "crate", "heart", "angel", "snake"];
-
-  if (stage === 0) return { types: [pickRandom(["spike", "crate", "heart"])], gap: 0 };
-  const comboChance = [0, 0.42, 0.62, 0.76, 0.84][stage];
-
-  if (Math.random() < comboChance) {
-    const first = pickRandom(groundTypes);
-    let second = pickRandom(groundTypes);
-    const gap = MIN_COMBO_GAP + Math.random() * 45;
-    return { types: [first, second], gap };
-  }
-  return { types: [pickRandom(allTypes)], gap: 0 };
-}
-
-function spawnPattern() {
-  const pattern = choosePattern();
-  pattern.types.forEach((type, index) => {
-    createObstacle(type, index === 0 ? 0 : pattern.gap);
-  });
-  nextSpawnDistance = distance + 450 + Math.random() * 200;
-}
-let nextSpawnDistance = 400;
 
 function collides(a, b) {
   const inset = 6;
@@ -266,94 +218,97 @@ function collides(a, b) {
   );
 }
 
+// ======================================
+// CONTROLLI E AVVIO
+// ======================================
+
 function jump() {
   if (!running || paused || !player.grounded) return;
   player.vy = player.jumpPower;
   player.grounded = false;
 }
 
-function togglePause() {
-  if (running && !paused) {
-    paused = true;
-    running = false;
-    if (animationId !== null) cancelAnimationFrame(animationId);
-    updatePauseButton();
-    drawGame();
-    return;
-  }
-  if (paused) {
-    paused = false;
-    running = true;
-    lastTime = 0;
-    updatePauseButton();
-    animationId = requestAnimationFrame(gameLoop);
-  }
-}
-
 function startGame() {
-  if (running || paused) return;
+  if (running) return;
+
   running = true;
+  paused = false;
   gameOver = false;
   lastTime = 0;
+
   distance = 0;
   score = 0;
   finalScore = 0;
   speed = START_SPEED;
+
   obstacles = [];
-  particles = [];
+  spawnDistance = 0;
+  nextSpawnDistance = 350;
+
   player.y = groundY - player.h;
   player.vy = 0;
   player.grounded = true;
+
+  if (messageElement) messageElement.textContent = "Corri, Lupetto!";
+
   updateScoreboard();
   updatePauseButton();
+
+  if (animationId) cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(gameLoop);
 }
 
-let speed = START_SPEED;
+function togglePause() {
+  if (!running && !paused) return;
+  paused = !paused;
+  updatePauseButton();
 
+  if (paused) {
+    if (animationId) cancelAnimationFrame(animationId);
+    drawGame();
+  } else {
+    lastTime = 0;
+    animationId = requestAnimationFrame(gameLoop);
+  }
+}
+
+// Eventi pulsanti
 if (startButton) startButton.addEventListener("click", startGame);
 if (jumpButton) jumpButton.addEventListener("click", jump);
 if (pauseButton) pauseButton.addEventListener("click", togglePause);
 
+// Eventi tastiera
 document.addEventListener("keydown", event => {
   if (!["Space", "ArrowUp", "KeyW"].includes(event.code)) return;
   event.preventDefault();
-  if (running && !paused) jump();
-  else if (!running && !paused && !gameOver) startGame();
-});
-
-canvas.addEventListener("pointerdown", event => {
-  pointerStartX = event.clientX;
-  pointerStartY = event.clientY;
-  pointerMoved = false;
-  pointerIsDown = true;
-});
-
-canvas.addEventListener("pointermove", event => {
-  if (!pointerIsDown) return;
-  if (Math.abs(event.clientX - pointerStartX) > 10 || Math.abs(event.clientY - pointerStartY) > 10) {
-    pointerMoved = true;
+  if (running && !paused) {
+    jump();
+  } else if (!running && !paused) {
+    startGame();
   }
 });
 
-canvas.addEventListener("pointerup", event => {
-  if (!pointerIsDown) return;
-  pointerIsDown = false;
-  if (pointerMoved) return;
-
+// Eventi touch / click sul canvas (perfetto per cellulare)
+canvas.addEventListener("click", () => {
   if (!running && !paused) {
     startGame();
-  } else {
+  } else if (running && !paused) {
     jump();
   }
 });
 
+// ======================================
+// LOOP PRINCIPALE
+// ======================================
+
 function gameLoop(timestamp) {
   if (!running || paused) return;
+
   if (!lastTime) lastTime = timestamp;
   const dt = Math.min((timestamp - lastTime) / 16.667, 2);
   lastTime = timestamp;
 
+  // Aggiornamento logica
   distance += speed * dt;
   score = Math.floor(distance / 10);
   updateScoreboard();
@@ -367,11 +322,18 @@ function gameLoop(timestamp) {
     player.grounded = true;
   }
 
-  if (distance >= nextSpawnDistance) spawnPattern();
+  // Generazione ostacoli
+  spawnDistance += speed * dt;
+  if (spawnDistance >= nextSpawnDistance) {
+    createObstacle();
+    spawnDistance = 0;
+    nextSpawnDistance = 300 + Math.random() * 250;
+  }
 
-  for (const obstacle of obstacles) {
-    obstacle.x -= speed * dt;
-    if (collides(player, obstacle)) {
+  // Movimento ostacoli e collisioni
+  for (const o of obstacles) {
+    o.x -= speed * dt;
+    if (collides(player, o)) {
       endGame();
       return;
     }
@@ -384,19 +346,25 @@ function gameLoop(timestamp) {
 
 function drawGame() {
   drawBackground();
+
   for (const o of obstacles) {
-    ctx.fillStyle = "#d7d7dc";
+    ctx.fillStyle = o.type === "heart" ? "#d72c4d" : "#d7d7dc";
     ctx.fillRect(o.x, o.y, o.w, o.h);
   }
+
   drawWolf();
 
   ctx.fillStyle = "#fff";
   ctx.font = "bold 18px Arial";
   ctx.fillText("METRI: " + score, 18, 32);
 
-  if (!running && !paused && !gameOver) drawOverlay("LUPO RUNNER", "Tocca o premi INIZIA PARTITA");
-  if (paused) drawOverlay("PAUSA", "Premi RIPRENDI");
-  if (gameOver) drawOverlay("GAME OVER", "Distanza: " + finalScore + " m");
+  if (!running && !paused && !gameOver) {
+    drawOverlay("LUPO RUNNER", "Tocca o premi INIZIA PARTITA");
+  } else if (paused) {
+    drawOverlay("PAUSA", "Premi RIPRENDI");
+  } else if (gameOver) {
+    drawOverlay("GAME OVER", "Distanza: " + finalScore + " m");
+  }
 }
 
 function drawOverlay(title, subtitle) {
@@ -418,17 +386,23 @@ function endGame() {
   paused = false;
   gameOver = true;
   finalScore = score;
-  if (animationId !== null) cancelAnimationFrame(animationId);
+
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
 
   if (finalScore > best) {
     best = finalScore;
-    saveBest(best);
+    localStorage.setItem(BEST_KEY, String(best));
   }
+
   updateScoreboard();
   updatePauseButton();
   drawGame();
 }
 
+// Caricamento iniziale classifica
 async function loadLeaderboard() {
   if (!leaderboardBody || !leaderboardStatus) return;
   leaderboardStatus.textContent = "Caricamento classifica...";
@@ -448,31 +422,35 @@ async function loadLeaderboard() {
   }
 }
 
-async function submitScore() {
-  if (!playerNameInput || !submitScoreButton) return;
-  const nickname = playerNameInput.value.trim();
-  if (!nickname) {
-    leaderboardStatus.textContent = "Inserisci il tuo nickname.";
-    return;
-  }
-  submitScoreButton.disabled = true;
-  leaderboardStatus.textContent = "Invio punteggio...";
+if (submitScoreButton) {
+  submitScoreButton.addEventListener("click", async () => {
+    const nickname = playerNameInput.value.trim();
+    if (!nickname) {
+      leaderboardStatus.textContent = "Inserisci il tuo nickname.";
+      return;
+    }
+    submitScoreButton.disabled = true;
+    leaderboardStatus.textContent = "Invio punteggio...";
 
-  try {
-    await fetch(LEADERBOARD_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ nickname, score: finalScore })
-    });
-    leaderboardStatus.textContent = "Punteggio inviato!";
-    await loadLeaderboard();
-  } catch (error) {
-    leaderboardStatus.textContent = "Invio non riuscito.";
-  } finally {
-    submitScoreButton.disabled = false;
-  }
+    try {
+      await fetch(LEADERBOARD_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ nickname, score: finalScore })
+      });
+      leaderboardStatus.textContent = "Punteggio inviato!";
+      await loadLeaderboard();
+    } catch (error) {
+      leaderboardStatus.textContent = "Invio non riuscito.";
+    } finally {
+      submitScoreButton.disabled = false;
+    }
+  });
 }
 
-if (submitScoreButton) submitScoreButton.addEventListener("click", submitScore);
 if (refreshBoardButton) refreshBoardButton.addEventListener("click", loadLeaderboard);
+
+// Disegno iniziale per mostrare il lupetto fin da subito
+drawBackground();
+drawWolf();
 loadLeaderboard();
