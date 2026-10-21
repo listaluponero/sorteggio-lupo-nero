@@ -1,24 +1,17 @@
+
 :root {
     --bg: #090909;
     --panel: #151515;
     --panel-light: #202020;
     --panel-dark: #101010;
-
     --text: #f4f4f4;
     --muted: #aaa;
     --border: #333;
-
     --accent: #168b87;
     --accent-dark: #0e625f;
-
     --blood: #9d1933;
-
     --canvas-border: #168b87;
 }
-
-/* =========================================================
-   RESET
-========================================================= */
 
 *,
 *::before,
@@ -37,28 +30,14 @@ body {
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
-
-    background:
-        radial-gradient(
-            circle at 50% 20%,
-            #16161d 0%,
-            #090909 55%
-        );
-
+    background: radial-gradient(circle at 50% 20%, #16161d 0%, #090909 55%);
     color: var(--text);
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     user-select: none;
     -webkit-user-select: none;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
     overflow-x: hidden;
 }
 
@@ -74,36 +53,27 @@ button::-moz-focus-inner {
     border: 0;
 }
 
-/* =========================================================
-   LOADING
-========================================================= */
+/* CARICAMENTO */
 
 #loadingScreen {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     text-align: center;
-
     color: var(--muted);
 }
 
 .spinner {
     width: 42px;
     height: 42px;
-
     margin-bottom: 15px;
-
     border: 4px solid rgba(255,255,255,0.1);
     border-top-color: var(--accent);
-
     border-radius: 50%;
-
     animation: spinner 0.8s linear infinite;
 }
 
@@ -113,61 +83,44 @@ button::-moz-focus-inner {
     }
 }
 
-/* =========================================================
-   GAME AREA
-========================================================= */
+/* AREA DI GIOCO */
 
 #gameArea {
     display: none;
-
-    width: min(100%, 1050px);
-
+    width: min(100%, 1250px);
     padding: 18px 18px 25px;
-
+    margin-inline: auto;
     text-align: center;
-
-    position: relative;
 }
 
 #gameArea.visible {
     display: block;
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
+/* PUNTEGGI */
 
 .game-header-ui {
     display: flex;
-
     justify-content: space-between;
     align-items: center;
-
     gap: 12px;
-
     margin-bottom: 8px;
 }
 
 .score-box {
     min-width: 120px;
-
     padding: 8px 14px;
-
     border: 1px solid var(--border);
     border-radius: 8px;
-
     background: var(--panel);
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     gap: 8px;
 }
 
 .score-box span {
     color: var(--muted);
-
     font-size: 0.78rem;
     font-weight: 700;
 }
@@ -176,9 +129,7 @@ button::-moz-focus-inner {
     font-size: 1.15rem;
 }
 
-/* =========================================================
-   TITLE
-========================================================= */
+/* TITOLO */
 
 .game-title {
     margin-bottom: 10px;
@@ -186,123 +137,75 @@ button::-moz-focus-inner {
 
 .game-title h1 {
     margin: 0;
-
     font-size: clamp(1.35rem, 4vw, 2rem);
-
     letter-spacing: 4px;
 }
 
 .game-title p {
     margin: 2px 0 0;
-
     color: var(--muted);
-
     font-size: 0.85rem;
 }
 
-/* =========================================================
-   CANVAS
-========================================================= */
+/* CANVAS */
 
 .canvas-wrapper {
     position: relative;
-
     width: 100%;
-
     margin: 0 auto;
-
     overflow: hidden;
-
     border: 1px solid #444;
     border-radius: 10px;
-
     background: #000;
-
     box-shadow:
         0 0 20px rgba(22,139,135,0.12),
         0 0 40px rgba(0,0,0,0.4);
-
     touch-action: none;
-
-    -webkit-user-select: none;
-    user-select: none;
-
-    pointer-events: auto;
 }
 
 #gameCanvas {
     display: block;
-
     width: 100%;
     height: auto;
-
     aspect-ratio: 2 / 1;
-
     background: #000;
-
     cursor: pointer;
-
     touch-action: none;
-
     user-select: none;
     -webkit-user-select: none;
-
     -webkit-tap-highlight-color: transparent !important;
-
-    pointer-events: auto;
 }
 
-/* =========================================================
-   MESSAGE
-========================================================= */
+/* MESSAGGI */
 
 #gameMessage {
     min-height: 26px;
-
     margin: 9px 0;
-
     color: var(--muted);
-
     font-size: 0.9rem;
-
     text-align: center;
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+/* PULSANTI */
 
 .game-controls {
     width: 100%;
-
     display: flex;
-
     flex-wrap: wrap;
-
     justify-content: center;
-
     gap: 8px;
-
     margin-bottom: 15px;
 }
 
 .btn {
     min-height: 44px;
-
     padding: 10px 17px;
-
     border: 1px solid var(--border);
     border-radius: 8px;
-
     background: var(--panel-light);
     color: var(--text);
-
     font-weight: 700;
-
     cursor: pointer;
-
-    touch-action: manipulation;
-
     transition:
         transform 0.12s ease,
         opacity 0.15s ease,
@@ -325,7 +228,6 @@ button::-moz-focus-inner {
 .btn-start {
     background: var(--accent);
     border-color: var(--accent);
-
     color: #fff;
 }
 
@@ -351,57 +253,73 @@ button::-moz-focus-inner {
     border-color: #773044;
 }
 
-/* =========================================================
-   LEADERBOARD
-========================================================= */
+/* PULSANTE PER TORNARE ALLA LISTA */
+
+.btn-back {
+    background: #171717;
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.btn-back:hover:not(:disabled) {
+    background: #12312f;
+    border-color: #25b7b0;
+}
+
+/* CONTROLLI SEMPRE VISIBILI IN MODALITÀ ESPANSA */
+
+#gameArea:fullscreen .game-controls,
+#gameArea:-webkit-full-screen .game-controls,
+#gameArea.fullscreen-mode .game-controls {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    visibility: visible;
+    opacity: 1;
+}
+
+#gameArea:fullscreen #startGame,
+#gameArea:-webkit-full-screen #startGame,
+#gameArea.fullscreen-mode #startGame {
+    display: inline-flex;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* CLASSIFICA */
 
 .leaderboard-container {
     width: min(100%, 520px);
-
     margin: 0 auto;
-
     padding: 13px;
-
     border: 1px solid var(--border);
     border-radius: 10px;
-
     background: rgba(21,21,21,0.96);
 }
 
 .leaderboard-header {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
     gap: 10px;
-
     margin-bottom: 8px;
 }
 
 .leaderboard-header h2 {
     margin: 0;
-
     color: var(--accent);
-
     font-size: 1rem;
 }
 
 .refresh-btn {
     padding: 7px 11px;
-
     border: 1px solid var(--border);
     border-radius: 6px;
-
     background: var(--panel-light);
     color: var(--text);
-
     font-size: 0.75rem;
     font-weight: 700;
-
     cursor: pointer;
-
-    touch-action: manipulation;
 }
 
 .refresh-btn:active {
@@ -410,87 +328,60 @@ button::-moz-focus-inner {
 
 .table-wrapper {
     width: 100%;
-
     overflow-x: auto;
 }
 
 table {
     width: 100%;
-
     border-collapse: collapse;
-
     text-align: center;
 }
 
 th,
 td {
     padding: 8px;
-
     border-bottom: 1px solid var(--border);
-
     font-size: 0.85rem;
 }
 
 th {
     color: var(--muted);
-
     font-size: 0.75rem;
 }
 
 #leaderboardStatus {
     min-height: 18px;
-
     margin-top: 7px;
-
     color: var(--muted);
-
     font-size: 0.75rem;
 }
 
-/* =========================================================
-   FOOTER
-========================================================= */
+/* PIEDE PAGINA */
 
 .game-footer {
     width: 100%;
-
     padding: 15px;
-
     border-top: 1px solid var(--border);
-
     color: var(--muted);
-
     text-align: center;
-
     font-size: 0.8rem;
 }
 
-/* =========================================================
-   FULLSCREEN REALE
-========================================================= */
+/* SCHERMO INTERO NATIVO */
 
 #gameArea:fullscreen,
 #gameArea:-webkit-full-screen {
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-
     max-width: none;
-
     margin: 0;
     padding: 10px 14px;
-
     background: #090909;
-
     overflow: hidden;
-
     display: flex;
-
     flex-direction: column;
-
     justify-content: space-between;
-
-    touch-action: manipulation;
 }
 
 #gameArea:fullscreen .game-title,
@@ -501,35 +392,21 @@ th {
 #gameArea:fullscreen .canvas-wrapper,
 #gameArea:-webkit-full-screen .canvas-wrapper {
     width: min(100%, 1200px);
-
     flex: 1;
-
     min-height: 0;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     margin: 5px auto;
-
-    touch-action: none;
-
-    pointer-events: auto;
 }
 
 #gameArea:fullscreen #gameCanvas,
 #gameArea:-webkit-full-screen #gameCanvas {
     width: 100%;
     height: auto;
-
     max-height: 100%;
-
     aspect-ratio: 2 / 1;
-
     object-fit: contain;
-
-    pointer-events: auto;
 }
 
 #gameArea:fullscreen .leaderboard-container,
@@ -540,14 +417,12 @@ th {
 #gameArea:fullscreen #gameMessage,
 #gameArea:-webkit-full-screen #gameMessage {
     min-height: 22px;
-
     margin: 3px 0;
 }
 
 #gameArea:fullscreen .game-controls,
 #gameArea:-webkit-full-screen .game-controls {
     margin: 0;
-
     flex-shrink: 0;
 }
 
@@ -556,38 +431,23 @@ th {
     display: none;
 }
 
-/* =========================================================
-   FALLBACK FULLSCREEN
-========================================================= */
+/* SCHERMO ESPANSO DI RISERVA */
 
 #gameArea.fullscreen-mode {
     position: fixed;
-
     inset: 0;
-
     z-index: 99999;
-
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-
     max-width: none;
-
     margin: 0;
-
     padding: 10px 14px;
-
     background: #090909;
-
     overflow: hidden;
-
     display: flex;
-
     flex-direction: column;
-
     justify-content: space-between;
-
-    touch-action: manipulation;
 }
 
 #gameArea.fullscreen-mode .game-title {
@@ -596,34 +456,19 @@ th {
 
 #gameArea.fullscreen-mode .canvas-wrapper {
     width: min(100%, 1200px);
-
     flex: 1;
-
     min-height: 0;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     margin: 5px auto;
-
-    touch-action: none;
-
-    pointer-events: auto;
 }
 
 #gameArea.fullscreen-mode #gameCanvas {
     width: 100%;
     height: auto;
-
     max-height: 100%;
-
-    aspect-ratio: 2 / 1;
-
     object-fit: contain;
-
-    pointer-events: auto;
 }
 
 #gameArea.fullscreen-mode .leaderboard-container {
@@ -632,26 +477,17 @@ th {
 
 #gameArea.fullscreen-mode #gameMessage {
     min-height: 22px;
-
     margin: 3px 0;
 }
 
 #gameArea.fullscreen-mode .game-controls {
     margin: 0;
-
     flex-shrink: 0;
 }
 
-#gameArea.fullscreen-mode .game-footer {
-    display: none;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
+/* CELLULARE */
 
 @media (max-width: 650px) {
-
     body {
         padding: 0;
     }
@@ -667,7 +503,6 @@ th {
     .score-box {
         min-width: 0;
         flex: 1;
-
         padding: 6px 8px;
     }
 
@@ -689,16 +524,12 @@ th {
 
     .game-controls {
         display: grid;
-
         grid-template-columns: 1fr 1fr;
     }
 
     .btn {
         width: 100%;
-
         padding: 10px 8px;
-
-        touch-action: manipulation;
     }
 
     .btn-start {
@@ -727,9 +558,7 @@ th {
     #gameArea:-webkit-full-screen .btn,
     #gameArea.fullscreen-mode .btn {
         min-height: 38px;
-
         padding: 7px 8px;
-
         font-size: 0.78rem;
     }
 
@@ -744,28 +573,11 @@ th {
     #gameArea.fullscreen-mode #gameMessage {
         font-size: 0.75rem;
     }
-
-    #gameArea:fullscreen .canvas-wrapper,
-    #gameArea:-webkit-full-screen .canvas-wrapper,
-    #gameArea.fullscreen-mode .canvas-wrapper {
-        width: 100%;
-        min-height: 0;
-        flex: 1;
-    }
-
-    #gameArea:fullscreen #gameCanvas,
-    #gameArea:-webkit-full-screen #gameCanvas,
-    #gameArea.fullscreen-mode #gameCanvas {
-        max-height: 100%;
-    }
 }
 
-/* =========================================================
-   VERY SHORT SCREEN
-========================================================= */
+/* SCHERMI BASSI */
 
 @media (max-height: 600px) and (min-width: 651px) {
-
     #gameArea:fullscreen,
     #gameArea:-webkit-full-screen,
     #gameArea.fullscreen-mode {
@@ -789,9 +601,7 @@ th {
     #gameArea:-webkit-full-screen .btn,
     #gameArea.fullscreen-mode .btn {
         min-height: 34px;
-
         padding: 6px 12px;
-
         font-size: 0.8rem;
     }
 }
