@@ -424,11 +424,36 @@
       messageElement.style.color = color;
     }
 
+    // Controlla il timer salvato localmente o su server appena si carica la pagina
+    async function checkExistingCooldown() {
+      const savedNickname = localStorage.getItem('ln_last_nick') || '';
+      if (savedNickname) {
+        instagramInput.value = savedNickname;
+      }
+
+      try {
+        const res = await jsonp(SCRIPT_URL, {
+          action: 'status',
+          nickname: savedNickname || 'check_device',
+          deviceId: getDeviceId()
+        });
+
+        if (res && res.success && !res.allowed && res.remainingMs > 0) {
+          showMessage("⏱️ Hai già un tentativo in corso su questo dispositivo. Attendi lo scadere del timer.", "#e52b38");
+          startTimer(res.remainingMs);
+        }
+      } catch (e) {
+        // Ignora eventuali errori silenti al caricamento
+      }
+    }
+
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const nickname = instagramInput.value.trim();
       if (!nickname) return;
+
+      localStorage.setItem('ln_last_nick', nickname);
 
       submitBtn.disabled = true;
       submitBtn.textContent = "ESTRAZIONE IN CORSO...";
@@ -454,25 +479,25 @@
         }
 
         if (res.won) {
-          showMessage(`
-            🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>
-            Premio: <strong>${res.prize}</strong><br>
-            Codice: <strong>LN-${res.code}</strong><br><br>
-            ⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>
-            Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>
-            <a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>
-          `, "#28a745");
+          let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
+          winHtml += 'Premio: <strong>' + res.prize + '</strong><br>';
+          winHtml += 'Codice: <strong>LN-' + res.code + '</strong><br><br>';
+          winHtml += '⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>';
+          winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
+          winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
+          
+          showMessage(winHtml, "#28a745");
         } else {
           const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
           
-          showMessage(`
-            😔 <strong>${randomPhrase}</strong>
-            <div class="story-prompt">
-              📸 Ti piace la risposta che ti è uscita?<br>
-              <strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>
-              Ti ripostiamo sulla pagina ufficiale! 🐺🔥
-            </div>
-          `, "#aaa");
+          let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
+          loseHtml += '<div class="story-prompt">';
+          loseHtml += '📸 Ti piace la risposta che ti è uscita?<br>';
+          loseHtml += '<strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>';
+          loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
+          loseHtml += '</div>';
+
+          showMessage(loseHtml, "#aaa");
         }
 
         startTimer(res.remainingMs || 28800000);
@@ -484,6 +509,10 @@
         submitBtn.textContent = "ESTRAI IL PREMIO";
       }
     });
+
+    // Esegue il controllo immediato all'apertura della pagina
+    checkExistingCooldown();
   </script>
 </body>
+</html>
 </html>
