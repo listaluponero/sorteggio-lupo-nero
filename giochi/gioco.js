@@ -1,4 +1,3 @@
-
 "use strict";
 
 const LEADERBOARD_API_URL =
