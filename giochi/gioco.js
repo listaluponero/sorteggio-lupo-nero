@@ -14,7 +14,7 @@
 */
 
 const LEADERBOARD_API_URL =
-    "INCOLLA_QUI_URL_GOOGLE_APPS_SCRIPT";
+"https://script.google.com/macros/s/AKfycbxJgp0aOu-zdvidw2ktjx2PiT3SLC7CQWycYAzEEfggzl_1bEE1zfdYAPsXuHg1hoYO/exec";
 
 
 /* =========================================================
