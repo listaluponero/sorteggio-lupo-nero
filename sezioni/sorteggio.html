@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="it">
 <head>
@@ -150,6 +149,7 @@
       border-radius: 10px;
       background: var(--panel-light);
       text-align: center;
+      display: none;
     }
 
     .status-title {
@@ -164,6 +164,7 @@
       font-size: 24px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
+      color: var(--red-light);
     }
 
     #message {
@@ -184,5 +185,187 @@
     .notice {
       margin: 20px 0 0;
       color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
 
+  <div class="container">
+    <a href="../index.html" class="home-button">← Torna alla Home</a>
+
+    <div class="eyebrow">Partecipa ora</div>
+    <h1>SORTEGGIO</h1>
+    <p class="description">Inserisci il tuo nome utente Instagram per partecipare al sorteggio ufficiale Lista Lupo Nero.</p>
+
+    <form id="drawForm">
+      <label for="instagram">Username Instagram (@tuonome)</label>
+      <input type="text" id="instagram" placeholder="@es. luponero_official" required autocomplete="off">
+      <button type="submit" id="submitBtn">PARTECIPA AL SORTEGGIO</button>
+    </form>
+
+    <div class="status" id="statusBox">
+      <div class="status-title">Prossimo tentativo disponibile tra:</div>
+      <div id="timer">08:00:00</div>
+    </div>
+
+    <div id="message"></div>
+
+    <p class="notice">⚠️ Nota: È consentito un solo tentativo ogni 8 ore per dispositivo ed account Instagram.</p>
+  </div>
+
+  <script>
+    // 🔗 INCOLLA QUI IL TUO LINK GOOGLE APPS SCRIPT / SHEET
+    const GOOGLE_SCRIPT_URL = "INSERISCI_QUI_URL_GOOGLE_APPS_SCRIPT"; 
+
+    const COOLDOWN_HOURS = 8;
+    const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000;
+
+    const form = document.getElementById('drawForm');
+    const instagramInput = document.getElementById('instagram');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusBox = document.getElementById('statusBox');
+    const timerElement = document.getElementById('timer');
+    const messageElement = document.getElementById('message');
+
+    let timerInterval = null;
+
+    // Genera o recupera un ID unico per il dispositivo
+    function getDeviceId() {
+      let devId = localStorage.getItem('ln_device_id');
+      if (!devId) {
+        devId = 'DEV-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+        localStorage.setItem('ln_device_id', devId);
+      }
+      return devId;
+    }
+
+    function checkCooldown() {
+      const lastSubmit = localStorage.getItem('ln_last_submit');
+      const savedIg = localStorage.getItem('ln_last_ig');
+
+      if (lastSubmit) {
+        const timePassed = Date.now() - parseInt(lastSubmit, 10);
+        const timeLeft = COOLDOWN_MS - timePassed;
+
+        if (timeLeft > 0) {
+          disableForm(savedIg);
+          startTimer(timeLeft);
+          return true;
+        } else {
+          enableForm();
+          localStorage.removeItem('ln_last_submit');
+          return false;
+        }
+      }
+      return false;
+    }
+
+    function disableForm(igUser) {
+      submitBtn.disabled = true;
+      instagramInput.disabled = true;
+      if (igUser) instagramInput.value = igUser;
+      statusBox.style.display = 'block';
+    }
+
+    function enableForm() {
+      submitBtn.disabled = false;
+      instagramInput.disabled = false;
+      statusBox.style.display = 'none';
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    function startTimer(durationMs) {
+      if (timerInterval) clearInterval(timerInterval);
+
+      let endTime = Date.now() + durationMs;
+
+      function update() {
+        let remaining = endTime - Date.now();
+
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          enableForm();
+          showMessage("Ora puoi effettuare un nuovo tentativo!", "#28a745");
+          return;
+        }
+
+        let hours = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+        let minutes = Math.floor((remaining / (1000 * 60)) % 60);
+        let seconds = Math.floor((remaining / 1000) % 60);
+
+        timerElement.textContent = 
+          String(hours).padStart(2, '0') + ':' +
+          String(minutes).padStart(2, '0') + ':' +
+          String(seconds).padStart(2, '0');
+      }
+
+      update();
+      timerInterval = setInterval(update, 1000);
+    }
+
+    function showMessage(text, color = '#f4f4f4') {
+      messageElement.textContent = text;
+      messageElement.style.color = color;
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      let igUser = instagramInput.value.trim().toLowerCase();
+      if (!igUser) return;
+
+      if (!igUser.startsWith('@')) {
+        igUser = '@' + igUser;
+      }
+
+      const lastIg = (localStorage.getItem('ln_last_ig') || '').toLowerCase();
+      if (checkCooldown()) {
+        showMessage("Hai già partecipato di recente. Attendi lo scadere del timer.", "#e52b38");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "INVIO IN CORSO...";
+
+      const payload = {
+        instagram: igUser,
+        deviceId: getDeviceId(),
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        // Salva stato locale (8 ore)
+        const now = Date.now();
+        localStorage.setItem('ln_last_submit', now.toString());
+        localStorage.setItem('ln_last_ig', igUser);
+
+        showMessage("✅ Partecipazione registrata con successo! Buona fortuna!", "#28a745");
+        submitBtn.textContent = "PARTECIPA AL SORTEGGIO";
+        disableForm(igUser);
+        startTimer(COOLDOWN_MS);
+
+      } catch (err) {
+        console.error(err);
+        showMessage("❌ Si è verificato un errore durante l'invio. Riprova.", "#e52b38");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "PARTECIPA AL SORTEGGIO";
+      }
+    });
+
+    // Controllo al caricamento pagina
+    checkCooldown();
+  </script>
+</body>
+</html>
 
