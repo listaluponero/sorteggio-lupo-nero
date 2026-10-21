@@ -9,14 +9,17 @@
   --blood: #9d1933;
 }
 
+/* 🐺 Forziamo la trasparenza su TUTTI gli elementi per bloccare l'alone blu */
 *, *::before, *::after {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* 🐺 Elimina l'alone blu sui tap mobili */
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
 }
 
 html {
   scroll-behavior: smooth;
   background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -28,6 +31,7 @@ body {
   line-height: 1.5;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 a {
@@ -51,7 +55,7 @@ button {
   transition: opacity 0.2s, transform 0.2s, background 0.2s;
   user-select: none;
   -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 button:hover:not(:disabled) {
@@ -150,8 +154,8 @@ button:disabled {
   touch-action: manipulation;
   cursor: pointer;
   
-  /* 🐺 Annulla qualsiasi alone blu e selezioni fastidiose */
-  -webkit-tap-highlight-color: transparent;
+  /* 🐺 Blocco totale di qualsiasi alone o selezione */
+  -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
