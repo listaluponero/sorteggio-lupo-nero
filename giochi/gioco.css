@@ -11,6 +11,7 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* 🐺 Elimina l'alone blu sui tap mobili */
 }
 
 html {
@@ -25,6 +26,8 @@ body {
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 a {
@@ -46,8 +49,9 @@ button {
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.2s, background 0.2s;
-  -webkit-tap-highlight-color: transparent;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:hover:not(:disabled) {
@@ -145,6 +149,12 @@ button:disabled {
   aspect-ratio: 900 / 420;
   touch-action: manipulation;
   cursor: pointer;
+  
+  /* 🐺 Annulla qualsiasi alone blu e selezioni fastidiose */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .game-buttons,
@@ -209,6 +219,8 @@ button:disabled {
   border-radius: 8px;
   background: #090909;
   color: var(--text);
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 #submitScore,
@@ -260,7 +272,7 @@ th {
   color: var(--text);
 }
 
-/* Schermo intero ottimizzato (PC e Mobile) */
+/* Schermo intero ottimizzato */
 .game-play-panel:fullscreen,
 .game-play-panel:-webkit-full-screen {
   position: fixed;
@@ -293,43 +305,6 @@ th {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-/* Fallback mobile fullscreen */
-html.game-fullscreen-fallback,
-body.game-fullscreen-fallback {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-body.game-fullscreen-fallback .game-header,
-body.game-fullscreen-fallback .leaderboard-panel,
-body.game-fullscreen-fallback .game-footer {
-  display: none !important;
-}
-
-body.game-fullscreen-fallback .game-container {
-  display: block;
-  width: 100%;
-  height: 100dvh;
-  margin: 0;
-  padding: 0;
-}
-
-body.game-fullscreen-fallback .game-play-panel {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  height: 100dvh;
-  padding: 8px;
-  background: #090909;
-  overflow-y: auto;
 }
 
 @media (max-width: 599px) {
