@@ -3,7 +3,7 @@
 
 /* =========================================================
    LUPO RUNNER
-   Nuovi ostacoli con grafiche provvisorie personalizzabili
+   Ostacoli personalizzabili e collisioni più precise
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -57,15 +57,12 @@ const playerConfig = {
 
 /* =========================================================
    IMMAGINI
-   I file degli ostacoli sono facoltativi per ora.
-   Se non esistono, vengono utilizzate le grafiche provvisorie.
 ========================================================= */
 
 const imagesToLoad = {
     lupoRun1: "modelli/lupo_run1.png",
     lupoRun2: "modelli/lupo_run2.png",
 
-    // Percorsi predisposti per le immagini definitive.
     serpent: "modelli/ostacoli/serpente.png",
     angel: "modelli/ostacoli/angelo.png",
     musicBox: "modelli/ostacoli/cassa-musicale.png",
@@ -128,10 +125,7 @@ function preLoadImages(onComplete) {
     function finishLoading() {
         loadedImagesCount++;
 
-        if (
-            loadedImagesCount >= totalImages &&
-            !completed
-        ) {
+        if (loadedImagesCount >= totalImages && !completed) {
             completed = true;
             onComplete();
         }
@@ -139,17 +133,15 @@ function preLoadImages(onComplete) {
 
     for (const [key, src] of Object.entries(imagesToLoad)) {
         const image = new Image();
-
         images[key] = image;
 
         image.onload = finishLoading;
 
         image.onerror = () => {
             console.warn(
-                "Immagine non disponibile; verrà usata la grafica provvisoria:",
+                "Immagine non disponibile; uso la grafica provvisoria:",
                 src
             );
-
             finishLoading();
         };
 
@@ -238,7 +230,6 @@ async function updateLeaderboard() {
             "?action=leaderboard&limit=5&callback=renderRemoteLeaderboard";
 
         const oldScript = document.getElementById("leaderboardJsonp");
-
         if (oldScript) oldScript.remove();
 
         window.renderRemoteLeaderboard = function(data) {
@@ -306,7 +297,6 @@ async function submitScoreOnline(name, playerScore) {
     });
 
     localBoard.sort((a, b) => b.score - a.score);
-
     saveLocalLeaderboard(localBoard.slice(0, 5));
 
     if (
@@ -335,7 +325,6 @@ async function submitScoreOnline(name, playerScore) {
         });
 
         leaderboardStatus.textContent = "Punteggio inviato";
-
         setTimeout(updateLeaderboard, 900);
 
     } catch (error) {
@@ -445,7 +434,6 @@ function drawWolf() {
         imageToDraw = images.lupoRun1;
     } else {
         const frame = Math.floor(distance / 20) % 2;
-
         imageToDraw = frame === 0
             ? images.lupoRun1
             : images.lupoRun2;
@@ -465,7 +453,6 @@ function drawWolf() {
         );
     } else {
         ctx.fillStyle = "#168b87";
-
         ctx.fillRect(
             player.x,
             player.y,
@@ -478,7 +465,7 @@ function drawWolf() {
 }
 
 /* =========================================================
-   FUNZIONI GRAFICHE CONDIVISE
+   GRAFICHE CONDIVISE
 ========================================================= */
 
 function drawImageIfAvailable(imageKey, x, y, w, h) {
@@ -496,66 +483,42 @@ function drawImageIfAvailable(imageKey, x, y, w, h) {
     return false;
 }
 
-function drawOutlinedShape(color, stroke, lineWidth = 2) {
-    ctx.fillStyle = color;
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = lineWidth;
-}
-
 /* =========================================================
    1. SERPENTE
-   Ostacolo basso da saltare.
-   Il movimento ondulatorio resta anche con un'immagine.
 ========================================================= */
 
 function drawSnake(obstacle) {
     const { x, y, w, h } = obstacle;
-
     const wave = Math.sin(distance * 0.12 + obstacle.phase) * 3;
 
     ctx.save();
-
     ctx.translate(x + w / 2, y + h / 2);
     ctx.rotate(Math.sin(distance * 0.07 + obstacle.phase) * 0.04);
 
     const drawX = -w / 2;
     const drawY = -h / 2 + wave;
 
-    if (drawImageIfAvailable(
-        "serpent",
-        drawX,
-        drawY,
-        w,
-        h
-    )) {
+    if (drawImageIfAvailable("serpent", drawX, drawY, w, h)) {
         ctx.restore();
         return;
     }
 
-    // Grafica provvisoria: serpente verde strisciante.
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-
     ctx.strokeStyle = "#315d30";
     ctx.lineWidth = 17;
 
     ctx.beginPath();
     ctx.moveTo(drawX + 5, drawY + h * 0.75);
     ctx.bezierCurveTo(
-        drawX + w * 0.25,
-        drawY - wave,
-        drawX + w * 0.40,
-        drawY + h,
-        drawX + w * 0.55,
-        drawY + h * 0.55
+        drawX + w * 0.25, drawY - wave,
+        drawX + w * 0.40, drawY + h,
+        drawX + w * 0.55, drawY + h * 0.55
     );
     ctx.bezierCurveTo(
-        drawX + w * 0.70,
-        drawY + h * 0.15,
-        drawX + w * 0.75,
-        drawY + h,
-        drawX + w - 7,
-        drawY + h * 0.35
+        drawX + w * 0.70, drawY + h * 0.15,
+        drawX + w * 0.75, drawY + h,
+        drawX + w - 7, drawY + h * 0.35
     );
     ctx.stroke();
 
@@ -565,26 +528,18 @@ function drawSnake(obstacle) {
     ctx.beginPath();
     ctx.moveTo(drawX + 5, drawY + h * 0.75);
     ctx.bezierCurveTo(
-        drawX + w * 0.25,
-        drawY - wave,
-        drawX + w * 0.40,
-        drawY + h,
-        drawX + w * 0.55,
-        drawY + h * 0.55
+        drawX + w * 0.25, drawY - wave,
+        drawX + w * 0.40, drawY + h,
+        drawX + w * 0.55, drawY + h * 0.55
     );
     ctx.bezierCurveTo(
-        drawX + w * 0.70,
-        drawY + h * 0.15,
-        drawX + w * 0.75,
-        drawY + h,
-        drawX + w - 7,
-        drawY + h * 0.35
+        drawX + w * 0.70, drawY + h * 0.15,
+        drawX + w * 0.75, drawY + h,
+        drawX + w - 7, drawY + h * 0.35
     );
     ctx.stroke();
 
-    // Testa.
     ctx.fillStyle = "#80b94b";
-
     ctx.beginPath();
     ctx.ellipse(
         drawX + w - 7,
@@ -597,32 +552,16 @@ function drawSnake(obstacle) {
     );
     ctx.fill();
 
-    // Occhio.
     ctx.fillStyle = "#fff";
-
     ctx.beginPath();
-    ctx.arc(
-        drawX + w - 5,
-        drawY + h * 0.25,
-        3,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(drawX + w - 5, drawY + h * 0.25, 3, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#111";
-
     ctx.beginPath();
-    ctx.arc(
-        drawX + w - 4,
-        drawY + h * 0.25,
-        1.4,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(drawX + w - 4, drawY + h * 0.25, 1.4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Lingua biforcuta.
     ctx.strokeStyle = "#e94c63";
     ctx.lineWidth = 2;
 
@@ -639,8 +578,6 @@ function drawSnake(obstacle) {
 
 /* =========================================================
    2. ANGELO
-   Normalmente vola in alto e si può passare sotto.
-   Alcuni angeli scendono fino al terreno e vanno saltati.
 ========================================================= */
 
 function drawAngel(obstacle) {
@@ -654,78 +591,33 @@ function drawAngel(obstacle) {
     }
 
     const centerX = x + w / 2;
-    const centerY = y + h / 2;
 
-    // Ali.
     ctx.fillStyle = "#d8d8f4";
     ctx.strokeStyle = "#9999c7";
     ctx.lineWidth = 2;
 
     ctx.beginPath();
-    ctx.ellipse(
-        centerX - 15,
-        centerY - 2,
-        15,
-        8,
-        -0.55,
-        0,
-        Math.PI * 2
-    );
-    ctx.ellipse(
-        centerX + 15,
-        centerY - 2,
-        15,
-        8,
-        0.55,
-        0,
-        Math.PI * 2
-    );
+    ctx.ellipse(centerX - 15, y + h / 2 - 2, 15, 8, -0.55, 0, Math.PI * 2);
+    ctx.ellipse(centerX + 15, y + h / 2 - 2, 15, 8, 0.55, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Aureola.
     ctx.strokeStyle = "#f7d977";
     ctx.lineWidth = 3;
-
     ctx.beginPath();
-    ctx.ellipse(
-        centerX,
-        y + 8,
-        10,
-        4,
-        0,
-        0,
-        Math.PI * 2
-    );
+    ctx.ellipse(centerX, y + 8, 10, 4, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Testa.
     ctx.fillStyle = "#f0c9a7";
-
     ctx.beginPath();
-    ctx.arc(
-        centerX,
-        y + 17,
-        9,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(centerX, y + 17, 9, 0, Math.PI * 2);
     ctx.fill();
 
-    // Capelli.
     ctx.fillStyle = "#e6dfc6";
-
     ctx.beginPath();
-    ctx.arc(
-        centerX,
-        y + 13,
-        9,
-        Math.PI,
-        Math.PI * 2
-    );
+    ctx.arc(centerX, y + 13, 9, Math.PI, Math.PI * 2);
     ctx.fill();
 
-    // Tunica.
     ctx.fillStyle = "#f5f1ff";
     ctx.strokeStyle = "#b4b0d4";
 
@@ -738,10 +630,8 @@ function drawAngel(obstacle) {
     ctx.fill();
     ctx.stroke();
 
-    // Piccola cintura dorata.
     ctx.strokeStyle = "#d6b85d";
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.moveTo(centerX - 8, y + 31);
     ctx.lineTo(centerX + 8, y + 31);
@@ -752,7 +642,6 @@ function drawAngel(obstacle) {
 
 /* =========================================================
    3. CASSA MUSICALE
-   Ostacolo standard da saltare.
 ========================================================= */
 
 function drawMusicBox(obstacle) {
@@ -765,11 +654,9 @@ function drawMusicBox(obstacle) {
         return;
     }
 
-    // Ombra.
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fillRect(x + 3, y + 4, w, h);
 
-    // Corpo della scatola.
     const wood = ctx.createLinearGradient(x, y, x + w, y + h);
     wood.addColorStop(0, "#d9a05d");
     wood.addColorStop(0.5, "#a65e32");
@@ -782,9 +669,7 @@ function drawMusicBox(obstacle) {
     ctx.fillRect(x + 2, y + h * 0.30, w - 4, h * 0.68);
     ctx.strokeRect(x + 2, y + h * 0.30, w - 4, h * 0.68);
 
-    // Coperchio.
     ctx.fillStyle = "#c47c42";
-
     ctx.beginPath();
     ctx.moveTo(x + 1, y + h * 0.30);
     ctx.lineTo(x + 9, y + 2);
@@ -794,16 +679,13 @@ function drawMusicBox(obstacle) {
     ctx.fill();
     ctx.stroke();
 
-    // Bordo dorato.
     ctx.strokeStyle = "#f2cc77";
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.moveTo(x + 5, y + h * 0.48);
     ctx.lineTo(x + w - 5, y + h * 0.48);
     ctx.stroke();
 
-    // Decorazione musicale.
     ctx.fillStyle = "#ffe6a1";
     ctx.font = "bold 15px serif";
     ctx.textAlign = "center";
@@ -814,7 +696,6 @@ function drawMusicBox(obstacle) {
 
 /* =========================================================
    4. CUORE COMPLETAMENTE VIOLA
-   Ostacolo standard da saltare.
 ========================================================= */
 
 function drawPurpleHeart(obstacle) {
@@ -831,46 +712,32 @@ function drawPurpleHeart(obstacle) {
     const topY = y + h * 0.30;
 
     ctx.beginPath();
-
     ctx.moveTo(centerX, y + h * 0.95);
 
     ctx.bezierCurveTo(
-        x - w * 0.15,
-        y + h * 0.53,
-        x - w * 0.03,
-        y + h * 0.05,
-        x + w * 0.31,
-        topY
+        x - w * 0.15, y + h * 0.53,
+        x - w * 0.03, y + h * 0.05,
+        x + w * 0.31, topY
     );
 
     ctx.bezierCurveTo(
-        x + w * 0.43,
-        y - h * 0.02,
-        centerX,
-        y + h * 0.16,
-        centerX,
-        y + h * 0.30
+        x + w * 0.43, y - h * 0.02,
+        centerX, y + h * 0.16,
+        centerX, y + h * 0.30
     );
 
     ctx.bezierCurveTo(
-        centerX,
-        y + h * 0.16,
-        x + w * 0.57,
-        y - h * 0.02,
-        x + w * 0.70,
-        topY
+        centerX, y + h * 0.16,
+        x + w * 0.57, y - h * 0.02,
+        x + w * 0.70, topY
     );
 
     ctx.bezierCurveTo(
-        x + w * 1.03,
-        y + h * 0.05,
-        x + w * 1.15,
-        y + h * 0.53,
-        centerX,
-        y + h * 0.95
+        x + w * 1.03, y + h * 0.05,
+        x + w * 1.15, y + h * 0.53,
+        centerX, y + h * 0.95
     );
 
-    // Tutto viola: nessuna linea rosa.
     const purple = ctx.createLinearGradient(x, y, x + w, y + h);
     purple.addColorStop(0, "#d7a5ff");
     purple.addColorStop(0.45, "#9b4de0");
@@ -879,11 +746,9 @@ function drawPurpleHeart(obstacle) {
     ctx.fillStyle = purple;
     ctx.strokeStyle = "#481578";
     ctx.lineWidth = 2.5;
-
     ctx.fill();
     ctx.stroke();
 
-    // Riflesso viola chiaro, senza dividere il cuore.
     ctx.globalAlpha = 0.35;
     ctx.fillStyle = "#f0d7ff";
 
@@ -904,8 +769,6 @@ function drawPurpleHeart(obstacle) {
 
 /* =========================================================
    5. PECORA
-   Ostacolo standard.
-   Circa una pecora su tre lancia una palla di lana.
 ========================================================= */
 
 function drawSheep(obstacle) {
@@ -918,7 +781,6 @@ function drawSheep(obstacle) {
         return;
     }
 
-    // Zampe.
     ctx.strokeStyle = "#38313a";
     ctx.lineWidth = 4;
     ctx.lineCap = "round";
@@ -932,7 +794,6 @@ function drawSheep(obstacle) {
     ctx.lineTo(x + 40, y + h);
     ctx.stroke();
 
-    // Corpo di lana.
     ctx.fillStyle = "#f7f3ec";
     ctx.strokeStyle = "#c9c2d0";
     ctx.lineWidth = 1.5;
@@ -948,70 +809,29 @@ function drawSheep(obstacle) {
 
     for (const [px, py, radius] of woolBumps) {
         ctx.beginPath();
-        ctx.arc(
-            x + w * px,
-            y + h * py,
-            radius,
-            0,
-            Math.PI * 2
-        );
+        ctx.arc(x + w * px, y + h * py, radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
     }
 
-    // Testa.
     ctx.fillStyle = "#29232d";
-
     ctx.beginPath();
-    ctx.ellipse(
-        x + w * 0.88,
-        y + h * 0.47,
-        9,
-        12,
-        0.15,
-        0,
-        Math.PI * 2
-    );
+    ctx.ellipse(x + w * 0.88, y + h * 0.47, 9, 12, 0.15, 0, Math.PI * 2);
     ctx.fill();
 
-    // Orecchio.
     ctx.fillStyle = "#c6a2ad";
-
     ctx.beginPath();
-    ctx.ellipse(
-        x + w * 0.77,
-        y + h * 0.36,
-        5,
-        3,
-        -0.45,
-        0,
-        Math.PI * 2
-    );
+    ctx.ellipse(x + w * 0.77, y + h * 0.36, 5, 3, -0.45, 0, Math.PI * 2);
     ctx.fill();
 
-    // Occhio.
     ctx.fillStyle = "#fff";
-
     ctx.beginPath();
-    ctx.arc(
-        x + w * 0.91,
-        y + h * 0.43,
-        2.4,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(x + w * 0.91, y + h * 0.43, 2.4, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#111";
-
     ctx.beginPath();
-    ctx.arc(
-        x + w * 0.92,
-        y + h * 0.43,
-        1.1,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(x + w * 0.92, y + h * 0.43, 1.1, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();
@@ -1019,7 +839,6 @@ function drawSheep(obstacle) {
 
 /* =========================================================
    PALLA DI LANA
-   Proiettile lanciato dalla pecora.
 ========================================================= */
 
 function drawWoolBall(ball) {
@@ -1027,18 +846,11 @@ function drawWoolBall(ball) {
 
     ctx.save();
 
-    if (drawImageIfAvailable(
-        "woolBall",
-        x - r,
-        y - r,
-        r * 2,
-        r * 2
-    )) {
+    if (drawImageIfAvailable("woolBall", x - r, y - r, r * 2, r * 2)) {
         ctx.restore();
         return;
     }
 
-    // Grafica provvisoria: gomitolo bianco.
     ctx.fillStyle = "#f4f0e8";
     ctx.strokeStyle = "#b8b0c0";
     ctx.lineWidth = 2;
@@ -1072,19 +884,15 @@ function drawObstacles() {
             case "serpent":
                 drawSnake(obstacle);
                 break;
-
             case "angel":
                 drawAngel(obstacle);
                 break;
-
             case "musicBox":
                 drawMusicBox(obstacle);
                 break;
-
             case "purpleHeart":
                 drawPurpleHeart(obstacle);
                 break;
-
             case "sheep":
                 drawSheep(obstacle);
                 break;
@@ -1122,20 +930,11 @@ function drawGame() {
     drawWolf();
 
     if (!running && !gameOver) {
-        drawOverlay(
-            "LUPO RUNNER",
-            "Corri e schiva gli ostacoli!"
-        );
+        drawOverlay("LUPO RUNNER", "Corri e schiva gli ostacoli!");
     } else if (paused) {
-        drawOverlay(
-            "PAUSA",
-            "Premi RIPRENDI per continuare"
-        );
+        drawOverlay("PAUSA", "Premi RIPRENDI per continuare");
     } else if (gameOver) {
-        drawOverlay(
-            "GAME OVER",
-            "Punteggio: " + score
-        );
+        drawOverlay("GAME OVER", "Punteggio: " + score);
     }
 }
 
@@ -1176,14 +975,9 @@ function createObstacle() {
         case "angel":
             obstacle.w = 48;
             obstacle.h = 56;
-
-            // L'angelo vola in alto, lasciando spazio per passare sotto.
             obstacle.highY = groundY - 112;
             obstacle.lowY = groundY - obstacle.h;
-
             obstacle.y = obstacle.highY;
-
-            // Solo alcuni angeli scendono.
             obstacle.willDive = Math.random() < 0.5;
             obstacle.diveStarted = false;
             obstacle.diveAtX = 260 + Math.random() * 140;
@@ -1207,8 +1001,6 @@ function createObstacle() {
             obstacle.w = 54;
             obstacle.h = 43;
             obstacle.y = groundY - obstacle.h;
-
-            // Circa una pecora su tre lancerà una palla.
             obstacle.willThrow = Math.random() < (1 / 3);
             obstacle.woolThrown = false;
             break;
@@ -1244,7 +1036,6 @@ function updateAngel(obstacle, dt) {
     } else if (obstacle.divePhase === "low") {
         obstacle.diveTimer += dt;
 
-        // Rimane in basso per dare al giocatore il tempo di reagire.
         if (obstacle.diveTimer >= 42) {
             obstacle.divePhase = "up";
         }
@@ -1277,42 +1068,93 @@ function throwWoolBall(sheep) {
         x: sheep.x + 2,
         y: groundY - sheep.h * 0.70,
         r: 13,
-
-        // La palla corre verso il lupo.
         vx: -(speed + 2.5),
-
-        // Piccolo movimento verticale durante il lancio.
         vy: -1.8,
         gravity: 0.12
     });
 }
 
 /* =========================================================
-   COLLISIONI
+   COLLISIONI MIGLIORATE
 ========================================================= */
 
-function collides(a, b) {
-    const horizontalPadding = 10;
-    const verticalPadding = 7;
+/*
+   La grafica del lupo resta 90 x 55.
+   La hitbox è invece più piccola e interna alla grafica:
+   - 15 px esclusi a sinistra e a destra;
+   - 8 px esclusi in alto;
+   - 12 px esclusi in basso.
 
+   In questo modo la punta della zampa e le zone trasparenti
+   dell'immagine non provocano più facilmente una sconfitta.
+*/
+
+function getPlayerHitbox() {
+    const leftInset = 15;
+    const rightInset = 15;
+    const topInset = 8;
+    const bottomInset = 12;
+
+    return {
+        x: player.x + leftInset,
+        y: player.y + topInset,
+        w: player.w - leftInset - rightInset,
+        h: player.h - topInset - bottomInset
+    };
+}
+
+/*
+   Anche la hitbox degli ostacoli viene leggermente ridotta.
+   L'immagine rimane identica: cambia soltanto il controllo
+   invisibile utilizzato per stabilire se c'è un impatto.
+*/
+
+function getObstacleHitbox(obstacle) {
+    let leftInset = 5;
+    let rightInset = 5;
+    let topInset = 4;
+    let bottomInset = 3;
+
+    if (obstacle.type === "serpent") {
+        leftInset = 6;
+        rightInset = 6;
+        topInset = 5;
+        bottomInset = 4;
+    }
+
+    return {
+        x: obstacle.x + leftInset,
+        y: obstacle.y + topInset,
+        w: Math.max(1, obstacle.w - leftInset - rightInset),
+        h: Math.max(1, obstacle.h - topInset - bottomInset)
+    };
+}
+
+/* Collisione rettangolare senza margini nascosti aggiuntivi. */
+
+function collides(a, b) {
     return (
-        a.x + horizontalPadding < b.x + b.w &&
-        a.x + a.w - horizontalPadding > b.x &&
-        a.y + verticalPadding < b.y + b.h &&
-        a.y + a.h - verticalPadding > b.y
+        a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y
     );
 }
 
-function collidesWithWoolBall(a, ball) {
-    // Area di collisione leggermente più piccola della grafica.
+/*
+   Per la palla di lana usiamo una hitbox leggermente più piccola
+   del gomitolo, confrontata con la hitbox ridotta del lupo.
+*/
+
+function collidesWithWoolBall(playerBox, ball) {
     const ballBox = {
-        x: ball.x - ball.r * 0.72,
-        y: ball.y - ball.r * 0.72,
-        w: ball.r * 1.44,
-        h: ball.r * 1.44
+        x: ball.x - ball.r * 0.68,
+        y: ball.y - ball.r * 0.68,
+        w: ball.r * 1.36,
+        h: ball.r * 1.36
     };
 
-    return collides(a, ballBox);
+    return collides(playerBox, ballBox);
 }
 
 /* =========================================================
@@ -1336,10 +1178,12 @@ function calculateNextSpawn() {
 }
 
 /* =========================================================
-   AGGIORNAMENTO OSTACOLI
+   AGGIORNAMENTO OSTACOLI E COLLISIONI
 ========================================================= */
 
 function updateObstacles(dt) {
+    const playerBox = getPlayerHitbox();
+
     for (let i = obstacles.length - 1; i >= 0; i--) {
         const obstacle = obstacles[i];
 
@@ -1347,7 +1191,6 @@ function updateObstacles(dt) {
 
         updateAngel(obstacle, dt);
 
-        // La pecora lancia la lana quando si avvicina al giocatore.
         if (
             obstacle.type === "sheep" &&
             obstacle.willThrow &&
@@ -1357,7 +1200,13 @@ function updateObstacles(dt) {
             throwWoolBall(obstacle);
         }
 
-        if (collides(player, obstacle)) {
+        /*
+           Ricalcoliamo la hitbox dell'ostacolo dopo aver aggiornato
+           la posizione dell'angelo, che può essere in movimento.
+        */
+        const obstacleBox = getObstacleHitbox(obstacle);
+
+        if (collides(playerBox, obstacleBox)) {
             endGame();
             return false;
         }
@@ -1367,16 +1216,15 @@ function updateObstacles(dt) {
         }
     }
 
-    // Movimento e collisioni delle palle di lana.
+    /* Movimento e collisioni delle palle di lana. */
+
     for (let i = woolBalls.length - 1; i >= 0; i--) {
         const ball = woolBalls[i];
 
         ball.x += ball.vx * dt;
         ball.y += ball.vy * dt;
-
         ball.vy += ball.gravity * dt;
 
-        // Evita che la palla scompaia sotto il terreno.
         if (ball.y + ball.r > groundY) {
             ball.y = groundY - ball.r;
             ball.vy = -Math.abs(ball.vy) * 0.55;
@@ -1386,7 +1234,14 @@ function updateObstacles(dt) {
             }
         }
 
-        if (collidesWithWoolBall(player, ball)) {
+        /*
+           Aggiorniamo anche qui la hitbox del giocatore:
+           il lupo potrebbe essersi spostato verticalmente
+           durante il salto.
+        */
+        const currentPlayerBox = getPlayerHitbox();
+
+        if (collidesWithWoolBall(currentPlayerBox, ball)) {
             endGame();
             return false;
         }
@@ -1422,7 +1277,8 @@ function gameLoop(timestamp) {
 
     scoreElement.textContent = score;
 
-    // Fisica del lupo.
+    /* Fisica del lupo. */
+
     player.vy += player.gravity * dt;
     player.y += player.vy * dt;
 
@@ -1432,17 +1288,16 @@ function gameLoop(timestamp) {
         player.grounded = true;
     }
 
-    // Generazione degli ostacoli.
+    /* Generazione degli ostacoli. */
+
     spawnDistance += speed * dt;
 
     if (spawnDistance >= nextSpawnDistance) {
         createObstacle();
-
         spawnDistance = 0;
         nextSpawnDistance = calculateNextSpawn();
     }
 
-    // Aggiornamento e collisioni.
     if (!updateObstacles(dt)) {
         return;
     }
@@ -1458,7 +1313,7 @@ function gameLoop(timestamp) {
 
 function jump() {
     if (running && !paused && player.grounded) {
-        player.vy = player.jumpPower;
+        player.vy = playerConfig.jumpPower;
         player.grounded = false;
     }
 }
@@ -1543,7 +1398,6 @@ function endGame() {
 
     if (score > best) {
         best = score;
-
         localStorage.setItem("lupoRunnerBest", String(best));
         bestElement.textContent = best;
     }
@@ -1551,8 +1405,7 @@ function endGame() {
     startButton.disabled = false;
     startButton.textContent = "GIOCA ANCORA";
 
-    gameMessage.textContent =
-        "Game Over — premi GIOCA ANCORA";
+    gameMessage.textContent = "Game Over — premi GIOCA ANCORA";
 
     drawGame();
 
@@ -1611,10 +1464,7 @@ async function enterFullscreen() {
 
 async function exitFullscreen() {
     try {
-        if (
-            document.exitFullscreen &&
-            document.fullscreenElement
-        ) {
+        if (document.exitFullscreen && document.fullscreenElement) {
             await document.exitFullscreen();
             return;
         }
@@ -1623,7 +1473,7 @@ async function exitFullscreen() {
             document.webkitExitFullscreen &&
             document.webkitFullscreenElement
         ) {
-            document.webkitExitFullscreen();
+            await document.webkitExitFullscreen();
             return;
         }
     } catch (error) {
@@ -1751,7 +1601,6 @@ gameArea.addEventListener("pointerdown", (event) => {
         document.webkitFullscreenElement === gameArea;
 
     if (!expanded) return;
-
     if (event.target.closest("button")) return;
 
     if (event.target === canvas || canvas.contains(event.target)) {
@@ -1780,3 +1629,4 @@ window.addEventListener("load", () => {
         updateLeaderboard();
     });
 });
+
