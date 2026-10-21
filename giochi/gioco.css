@@ -125,6 +125,8 @@ button::-moz-focus-inner {
     padding: 18px 18px 25px;
 
     text-align: center;
+
+    position: relative;
 }
 
 #gameArea.visible {
@@ -221,6 +223,11 @@ button::-moz-focus-inner {
         0 0 40px rgba(0,0,0,0.4);
 
     touch-action: none;
+
+    -webkit-user-select: none;
+    user-select: none;
+
+    pointer-events: auto;
 }
 
 #gameCanvas {
@@ -241,6 +248,8 @@ button::-moz-focus-inner {
     -webkit-user-select: none;
 
     -webkit-tap-highlight-color: transparent !important;
+
+    pointer-events: auto;
 }
 
 /* =========================================================
@@ -291,6 +300,8 @@ button::-moz-focus-inner {
     font-weight: 700;
 
     cursor: pointer;
+
+    touch-action: manipulation;
 
     transition:
         transform 0.12s ease,
@@ -389,6 +400,8 @@ button::-moz-focus-inner {
     font-weight: 700;
 
     cursor: pointer;
+
+    touch-action: manipulation;
 }
 
 .refresh-btn:active {
@@ -476,6 +489,8 @@ th {
     flex-direction: column;
 
     justify-content: space-between;
+
+    touch-action: manipulation;
 }
 
 #gameArea:fullscreen .game-title,
@@ -497,6 +512,10 @@ th {
     justify-content: center;
 
     margin: 5px auto;
+
+    touch-action: none;
+
+    pointer-events: auto;
 }
 
 #gameArea:fullscreen #gameCanvas,
@@ -509,6 +528,8 @@ th {
     aspect-ratio: 2 / 1;
 
     object-fit: contain;
+
+    pointer-events: auto;
 }
 
 #gameArea:fullscreen .leaderboard-container,
@@ -565,6 +586,8 @@ th {
     flex-direction: column;
 
     justify-content: space-between;
+
+    touch-action: manipulation;
 }
 
 #gameArea.fullscreen-mode .game-title {
@@ -584,6 +607,10 @@ th {
     justify-content: center;
 
     margin: 5px auto;
+
+    touch-action: none;
+
+    pointer-events: auto;
 }
 
 #gameArea.fullscreen-mode #gameCanvas {
@@ -592,7 +619,11 @@ th {
 
     max-height: 100%;
 
+    aspect-ratio: 2 / 1;
+
     object-fit: contain;
+
+    pointer-events: auto;
 }
 
 #gameArea.fullscreen-mode .leaderboard-container {
@@ -601,12 +632,18 @@ th {
 
 #gameArea.fullscreen-mode #gameMessage {
     min-height: 22px;
+
     margin: 3px 0;
 }
 
 #gameArea.fullscreen-mode .game-controls {
     margin: 0;
+
     flex-shrink: 0;
+}
+
+#gameArea.fullscreen-mode .game-footer {
+    display: none;
 }
 
 /* =========================================================
@@ -658,7 +695,10 @@ th {
 
     .btn {
         width: 100%;
+
         padding: 10px 8px;
+
+        touch-action: manipulation;
     }
 
     .btn-start {
@@ -687,7 +727,9 @@ th {
     #gameArea:-webkit-full-screen .btn,
     #gameArea.fullscreen-mode .btn {
         min-height: 38px;
+
         padding: 7px 8px;
+
         font-size: 0.78rem;
     }
 
@@ -701,6 +743,20 @@ th {
     #gameArea:-webkit-full-screen #gameMessage,
     #gameArea.fullscreen-mode #gameMessage {
         font-size: 0.75rem;
+    }
+
+    #gameArea:fullscreen .canvas-wrapper,
+    #gameArea:-webkit-full-screen .canvas-wrapper,
+    #gameArea.fullscreen-mode .canvas-wrapper {
+        width: 100%;
+        min-height: 0;
+        flex: 1;
+    }
+
+    #gameArea:fullscreen #gameCanvas,
+    #gameArea:-webkit-full-screen #gameCanvas,
+    #gameArea.fullscreen-mode #gameCanvas {
+        max-height: 100%;
     }
 }
 
@@ -733,7 +789,9 @@ th {
     #gameArea:-webkit-full-screen .btn,
     #gameArea.fullscreen-mode .btn {
         min-height: 34px;
+
         padding: 6px 12px;
+
         font-size: 0.8rem;
     }
 }
