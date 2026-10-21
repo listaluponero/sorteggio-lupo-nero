@@ -17,6 +17,7 @@
       --red-light: #e52b38;
       --border: #333;
       --green: #28a745;
+      --cyan: #00f2fe;
     }
 
     * { box-sizing: border-box; }
@@ -31,6 +32,17 @@
       background: radial-gradient(ellipse at top, #211012 0%, transparent 55%), var(--bg);
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
     }
 
     .container {
@@ -41,6 +53,8 @@
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: 0 18px 60px #0009;
+      position: relative;
+      z-index: 10;
     }
 
     .nav-buttons {
@@ -98,7 +112,7 @@
     }
 
     .prizes-box {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       padding: 14px;
       background: var(--panel-light);
       border: 1px solid var(--border);
@@ -131,6 +145,64 @@
       color: var(--text);
     }
 
+    /* CONTENITORE MASCOTTE */
+    .wolf-stage {
+      position: relative;
+      width: 100%;
+      height: 230px;
+      margin: 10px 0 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #wolfSvg {
+      width: 220px;
+      height: 220px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* ANIMAZIONI STILI POSE */
+    .pose-idle #wolfBody { animation: idleBreath 3s ease-in-out infinite; }
+    .pose-idle #wolfTail { animation: tailWag 2.5s ease-in-out infinite; }
+
+    @keyframes idleBreath {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    @keyframes tailWag {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(6deg); }
+    }
+
+    /* Posa Vittoria */
+    .pose-victory { animation: victoryJump 0.8s cubic-bezier(0.25, 1.3, 0.5, 1) infinite alternate; }
+    .pose-victory #wolfArms { transform: translateY(-25px) rotate(-15deg); }
+    .pose-victory #wolfTail { animation: fastTail 0.3s infinite alternate; }
+
+    @keyframes victoryJump {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-35px) scale(1.08); }
+    }
+
+    @keyframes fastTail {
+      0% { transform: rotate(-15deg); }
+      100% { transform: rotate(20deg); }
+    }
+
+    /* Posa Sconfitta */
+    .pose-defeat { transform: translateY(15px) scale(0.95); }
+    .pose-defeat #wolfBody { transform: rotate(5deg); }
+    .pose-defeat #rainCloud { opacity: 1 !important; }
+    .pose-defeat #tears { opacity: 1 !important; animation: tearFall 0.6s linear infinite; }
+
+    @keyframes tearFall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(25px); opacity: 0; }
+    }
+
     label {
       display: block;
       margin-bottom: 9px;
@@ -151,6 +223,13 @@
     }
 
     input:focus { border-color: var(--red-light); }
+
+    .input-hint {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #888;
+    }
 
     button {
       width: 100%;
@@ -205,9 +284,34 @@
       line-height: 1.6;
       text-align: center;
       overflow-wrap: anywhere;
+      transition: transform .3s, border-color .3s;
     }
 
     #message:empty { display: none; }
+
+    .anim-shake {
+      animation: shakeEffect 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      border: 1px solid var(--red-light) !important;
+    }
+
+    @keyframes shakeEffect {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
+
+    .anim-win {
+      animation: winPop 0.6s ease-out forwards;
+      border: 2px solid var(--green) !important;
+      box-shadow: 0 0 25px rgba(40, 167, 69, 0.4);
+    }
+
+    @keyframes winPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      70% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
     .claim-btn {
       display: inline-block;
@@ -242,6 +346,7 @@
       text-align: center;
       font-size: 12px;
       color: var(--muted);
+      line-height: 1.8;
     }
 
     .social-footer a {
@@ -254,6 +359,8 @@
   </style>
 </head>
 <body>
+
+  <canvas id="confettiCanvas"></canvas>
 
   <div class="container">
     <div class="nav-buttons">
@@ -278,9 +385,111 @@
       </div>
     </div>
 
+    <!-- STAGE MASCOTTE LUPO NERO -->
+    <div class="wolf-stage">
+      <svg id="wolfSvg" class="pose-idle" viewBox="0 0 300 320">
+        <defs>
+          <linearGradient id="cyanLining" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00f2fe"/>
+            <stop offset="100%" stop-color="#00c4b4"/>
+          </linearGradient>
+          <linearGradient id="furGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a0aab8"/>
+            <stop offset="100%" stop-color="#687382"/>
+          </linearGradient>
+          <linearGradient id="hoodieGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5f7fa"/>
+            <stop offset="100%" stop-color="#d0d7de"/>
+          </linearGradient>
+          <filter id="cyanGlow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- NUVOLA SCONFITTA (NASCOSTA DI BASE) -->
+        <g id="rainCloud" opacity="0" style="transition: opacity 0.4s;">
+          <path d="M 90 40 Q 110 20 140 30 Q 170 15 200 35 Q 220 30 230 50 Q 210 70 90 60 Z" fill="#334155"/>
+          <path d="M 110 65 L 105 80 M 150 65 L 145 85 M 190 65 L 185 80" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+        </g>
+
+        <!-- CORPO E CODA -->
+        <g id="wolfBody">
+          <!-- Coda -->
+          <path id="wolfTail" d="M 210 210 C 260 210 270 150 240 130 C 220 150 210 170 190 190 Z" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4" style="transform-origin: 190px 190px;"/>
+          
+          <!-- Gambe -->
+          <rect x="110" y="220" width="30" height="60" rx="12" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4"/>
+          <rect x="160" y="220" width="30" height="60" rx="12" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4"/>
+
+          <!-- Felpa Sherpa -->
+          <path d="M 95 125 C 95 110 130 100 150 100 C 170 100 205 110 205 125 L 210 215 C 210 225 195 230 150 230 C 105 230 90 225 90 215 Z" fill="url(#hoodieGrad)" stroke="#1e293b" stroke-width="4"/>
+          
+          <!-- Tasca Felpa -->
+          <path d="M 115 175 L 185 175 L 195 215 L 105 215 Z" fill="#e2e8f0" stroke="#1e293b" stroke-width="3"/>
+
+          <!-- COLLETTO INTERNO AZZURRO BRANDING -->
+          <path d="M 118 108 C 135 135 165 135 182 108 C 170 148 130 148 118 108 Z" fill="url(#cyanLining)" stroke="#1e293b" stroke-width="3" filter="url(#cyanGlow)"/>
+          
+          <!-- Laccetti Cappuccio -->
+          <path d="M 132 120 L 132 155 M 168 120 L 168 155" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="132" cy="158" r="4" fill="#00f2fe"/>
+          <circle cx="168" cy="158" r="4" fill="#00f2fe"/>
+
+          <!-- BRACCIA -->
+          <g id="wolfArms" style="transition: transform 0.3s;">
+            <rect x="75" y="125" width="26" height="70" rx="13" fill="url(#hoodieGrad)" stroke="#1e293b" stroke-width="4"/>
+            <rect x="199" y="125" width="26" height="70" rx="13" fill="url(#hoodieGrad)" stroke="#1e293b" stroke-width="4"/>
+            <!-- Zampe -->
+            <circle cx="88" cy="200" r="12" fill="url(#furGrad)" stroke="#1e293b" stroke-width="3"/>
+            <circle cx="212" cy="200" r="12" fill="url(#furGrad)" stroke="#1e293b" stroke-width="3"/>
+          </g>
+
+          <!-- TESTA LUPO -->
+          <g id="wolfHead">
+            <!-- Orecchie -->
+            <path d="M 105 70 L 85 20 L 125 45 Z" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4"/>
+            <path d="M 195 70 L 215 20 L 175 45 Z" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4"/>
+            <path d="M 100 60 L 92 32 L 115 47 Z" fill="#334155"/>
+            <path d="M 200 60 L 208 32 L 185 47 Z" fill="#334155"/>
+
+            <!-- Volto -->
+            <ellipse cx="150" cy="75" rx="45" ry="38" fill="url(#furGrad)" stroke="#1e293b" stroke-width="4"/>
+            <!-- Muso -->
+            <ellipse cx="150" cy="85" rx="26" ry="18" fill="#e2e8f0" stroke="#1e293b" stroke-width="3"/>
+            <path d="M 140 76 Q 150 70 160 76 Q 150 86 140 76 Z" fill="#1e293b"/>
+
+            <!-- OCCHI ESPRESSIVI -->
+            <g id="eyesGroup">
+              <ellipse cx="132" cy="65" rx="9" ry="11" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+              <ellipse cx="168" cy="65" rx="9" ry="11" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+              <circle cx="134" cy="66" r="5" fill="#1e293b"/>
+              <circle cx="166" cy="66" r="5" fill="#1e293b"/>
+              <!-- Sopracciglia furbette -->
+              <path d="M 122 50 Q 132 45 142 53" stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M 178 50 Q 168 45 158 53" stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </g>
+
+            <!-- LACRIME (PER SCONFITTA) -->
+            <g id="tears" opacity="0">
+              <ellipse cx="128" cy="80" rx="3" ry="6" fill="#38bdf8"/>
+              <ellipse cx="172" cy="80" rx="3" ry="6" fill="#38bdf8"/>
+            </g>
+
+            <!-- Bocca Sorridente -->
+            <path d="M 136 94 Q 150 104 164 94" stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
     <form id="drawForm">
       <label for="instagram">Username Instagram (@tuonome)</label>
       <input type="text" id="instagram" placeholder="@es. luponero_official" required autocomplete="off">
+      <span class="input-hint">⚠️ Inserisci lo stesso username con cui ci segui su Instagram.</span>
       <button type="submit" id="submitBtn">ESTRAI IL PREMIO</button>
     </form>
 
@@ -292,8 +501,8 @@
     <div id="message"></div>
 
     <div class="social-footer">
-      Segui la pagina ufficiale su Instagram: <br>
-      👉 <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>
+      Pagina Ufficiale: <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a><br>
+      Contatto Diretto: <a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener">@ReLupoNero</a>
     </div>
   </div>
 
@@ -349,8 +558,97 @@
     const statusBox = document.getElementById('statusBox');
     const timerElement = document.getElementById('timer');
     const messageElement = document.getElementById('message');
+    const wolfSvg = document.getElementById('wolfSvg');
 
     let timerInterval = null;
+
+    /* CAMBIO POSA LUPO */
+    function setWolfPose(pose) {
+      wolfSvg.className.baseVal = 'pose-' + pose;
+    }
+
+    /* SISTEMA AUDIO SINTETIZZATO (Web Audio API) */
+    function playSound(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (type === 'win') {
+          const notes = [261.63, 329.63, 392.00, 523.25];
+          notes.forEach((freq, index) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.1, ctx.currentTime + index * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + index * 0.1 + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + index * 0.1);
+            osc.stop(ctx.currentTime + index * 0.1 + 0.3);
+          });
+        } else if (type === 'lose') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(200, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+        }
+      } catch (e) { }
+    }
+
+    /* CORIANDOLI VITTORIA (Canvas Nativo) */
+    function launchConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#28a745', '#00f2fe', '#ffffff', '#ffc107', '#e1306c'];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speedY: Math.random() * 4 + 2,
+          speedX: Math.random() * 2 - 1,
+          rotation: Math.random() * 360,
+          rotSpeed: Math.random() * 6 - 3
+        });
+      }
+
+      let animationFrame;
+      const startTime = Date.now();
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.y += p.speedY;
+          p.x += p.speedX;
+          p.rotation += p.rotSpeed;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+
+        if (Date.now() - startTime < 4000) {
+          animationFrame = requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          cancelAnimationFrame(animationFrame);
+        }
+      }
+      render();
+    }
 
     function getDeviceId() {
       let id = localStorage.getItem('ln_uuid');
@@ -401,6 +699,7 @@
           statusBox.style.display = 'none';
           submitBtn.disabled = false;
           instagramInput.disabled = false;
+          setWolfPose('idle');
           showMessage("Ora puoi effettuare un nuovo tentativo!", "#28a745");
           return;
         }
@@ -419,12 +718,17 @@
       timerInterval = setInterval(update, 1000);
     }
 
-    function showMessage(html, color = '#f4f4f4') {
+    function showMessage(html, color = '#f4f4f4', animClass = '') {
+      messageElement.className = '';
       messageElement.innerHTML = html;
       messageElement.style.color = color;
+
+      if (animClass) {
+        void messageElement.offsetWidth;
+        messageElement.classList.add(animClass);
+      }
     }
 
-    // Controlla il timer salvato localmente o su server appena si carica la pagina
     async function checkExistingCooldown() {
       const savedNickname = localStorage.getItem('ln_last_nick') || '';
       if (savedNickname) {
@@ -442,9 +746,7 @@
           showMessage("⏱️ Hai già un tentativo in corso su questo dispositivo. Attendi lo scadere del timer.", "#e52b38");
           startTimer(res.remainingMs);
         }
-      } catch (e) {
-        // Ignora eventuali errori silenti al caricamento
-      }
+      } catch (e) { }
     }
 
     form.addEventListener('submit', async function(e) {
@@ -479,6 +781,9 @@
         }
 
         if (res.won) {
+          setWolfPose('victory');
+          playSound('win');
+
           let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
           winHtml += 'Premio: <strong>' + res.prize + '</strong><br>';
           winHtml += 'Codice: <strong>LN-' + res.code + '</strong><br><br>';
@@ -486,8 +791,12 @@
           winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
           winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
           
-          showMessage(winHtml, "#28a745");
+          showMessage(winHtml, "#28a745", "anim-win");
+          launchConfetti();
         } else {
+          setWolfPose('defeat');
+          playSound('lose');
+
           const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
           
           let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
@@ -497,7 +806,7 @@
           loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
           loseHtml += '</div>';
 
-          showMessage(loseHtml, "#aaa");
+          showMessage(loseHtml, "#aaa", "anim-shake");
         }
 
         startTimer(res.remainingMs || 28800000);
@@ -510,9 +819,4 @@
       }
     });
 
-    // Esegue il controllo immediato all'apertura della pagina
-    checkExistingCooldown();
-  </script>
-</body>
-</html>
-</html>
+    check
