@@ -145,7 +145,7 @@
       color: var(--text);
     }
 
-    /* CONTENITORE MASCOTTE */
+    /* STAGE MASCOTTE */
     .wolf-stage {
       position: relative;
       width: 100%;
@@ -685,6 +685,28 @@
 
       const nickname = instagramInput.value.trim();
       if (!nickname) return;
+
+      // 👑 MODALITÀ TEST ADMIN: Digita "@testadmin" per testare senza blocchi e decidere l'esito
+      if (nickname.toLowerCase() === '@testadmin') {
+        const simulaVittoria = true; // Metti false se vuoi testare la sconfitta al volo
+
+        if (simulaVittoria) {
+          setWolfPose('victory');
+          playSound('win');
+          let winHtml = '🎉 <strong>TEST ADMIN: VITTORIA FORZATA!</strong><br><br>';
+          winHtml += 'Premio: <strong>Maglietta Ufficiale Lupo Nero</strong><br>';
+          winHtml += 'Codice: <strong>LN-TEST99</strong>';
+          showMessage(winHtml, "#28a745", "anim-win");
+          launchConfetti();
+        } else {
+          setWolfPose('defeat');
+          playSound('lose');
+          const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
+          let loseHtml = '😔 <strong>TEST ADMIN: SCONFITTA FORZATA</strong><br>' + randomPhrase;
+          showMessage(loseHtml, "#aaa", "anim-shake");
+        }
+        return;
+      }
 
       localStorage.setItem('ln_last_nick', nickname);
 
