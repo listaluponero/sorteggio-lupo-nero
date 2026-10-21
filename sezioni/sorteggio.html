@@ -226,7 +226,7 @@
 
     <div class="eyebrow">Tenta la fortuna</div>
     <h1>SORTEGGIO</h1>
-    <p class="description">Inserisci il tuo nickname Instagram e scopri subito se hai vinto uno dei fantastici premi in palio!</p>
+    <p class="description">Inserisci il tuo nickname Instagram per partecipare al sorteggio!</p>
 
     <div class="prizes-box">
       <div class="prizes-title">🎁 Premi in palio</div>
@@ -254,12 +254,12 @@
 
     <div id="message"></div>
 
-    <p class="notice">⚠️ Tentativo consentito ogni 8 ore per dispositivo ed account.</p>
+    <p class="notice">⚠️ Nota: Per convalidare la vincita è obbligatorio seguire la pagina Instagram ufficiale.</p>
   </div>
 
   <script>
-    // 🔗 INCOLLA QUI IL TUO URL DI DEPLOY WEB APP DI APPS SCRIPT
-    const SCRIPT_URL = "INSERISCI_QUI_IL_TUO_URL_APPS_SCRIPT"; 
+    // URL di Google Apps Script impostato correttamente
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9sMnVAcx5fIuD5vZeuNyFllz9gAEXh8A1vhzjkF4xgEDpRVCjG0iqDPvP6tTAXtyv/exec"; 
 
     const form = document.getElementById('drawForm');
     const instagramInput = document.getElementById('instagram');
@@ -287,7 +287,7 @@
         const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
         window[callbackName] = function(data) {
           delete window[callbackName];
-          document.body.removeChild(script);
+          if (document.body.contains(script)) document.body.removeChild(script);
           resolve(data);
         };
 
@@ -296,7 +296,7 @@
         script.src = url + '?' + queryParams.toString();
         script.onerror = () => {
           delete window[callbackName];
-          document.body.removeChild(script);
+          if (document.body.contains(script)) document.body.removeChild(script);
           reject(new Error('Errore di connessione'));
         };
 
@@ -344,6 +344,7 @@
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
+
       const nickname = instagramInput.value.trim();
       if (!nickname) return;
 
@@ -371,7 +372,7 @@
         }
 
         if (res.won) {
-          showMessage(`🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br>Premio: <strong>${res.prize}</strong><br>Codice da mostrare: <strong>LN-${res.code}</strong>`, "#28a745");
+          showMessage(`🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br>Premio: <strong>${res.prize}</strong><br>Codice da mostrare: <strong>LN-${res.code}</strong><br><br><small style="color:#aaa;">⚠️ Ricorda: La vincita verrà convalidata solo se segui il profilo Instagram!</small>`, "#28a745");
         } else {
           showMessage("😔 Peccato! Non hai vinto questa volta. Riprova tra 8 ore!", "#aaa");
         }
@@ -379,7 +380,7 @@
         startTimer(res.remainingMs || 28800000);
 
       } catch (err) {
-        showMessage("❌ Errore di rete. Controlla la connessione e riprova.", "#e52b38");
+        showMessage("❌ Errore di rete. Controlla che il Deploy sia impostato su 'Chiunque'.", "#e52b38");
         submitBtn.disabled = false;
       } finally {
         submitBtn.textContent = "ESTRAI IL PREMIO";
