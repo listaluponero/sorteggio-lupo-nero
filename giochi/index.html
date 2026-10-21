@@ -1,9 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <meta name="theme-color" content="#090909">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,16 +14,13 @@
 </head>
 
 <body>
-
     <div id="loadingScreen">
         <div class="spinner"></div>
         <p>Caricamento modelli del lupo...</p>
     </div>
 
     <main id="gameArea">
-
         <div class="game-header-ui">
-
             <div class="score-box">
                 <span>PUNTI</span>
                 <strong id="score">0</strong>
@@ -33,7 +30,6 @@
                 <span>RECORD</span>
                 <strong id="personalBest">0</strong>
             </div>
-
         </div>
 
         <div class="game-title">
@@ -42,14 +38,12 @@
         </div>
 
         <div class="canvas-wrapper">
-
             <canvas
                 id="gameCanvas"
                 width="800"
                 height="400"
                 aria-label="Lupo Runner">
             </canvas>
-
         </div>
 
         <div id="gameMessage" aria-live="polite">
@@ -57,39 +51,38 @@
         </div>
 
         <div class="game-controls">
-
-            <button id="startGame" class="btn btn-start">
+            <button id="startGame" class="btn btn-start" type="button">
                 INIZIA PARTITA
             </button>
 
-            <button id="jumpGame" class="btn btn-jump" disabled>
+            <button id="jumpGame" class="btn btn-jump" type="button" disabled>
                 SALTA
             </button>
 
-            <button id="pauseGame" class="btn btn-pause" disabled>
+            <button id="pauseGame" class="btn btn-pause" type="button" disabled>
                 PAUSA
             </button>
 
-            <button id="fullscreenBtn" class="btn btn-fullscreen">
+            <button id="fullscreenBtn" class="btn btn-fullscreen" type="button">
                 ESPANDI GIOCO
             </button>
 
+            <button id="backToList" class="btn btn-back" type="button">
+                ← TORNA ALLA LISTA
+            </button>
         </div>
 
         <section class="leaderboard-container">
-
             <div class="leaderboard-header">
                 <h2>CLASSIFICA TOP 5</h2>
 
-                <button id="refreshBoard" class="refresh-btn">
+                <button id="refreshBoard" class="refresh-btn" type="button">
                     AGGIORNA
                 </button>
             </div>
 
             <div class="table-wrapper">
-
                 <table>
-
                     <thead>
                         <tr>
                             <th>Pos</th>
@@ -103,15 +96,11 @@
                             <td colspan="3">Caricamento...</td>
                         </tr>
                     </tbody>
-
                 </table>
-
             </div>
 
             <div id="leaderboardStatus"></div>
-
         </section>
-
     </main>
 
     <footer class="game-footer">
@@ -119,6 +108,5 @@
     </footer>
 
     <script src="gioco.js"></script>
-
 </body>
 </html>
