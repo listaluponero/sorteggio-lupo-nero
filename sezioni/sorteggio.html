@@ -16,6 +16,7 @@
       --red: #b71925;
       --red-light: #e52b38;
       --border: #333;
+      --green: #28a745;
     }
 
     * { box-sizing: border-box; }
@@ -208,12 +209,48 @@
 
     #message:empty { display: none; }
 
-    .notice {
-      margin: 20px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
+    .claim-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: #e1306c;
+      color: white;
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 8px;
+      font-size: 13px;
     }
+
+    .story-prompt {
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px dashed #333;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .story-prompt a {
+      color: #e1306c;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .social-footer {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #222;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .social-footer a {
+      color: var(--red-light);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .social-footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -226,7 +263,7 @@
 
     <div class="eyebrow">Tenta la fortuna</div>
     <h1>SORTEGGIO</h1>
-    <p class="description">Inserisci il tuo nickname Instagram per partecipare al sorteggio!</p>
+    <p class="description">Inserisci il tuo nickname Instagram per partecipare al sorteggio ufficiale Lista Lupo Nero!</p>
 
     <div class="prizes-box">
       <div class="prizes-title">🎁 Premi in palio</div>
@@ -254,12 +291,57 @@
 
     <div id="message"></div>
 
-    <p class="notice">⚠️ Nota: Per convalidare la vincita è obbligatorio seguire la pagina Instagram ufficiale.</p>
+    <div class="social-footer">
+      Segui la pagina ufficiale su Instagram: <br>
+      👉 <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>
+    </div>
   </div>
 
   <script>
-    // URL di Google Apps Script impostato correttamente
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9sMnVAcx5fIuD5vZeuNyFllz9gAEXh8A1vhzjkF4xgEDpRVCjG0iqDPvP6tTAXtyv/exec"; 
+
+    const LOSE_MESSAGES = [
+      "Il lupo ulula alla luna… ma oggi la fortuna è altrove.",
+      "Non questa volta, lupetto. Il branco ti aspetta al prossimo tentativo.",
+      "Il destino ha scelto un altro sentiero. Riprova tra 8 ore.",
+      "La notte è lunga: il tuo momento potrebbe arrivare.",
+      "Niente premio per ora, ma il vero lupo non si arrende mai.",
+      "Il bosco è buio stasera: la fortuna ha preferito nascondersi.",
+      "Hai fiutato la pista giusta, ma il premio è scappato! Riprova più tardi.",
+      "Il Re Lupo ha deciso: ancora niente vittoria per te.",
+      "Un passo falso nella tana. Ricarica la fortuna tra 8 ore!",
+      "I dadi hanno girato male, ma la caccia continua al prossimo turno.",
+      "Oggi le tenebre non ti hanno premiato. Torna quando la luna sarà alta!",
+      "Nessun bottino stavolta, il branco custodisce ancora il tesoro.",
+      "Il soffio del vento ha spazzato via la tua vincita. Ritenta tra 8 ore!",
+      "Non era la combinazione giusta. Affila gli artigli e riprova!",
+      "Vittoria sfuggita per un pelo! Il prossimo tentativo potrebbe essere quello buono.",
+      "Il Re Lupo guarda e attende... oggi non era il tuo momento.",
+      "Si vince e si impara! Riprendi le forze e torna tra 8 ore.",
+      "La fortuna ha fatto un salto nell'ombra. Riprova più tardi!",
+      "Anche i lupi più forti a volte tornano a mani vuote. Non mollare!",
+      "Oggi niente bottino, ma il branco non dimentica chi ritenta.",
+      "Il destino sta mettendo alla prova la tua pazienza. Ci vediamo tra 8 ore!",
+      "Niente premio stasera, ma la notte riserva sempre sorprese.",
+      "Niente da fare! Il Lupo Nero ha difeso il suo tesoro.",
+      "L'ombra ti ha avvolto, ma la luce tornerà tra 8 ore.",
+      "Un vero lupo non teme la sconfitta temporanea. Riprova più tardi!",
+      "Oggi le stelle non si sono allineate per te. Pazienta un po'!",
+      "Tentativo fallito! Ricarica gli artigli e tornerai più forte.",
+      "La fortuna ha scelto la macchia sbagliata. Riprova tra 8 ore!",
+      "Niente premio in palio stavolta, ma la caccia è appena iniziata.",
+      "Stasera la sorte è stata un po' timida. Ritenta alla prossima ora!",
+      "Un lupo tenace riprova sempre. Il timer sta già scorrendo!",
+      "Colpo a vuoto! Ricalibra l'istinto e riprova tra 8 ore.",
+      "Il bottino è rimasto nella tana. Torna quando il timer scade!",
+      "La notte appartiene a chi insiste. Ci rivediamo tra 8 ore!",
+      "Oggi no, ma la perseveranza premia sempre i lupi veri.",
+      "Il cerchio si stringe, ma il premio per ora resta nascosto.",
+      "Forza e pazienza: le virtù di un vero Lupo Nero. Riprova più tardi!",
+      "Poco di buono stasera, ma la ruota gira per tutti!",
+      "Niente vittoria per ora: fai un respiro e torna tra 8 ore.",
+      "La caccia di oggi si chiude qui, ma la prossima inizia presto!"
+    ];
 
     const form = document.getElementById('drawForm');
     const instagramInput = document.getElementById('instagram');
@@ -372,15 +454,31 @@
         }
 
         if (res.won) {
-          showMessage(`🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br>Premio: <strong>${res.prize}</strong><br>Codice da mostrare: <strong>LN-${res.code}</strong><br><br><small style="color:#aaa;">⚠️ Ricorda: La vincita verrà convalidata solo se segui il profilo Instagram!</small>`, "#28a745");
+          showMessage(`
+            🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>
+            Premio: <strong>${res.prize}</strong><br>
+            Codice: <strong>LN-${res.code}</strong><br><br>
+            ⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>
+            Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>
+            <a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>
+          `, "#28a745");
         } else {
-          showMessage("😔 Peccato! Non hai vinto questa volta. Riprova tra 8 ore!", "#aaa");
+          const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
+          
+          showMessage(`
+            😔 <strong>${randomPhrase}</strong>
+            <div class="story-prompt">
+              📸 Ti piace la risposta che ti è uscita?<br>
+              <strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>
+              Ti ripostiamo sulla pagina ufficiale! 🐺🔥
+            </div>
+          `, "#aaa");
         }
 
         startTimer(res.remainingMs || 28800000);
 
       } catch (err) {
-        showMessage("❌ Errore di rete. Controlla che il Deploy sia impostato su 'Chiunque'.", "#e52b38");
+        showMessage("❌ Errore di rete. Controlla la connessione e riprova.", "#e52b38");
         submitBtn.disabled = false;
       } finally {
         submitBtn.textContent = "ESTRAI IL PREMIO";
