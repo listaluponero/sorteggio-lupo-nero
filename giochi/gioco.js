@@ -25,7 +25,6 @@ const groundY = H - 80;
 
 const START_SPEED = 4;
 const MAX_SPEED = 8;
-const MIN_COMBO_GAP = 305;
 
 // ======================================
 // SPRITE DEL LUPO DI PROFILO
@@ -89,7 +88,7 @@ function buildWolfSprite() {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100">${frames}</svg>`;
 
   wolfImage.onload = () => {
-    drawGame(); // Disegna subito il gioco appena l'immagine è pronta
+    if (!running) drawGame();
   };
   wolfImage.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
@@ -113,7 +112,7 @@ let speed = START_SPEED;
 
 let obstacles = [];
 let spawnDistance = 0;
-let nextSpawnDistance = 400;
+let nextSpawnDistance = 350;
 
 let best = Number(localStorage.getItem(BEST_KEY)) || 0;
 
@@ -272,7 +271,7 @@ function togglePause() {
   }
 }
 
-// Eventi pulsanti
+// Eventi pulsanti HTML
 if (startButton) startButton.addEventListener("click", startGame);
 if (jumpButton) jumpButton.addEventListener("click", jump);
 if (pauseButton) pauseButton.addEventListener("click", togglePause);
@@ -288,7 +287,7 @@ document.addEventListener("keydown", event => {
   }
 });
 
-// Eventi touch / click sul canvas (perfetto per cellulare)
+// Eventi touch / click sul canvas (perfetto per cellulare e PC)
 canvas.addEventListener("click", () => {
   if (!running && !paused) {
     startGame();
@@ -308,7 +307,6 @@ function gameLoop(timestamp) {
   const dt = Math.min((timestamp - lastTime) / 16.667, 2);
   lastTime = timestamp;
 
-  // Aggiornamento logica
   distance += speed * dt;
   score = Math.floor(distance / 10);
   updateScoreboard();
@@ -322,7 +320,6 @@ function gameLoop(timestamp) {
     player.grounded = true;
   }
 
-  // Generazione ostacoli
   spawnDistance += speed * dt;
   if (spawnDistance >= nextSpawnDistance) {
     createObstacle();
@@ -330,7 +327,6 @@ function gameLoop(timestamp) {
     nextSpawnDistance = 300 + Math.random() * 250;
   }
 
-  // Movimento ostacoli e collisioni
   for (const o of obstacles) {
     o.x -= speed * dt;
     if (collides(player, o)) {
@@ -402,7 +398,6 @@ function endGame() {
   drawGame();
 }
 
-// Caricamento iniziale classifica
 async function loadLeaderboard() {
   if (!leaderboardBody || !leaderboardStatus) return;
   leaderboardStatus.textContent = "Caricamento classifica...";
@@ -450,7 +445,13 @@ if (submitScoreButton) {
 
 if (refreshBoardButton) refreshBoardButton.addEventListener("click", loadLeaderboard);
 
-// Disegno iniziale per mostrare il lupetto fin da subito
-drawBackground();
-drawWolf();
+// ======================================
+// INIZIALIZZAZIONE IMMEDIATA (ANTI SCHERMO NERO)
+// ======================================
+function initDisplay() {
+  drawBackground();
+  drawWolf();
+}
+
+initDisplay();
 loadLeaderboard();
