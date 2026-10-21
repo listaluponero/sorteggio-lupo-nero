@@ -743,67 +743,37 @@ function drawSnake(obstacle) {
    2. ANGELO
 ========================================================= */
 
-function drawAngel(obstacle) {
-    const { x, y, w, h } = obstacle;
 
-    ctx.save();
+function updateAngel(obstacle, dt) {
+    if (obstacle.type !== "angel") return;
 
-    if (drawImageIfAvailable("angel", x, y, w, h)) {
-        ctx.restore();
-        return;
+    // L'angelo scende una sola volta.
+    if (
+        obstacle.willDive &&
+        !obstacle.diveStarted &&
+        obstacle.x <= obstacle.diveAtX
+    ) {
+        obstacle.diveStarted = true;
+        obstacle.divePhase = "down";
     }
 
-    const centerX = x + w / 2;
+    // Discesa verso il terreno.
+    if (obstacle.divePhase === "down") {
+        obstacle.y += 4.5 * dt;
 
-    ctx.fillStyle = "#d8d8f4";
-    ctx.strokeStyle = "#9999c7";
-    ctx.lineWidth = 2;
+        if (obstacle.y >= obstacle.lowY) {
+            obstacle.y = obstacle.lowY;
+            obstacle.divePhase = "low";
+        }
+    }
 
-    ctx.beginPath();
-    ctx.ellipse(centerX - 15, y + h / 2 - 2, 15, 8, -0.55, 0, Math.PI * 2);
-    ctx.ellipse(centerX + 15, y + h / 2 - 2, 15, 8, 0.55, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.strokeStyle = "#f7d977";
-    ctx.lineWidth = 3;
-
-    ctx.beginPath();
-    ctx.ellipse(centerX, y + 8, 10, 4, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.fillStyle = "#f0c9a7";
-    ctx.beginPath();
-    ctx.arc(centerX, y + 17, 9, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#e6dfc6";
-    ctx.beginPath();
-    ctx.arc(centerX, y + 13, 9, Math.PI, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#f5f1ff";
-    ctx.strokeStyle = "#b4b0d4";
-
-    ctx.beginPath();
-    ctx.moveTo(centerX - 8, y + 25);
-    ctx.lineTo(centerX + 8, y + 25);
-    ctx.lineTo(centerX + 14, y + h - 2);
-    ctx.lineTo(centerX - 14, y + h - 2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.strokeStyle = "#d6b85d";
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.moveTo(centerX - 8, y + 31);
-    ctx.lineTo(centerX + 8, y + 31);
-    ctx.stroke();
-
-    ctx.restore();
+    // Una volta sceso, resta in basso.
+    // Non deve mai più risalire.
+    if (obstacle.divePhase === "low") {
+        obstacle.y = obstacle.lowY;
+    }
 }
+
 
 /* =========================================================
    3. CASSA MUSICALE
