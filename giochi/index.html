@@ -1,11 +1,10 @@
-```html
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
-  <title>Lupo Games | Lista Lupo Nero</title>
+  <title>Lupo Games | Lupo Runner</title>
   <link rel="stylesheet" href="gioco.css">
   <script src="gioco.js" defer></script>
 </head>
@@ -49,7 +48,7 @@
       </div>
 
       <p id="gameMessage" role="status" aria-live="polite">
-        Premi «Inizia partita» per giocare.
+        Premi «Inizia partita» o tocca lo schermo per giocare.
       </p>
     </section>
 
@@ -113,7 +112,6 @@
       if (!panel || !button) return;
 
       let fallbackActive = false;
-      let previousOrientation = null;
 
       function nativeFullscreen() {
         return document.fullscreenElement === panel ||
@@ -126,109 +124,49 @@
 
       function updateButton() {
         const active = isActive();
-
-        button.textContent = active
-          ? "✕ ESCI DALLO SCHERMO INTERO"
-          : "⛶ SCHERMO INTERO";
-
+        button.textContent = active ? "✕ ESCI DALLO SCHERMO INTERO" : "⛶ SCHERMO INTERO";
         button.setAttribute("aria-pressed", String(active));
-        button.setAttribute(
-          "aria-label",
-          active ? "Esci dallo schermo intero" : "Attiva schermo intero"
-        );
-      }
-
-      async function requestLandscape() {
-        try {
-          if (screen.orientation &&
-              typeof screen.orientation.lock === "function") {
-            await screen.orientation.lock("landscape");
-          }
-        } catch (error) {
-          // Il browser o il dispositivo può non consentire
-          // il blocco automatico dell'orientamento.
-        }
-      }
-
-      function unlockOrientation() {
-        try {
-          if (screen.orientation &&
-              typeof screen.orientation.unlock === "function") {
-            screen.orientation.unlock();
-          }
-        } catch (error) {
-          // Nessuna azione necessaria.
-        }
       }
 
       async function enterFullscreen() {
         if (panel.requestFullscreen) {
           try {
             await panel.requestFullscreen();
-            await requestLandscape();
             updateButton();
             return;
-          } catch (error) {
-            // Se il metodo nativo fallisce, usa la modalità alternativa.
-          }
+          } catch (error) {}
         }
-
         if (panel.webkitRequestFullscreen) {
           try {
             panel.webkitRequestFullscreen();
-            await requestLandscape();
             updateButton();
             return;
-          } catch (error) {
-            // Continua con la modalità alternativa.
-          }
+          } catch (error) {}
         }
-
-        // Modalità alternativa per browser mobili senza
-        // fullscreen nativo per elementi HTML.
         fallbackActive = true;
         document.documentElement.classList.add("game-fullscreen-fallback");
         document.body.classList.add("game-fullscreen-fallback");
-
-        previousOrientation = screen.orientation
-          ? screen.orientation.type
-          : null;
-
-        await requestLandscape();
-
         updateButton();
       }
 
       async function exitFullscreen() {
         if (nativeFullscreen()) {
           try {
-            if (document.exitFullscreen) {
-              await document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-              document.webkitExitFullscreen();
-            }
-          } catch (error) {
-            console.warn("Impossibile uscire dallo schermo intero.", error);
-          }
+            if (document.exitFullscreen) await document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          } catch (error) {}
         }
-
         fallbackActive = false;
         document.documentElement.classList.remove("game-fullscreen-fallback");
         document.body.classList.remove("game-fullscreen-fallback");
-
-        unlockOrientation();
         updateButton();
       }
 
       button.addEventListener("click", async () => {
         button.disabled = true;
-
         try {
-          if (isActive()) {
-            await exitFullscreen();
-          } else {
-            await enterFullscreen();
-          }
+          if (isActive()) await exitFullscreen();
+          else await enterFullscreen();
         } finally {
           button.disabled = false;
           updateButton();
@@ -238,22 +176,10 @@
       document.addEventListener("fullscreenchange", () => {
         if (!nativeFullscreen() && fallbackActive) {
           fallbackActive = false;
-          document.documentElement.classList.remove(
-            "game-fullscreen-fallback"
-          );
+          document.documentElement.classList.remove("game-fullscreen-fallback");
           document.body.classList.remove("game-fullscreen-fallback");
-          unlockOrientation();
         }
-
         updateButton();
-      });
-
-      document.addEventListener("webkitfullscreenchange", updateButton);
-
-      document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && fallbackActive) {
-          exitFullscreen();
-        }
       });
 
       updateButton();
@@ -261,4 +187,3 @@
   </script>
 </body>
 </html>
-```
