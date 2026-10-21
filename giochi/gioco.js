@@ -23,11 +23,11 @@ const W = canvas.width;
 const H = canvas.height;
 const groundY = H - 80;
 
-const START_SPEED = 4;
-const MAX_SPEED = 8;
+const START_SPEED = 4.5;
+const MAX_SPEED = 8.5;
 
 // ======================================
-// SPRITE DEL LUPO DI PROFILO
+// SPRITE AUTOMATICO DEL LUPO DI PROFILO
 // ======================================
 
 const wolfImage = new Image();
@@ -96,7 +96,7 @@ function buildWolfSprite() {
 buildWolfSprite();
 
 // ======================================
-// STATO DEL GIOCO
+// STATO DEL GIOCO E DIFFICOLTÀ
 // ======================================
 
 let running = false;
@@ -112,7 +112,7 @@ let speed = START_SPEED;
 
 let obstacles = [];
 let spawnDistance = 0;
-let nextSpawnDistance = 350;
+let nextSpawnDistance = 400;
 
 let best = Number(localStorage.getItem(BEST_KEY)) || 0;
 
@@ -122,10 +122,23 @@ const player = {
   w: 42,
   h: 46,
   vy: 0,
-  gravity: 0.72,
-  jumpPower: -13,
+  gravity: 0.75,
+  jumpPower: -13.5,
   grounded: true
 };
+
+function getDifficultyStage() {
+  if (score < 200) return 0; // Apprendimento
+  if (score < 600) return 1; // Attenzione
+  if (score < 1200) return 2; // Sopravvivenza
+  if (score < 2000) return 3; // Lupo Nero
+  return 4; // Incubo
+}
+
+function getStageName() {
+  const names = ["APPRENDIMENTO", "ATTENZIONE", "SOPRAVVIVENZA", "LUPO NERO", "INCUBO"];
+  return names[getDifficultyStage()];
+}
 
 function updateScoreboard() {
   if (scoreElement) scoreElement.textContent = String(score);
@@ -139,7 +152,7 @@ function updatePauseButton() {
 }
 
 // ======================================
-// DISEGNO
+// DISEGNO SFONDO E LUPO
 // ======================================
 
 function drawBackground() {
@@ -151,11 +164,13 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
+  // Luna
   ctx.fillStyle = "#e9e3d6";
   ctx.beginPath();
   ctx.arc(320, 95, 26, 0, Math.PI * 2);
   ctx.fill();
 
+  // Terreno
   ctx.fillStyle = "#101014";
   ctx.fillRect(0, groundY, W, H - groundY);
 
@@ -170,288 +185,4 @@ function drawWolf() {
   ctx.save();
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
-  ctx.ellipse(x + player.w / 2, groundY + 5, player.grounded ? 25 : 16, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  if (wolfImage.complete && wolfImage.naturalWidth > 0) {
-    const frameWidth = 100;
-    const frameHeight = 100;
-    const frame = player.grounded ? Math.floor(distance / 12) % wolfFrames.length : 1;
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(wolfImage, frame * frameWidth, 0, frameWidth, frameHeight, x - 12, y + player.h - 66 + 4, 66, 66);
-  }
-  ctx.restore();
-}
-
-// ======================================
-// OSTACOLI
-// ======================================
-
-const OBSTACLE_SIZES = {
-  spike: { w: 35, h: 35 },
-  crate: { w: 35, h: 38 },
-  heart: { w: 36, h: 36 }
-};
-
-function createObstacle() {
-  const types = ["spike", "crate", "heart"];
-  const type = types[Math.floor(Math.random() * types.length)];
-  const size = OBSTACLE_SIZES[type];
-
-  obstacles.push({
-    type,
-    x: W + 10,
-    y: groundY - size.h,
-    w: size.w,
-    h: size.h
-  });
-}
-
-function collides(a, b) {
-  const inset = 6;
-  return (
-    a.x + inset < b.x + b.w - inset &&
-    a.x + a.w - inset > b.x + inset &&
-    a.y + inset < b.y + b.h - inset &&
-    a.y + a.h - inset > b.y + inset
-  );
-}
-
-// ======================================
-// CONTROLLI E AVVIO
-// ======================================
-
-function jump() {
-  if (!running || paused || !player.grounded) return;
-  player.vy = player.jumpPower;
-  player.grounded = false;
-}
-
-function startGame() {
-  if (running) return;
-
-  running = true;
-  paused = false;
-  gameOver = false;
-  lastTime = 0;
-
-  distance = 0;
-  score = 0;
-  finalScore = 0;
-  speed = START_SPEED;
-
-  obstacles = [];
-  spawnDistance = 0;
-  nextSpawnDistance = 350;
-
-  player.y = groundY - player.h;
-  player.vy = 0;
-  player.grounded = true;
-
-  if (messageElement) messageElement.textContent = "Corri, Lupetto!";
-
-  updateScoreboard();
-  updatePauseButton();
-
-  if (animationId) cancelAnimationFrame(animationId);
-  animationId = requestAnimationFrame(gameLoop);
-}
-
-function togglePause() {
-  if (!running && !paused) return;
-  paused = !paused;
-  updatePauseButton();
-
-  if (paused) {
-    if (animationId) cancelAnimationFrame(animationId);
-    drawGame();
-  } else {
-    lastTime = 0;
-    animationId = requestAnimationFrame(gameLoop);
-  }
-}
-
-// Eventi pulsanti HTML
-if (startButton) startButton.addEventListener("click", startGame);
-if (jumpButton) jumpButton.addEventListener("click", jump);
-if (pauseButton) pauseButton.addEventListener("click", togglePause);
-
-// Eventi tastiera
-document.addEventListener("keydown", event => {
-  if (!["Space", "ArrowUp", "KeyW"].includes(event.code)) return;
-  event.preventDefault();
-  if (running && !paused) {
-    jump();
-  } else if (!running && !paused) {
-    startGame();
-  }
-});
-
-// Eventi touch / click sul canvas (perfetto per cellulare e PC)
-canvas.addEventListener("click", () => {
-  if (!running && !paused) {
-    startGame();
-  } else if (running && !paused) {
-    jump();
-  }
-});
-
-// ======================================
-// LOOP PRINCIPALE
-// ======================================
-
-function gameLoop(timestamp) {
-  if (!running || paused) return;
-
-  if (!lastTime) lastTime = timestamp;
-  const dt = Math.min((timestamp - lastTime) / 16.667, 2);
-  lastTime = timestamp;
-
-  distance += speed * dt;
-  score = Math.floor(distance / 10);
-  updateScoreboard();
-
-  player.vy += player.gravity * dt;
-  player.y += player.vy * dt;
-
-  if (player.y + player.h >= groundY) {
-    player.y = groundY - player.h;
-    player.vy = 0;
-    player.grounded = true;
-  }
-
-  spawnDistance += speed * dt;
-  if (spawnDistance >= nextSpawnDistance) {
-    createObstacle();
-    spawnDistance = 0;
-    nextSpawnDistance = 300 + Math.random() * 250;
-  }
-
-  for (const o of obstacles) {
-    o.x -= speed * dt;
-    if (collides(player, o)) {
-      endGame();
-      return;
-    }
-  }
-  obstacles = obstacles.filter(o => o.x + o.w > -10);
-
-  drawGame();
-  animationId = requestAnimationFrame(gameLoop);
-}
-
-function drawGame() {
-  drawBackground();
-
-  for (const o of obstacles) {
-    ctx.fillStyle = o.type === "heart" ? "#d72c4d" : "#d7d7dc";
-    ctx.fillRect(o.x, o.y, o.w, o.h);
-  }
-
-  drawWolf();
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 18px Arial";
-  ctx.fillText("METRI: " + score, 18, 32);
-
-  if (!running && !paused && !gameOver) {
-    drawOverlay("LUPO RUNNER", "Tocca o premi INIZIA PARTITA");
-  } else if (paused) {
-    drawOverlay("PAUSA", "Premi RIPRENDI");
-  } else if (gameOver) {
-    drawOverlay("GAME OVER", "Distanza: " + finalScore + " m");
-  }
-}
-
-function drawOverlay(title, subtitle) {
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
-  ctx.fillRect(0, 0, W, H);
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 32px Arial";
-  ctx.fillText(title, W / 2, H / 2 - 15);
-  ctx.font = "16px Arial";
-  ctx.fillStyle = "#ddd";
-  ctx.fillText(subtitle, W / 2, H / 2 + 22);
-  ctx.restore();
-}
-
-function endGame() {
-  running = false;
-  paused = false;
-  gameOver = true;
-  finalScore = score;
-
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
-  }
-
-  if (finalScore > best) {
-    best = finalScore;
-    localStorage.setItem(BEST_KEY, String(best));
-  }
-
-  updateScoreboard();
-  updatePauseButton();
-  drawGame();
-}
-
-async function loadLeaderboard() {
-  if (!leaderboardBody || !leaderboardStatus) return;
-  leaderboardStatus.textContent = "Caricamento classifica...";
-  try {
-    const response = await fetch(LEADERBOARD_API_URL + "?action=top5", { method: "GET", cache: "no-store" });
-    const data = await response.json();
-    leaderboardBody.replaceChildren();
-    
-    (data.scores || []).slice(0, 5).forEach((entry, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${index + 1}</td><td>${entry.nickname || "Lupetto"}</td><td>${entry.score || 0}</td>`;
-      leaderboardBody.appendChild(row);
-    });
-    leaderboardStatus.textContent = "Classifica aggiornata.";
-  } catch (error) {
-    leaderboardStatus.textContent = "Classifica non disponibile.";
-  }
-}
-
-if (submitScoreButton) {
-  submitScoreButton.addEventListener("click", async () => {
-    const nickname = playerNameInput.value.trim();
-    if (!nickname) {
-      leaderboardStatus.textContent = "Inserisci il tuo nickname.";
-      return;
-    }
-    submitScoreButton.disabled = true;
-    leaderboardStatus.textContent = "Invio punteggio...";
-
-    try {
-      await fetch(LEADERBOARD_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ nickname, score: finalScore })
-      });
-      leaderboardStatus.textContent = "Punteggio inviato!";
-      await loadLeaderboard();
-    } catch (error) {
-      leaderboardStatus.textContent = "Invio non riuscito.";
-    } finally {
-      submitScoreButton.disabled = false;
-    }
-  });
-}
-
-if (refreshBoardButton) refreshBoardButton.addEventListener("click", loadLeaderboard);
-
-// ======================================
-// INIZIALIZZAZIONE IMMEDIATA (ANTI SCHERMO NERO)
-// ======================================
-function initDisplay() {
-  drawBackground();
-  drawWolf();
-}
-
-initDisplay();
-loadLeaderboard();
+  ctx.ellipse(x + player.w / 2, groundY + 5, player.grounded ? 25 : 16, 5, 0,
