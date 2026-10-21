@@ -1,379 +1,1956 @@
 "use strict";
 
+/* =========================================================
+   LUPO RUNNER
+   ========================================================= */
+
+/*
+    IMPORTANTE:
+    Dopo aver creato il nuovo Google Apps Script,
+    incolla qui l'URL della Web App.
+
+    Esempio:
+    https://script.google.com/macros/s/XXXXXXXX/exec
+*/
+
+const LEADERBOARD_API_URL =
+    "INCOLLA_QUI_URL_GOOGLE_APPS_SCRIPT";
+
+
+/* =========================================================
+   ELEMENTI HTML
+========================================================= */
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Elementi UI
 const loadingScreen = document.getElementById("loadingScreen");
 const gameArea = document.getElementById("gameArea");
+
 const startButton = document.getElementById("startGame");
 const jumpButton = document.getElementById("jumpGame");
 const pauseButton = document.getElementById("pauseGame");
 const fullscreenButton = document.getElementById("fullscreenBtn");
+const refreshBoardButton = document.getElementById("refreshBoard");
+
 const scoreElement = document.getElementById("score");
 const bestElement = document.getElementById("personalBest");
 const leaderboardBody = document.getElementById("leaderboardBody");
+const leaderboardStatus = document.getElementById("leaderboardStatus");
+const gameMessage = document.getElementById("gameMessage");
 
-// Dimensioni Canvas fisso (proporzione 2:1)
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
 const W = 800;
 const H = 400;
+
+canvas.width = W;
+canvas.height = H;
+
 const groundY = H - 80;
 
+
+/* =========================================================
+   DIFFICOLTÀ
+========================================================= */
+
+/*
+    La velocità aumenta lentamente.
+
+    Non usiamo più:
+        speed = START_SPEED + score / 2000
+
+    perché dopo un po' diventava troppo veloce.
+
+    Ora abbiamo:
+        velocità iniziale
+        aumento graduale
+        limite massimo
+*/
+
 const START_SPEED = 4.5;
+const MAX_SPEED = 8.2;
+
+const SPEED_INCREASE_PER_SCORE = 0.0009;
+
+
+/* =========================================================
+   GIOCATORE
+========================================================= */
+
 const playerConfig = {
+
     x: 70,
+
     w: 90,
     h: 55,
+
     gravity: 0.8,
+
     jumpPower: -14
+
 };
 
-// ======================================
-// GESTIONE ASSET
-// ======================================
+
+/* =========================================================
+   ASSET
+========================================================= */
 
 const imagesToLoad = {
+
     lupoRun1: "modelli/lupo_run1.png",
     lupoRun2: "modelli/lupo_run2.png"
+
 };
 
 const images = {};
-let loadedImagesCount = 0;
-const totalImages = Object.keys(imagesToLoad).length;
 
-function preLoadImages(callbacks) {
-    if (totalImages === 0) return callbacks.onComplete();
+let loadedImagesCount = 0;
+
+const totalImages =
+    Object.keys(imagesToLoad).length;
+
+
+/* =========================================================
+   CARICAMENTO IMMAGINI
+========================================================= */
+
+function preLoadImages(onComplete) {
+
+    if (totalImages === 0) {
+
+        onComplete();
+
+        return;
+    }
 
     for (const [key, src] of Object.entries(imagesToLoad)) {
-        images[key] = new Image();
-        images[key].src = src;
-        
-        images[key].onload = () => {
+
+        const image = new Image();
+
+        images[key] = image;
+
+        image.onload = () => {
+
             loadedImagesCount++;
-            if (loadedImagesCount === totalImages) callbacks.onComplete();
+
+            if (loadedImagesCount >= totalImages) {
+
+                onComplete();
+
+            }
+
         };
 
-        images[key].onerror = () => {
-            console.error("Errore nel caricamento dell'immagine:", src);
+        image.onerror = () => {
+
+            console.error(
+                "Errore caricamento immagine:",
+                src
+            );
+
             loadedImagesCount++;
-            if (loadedImagesCount === totalImages) callbacks.onComplete();
+
+            if (loadedImagesCount >= totalImages) {
+
+                onComplete();
+
+            }
+
         };
+
+        image.src = src;
+
     }
+
 }
 
-window.addEventListener("load", () => {
-    preLoadImages({
-        onComplete: () => {
-            loadingScreen.style.display = "none";
-            gameArea.style.display = "block";
-            initGame();
-            updateLeaderboard();
-            drawGame();
-        }
-    });
-});
 
-// ======================================
-// STATO E CLASSIFICA
-// ======================================
+/* =========================================================
+   STATO DEL GIOCO
+========================================================= */
 
 let running = false;
 let paused = false;
 let gameOver = false;
+
 let animationId = null;
 let lastTime = 0;
 
 let distance = 0;
 let score = 0;
+
 let speed = START_SPEED;
 
 let obstacles = [];
+
 let spawnDistance = 0;
 let nextSpawnDistance = 400;
 
-let best = Number(localStorage.getItem("lupoRunnerBest")) || 0;
+let gameOverSequence = 0;
+
+
+/* =========================================================
+   RECORD PERSONALE
+========================================================= */
+
+let best =
+    Number(localStorage.getItem("lupoRunnerBest")) || 0;
+
 bestElement.textContent = best;
 
-let player = { ...playerConfig, y: groundY - playerConfig.h, vy: 0, grounded: true };
 
-function getLeaderboard() {
+/* =========================================================
+   PLAYER
+========================================================= */
+
+let player = {
+
+    ...playerConfig,
+
+    y: groundY - playerConfig.h,
+
+    vy: 0,
+
+    grounded: true
+
+};
+
+
+/* =========================================================
+   CLASSIFICA LOCALE
+========================================================= */
+
+function getLocalLeaderboard() {
+
     try {
-        return JSON.parse(localStorage.getItem("lupoRunnerLeaderboard")) || [];
-    } catch {
+
+        return JSON.parse(
+            localStorage.getItem(
+                "lupoRunnerLeaderboard"
+            )
+        ) || [];
+
+    } catch (error) {
+
         return [];
+
     }
+
 }
 
-function saveLeaderboardData(lb) {
-    localStorage.setItem("lupoRunnerLeaderboard", JSON.stringify(lb));
+
+function saveLocalLeaderboard(board) {
+
+    localStorage.setItem(
+        "lupoRunnerLeaderboard",
+        JSON.stringify(board)
+    );
+
 }
 
-function updateLeaderboard() {
-    const lb = getLeaderboard();
-    leaderboardBody.innerHTML = "";
-    if (lb.length === 0) {
-        leaderboardBody.innerHTML = `<tr><td colspan="3" style="color:#888;">Nessun record salvato</td></tr>`;
-        return;
-    }
-    lb.forEach((entry, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>#${index + 1}</td><td>${escapeHtml(entry.name)}</td><td>${entry.score}</td>`;
-        leaderboardBody.appendChild(row);
-    });
-}
+
+/* =========================================================
+   CLASSIFICA
+========================================================= */
 
 function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
 }
+
+
+function renderLeaderboard(board) {
+
+    leaderboardBody.innerHTML = "";
+
+    if (!board || board.length === 0) {
+
+        leaderboardBody.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    Nessun record
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    board
+        .slice(0, 5)
+        .forEach((entry, index) => {
+
+            const row =
+                document.createElement("tr");
+
+            row.innerHTML = `
+                <td>#${index + 1}</td>
+                <td>${escapeHtml(entry.name)}</td>
+                <td>${Number(entry.score) || 0}</td>
+            `;
+
+            leaderboardBody.appendChild(row);
+
+        });
+
+}
+
+
+/* =========================================================
+   CLASSIFICA LOCALE
+========================================================= */
+
+function updateLocalLeaderboard() {
+
+    renderLeaderboard(
+        getLocalLeaderboard()
+    );
+
+}
+
+
+/* =========================================================
+   CLASSIFICA ONLINE
+========================================================= */
+
+async function updateLeaderboard() {
+
+    leaderboardStatus.textContent =
+        "Aggiornamento...";
+
+    /*
+        Se l'URL non è stato ancora inserito,
+        usiamo la classifica locale.
+    */
+
+    if (
+        !LEADERBOARD_API_URL ||
+        LEADERBOARD_API_URL.includes(
+            "INCOLLA_QUI"
+        )
+    ) {
+
+        updateLocalLeaderboard();
+
+        leaderboardStatus.textContent =
+            "Classifica locale";
+
+        return;
+
+    }
+
+
+    try {
+
+        const url =
+            LEADERBOARD_API_URL +
+            "?action=leaderboard&limit=5&callback=renderRemoteLeaderboard";
+
+        /*
+            JSONP:
+            evita problemi CORS con Google Apps Script.
+        */
+
+        const oldScript =
+            document.getElementById(
+                "leaderboardJsonp"
+            );
+
+        if (oldScript) {
+
+            oldScript.remove();
+
+        }
+
+        window.renderRemoteLeaderboard =
+            function(data) {
+
+                try {
+
+                    if (
+                        data &&
+                        Array.isArray(data.leaderboard)
+                    ) {
+
+                        renderLeaderboard(
+                            data.leaderboard
+                        );
+
+                        leaderboardStatus.textContent =
+                            "Classifica online";
+
+                    } else {
+
+                        updateLocalLeaderboard();
+
+                        leaderboardStatus.textContent =
+                            "Classifica locale";
+
+                    }
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    updateLocalLeaderboard();
+
+                    leaderboardStatus.textContent =
+                        "Classifica locale";
+
+                }
+
+            };
+
+
+        const script =
+            document.createElement("script");
+
+        script.id =
+            "leaderboardJsonp";
+
+        script.src = url;
+
+        script.onerror = () => {
+
+            updateLocalLeaderboard();
+
+            leaderboardStatus.textContent =
+                "Connessione non riuscita — classifica locale";
+
+        };
+
+        document.body.appendChild(script);
+
+
+        /*
+            Se dopo 7 secondi non arriva risposta,
+            non lasciamo la schermata bloccata.
+        */
+
+        setTimeout(() => {
+
+            if (
+                leaderboardStatus.textContent ===
+                "Aggiornamento..."
+            ) {
+
+                updateLocalLeaderboard();
+
+                leaderboardStatus.textContent =
+                    "Connessione non riuscita — classifica locale";
+
+            }
+
+        }, 7000);
+
+    } catch (error) {
+
+        console.error(
+            "Errore classifica:",
+            error
+        );
+
+        updateLocalLeaderboard();
+
+        leaderboardStatus.textContent =
+            "Classifica locale";
+
+    }
+
+}
+
+
+/* =========================================================
+   INVIO PUNTEGGIO ONLINE
+========================================================= */
+
+async function submitScoreOnline(name, playerScore) {
+
+    const cleanName =
+        String(name || "Lupo")
+            .trim()
+            .substring(0, 15);
+
+    const cleanScore =
+        Math.max(
+            0,
+            Math.floor(Number(playerScore) || 0)
+        );
+
+
+    /*
+        Salvataggio locale sempre presente.
+    */
+
+    const localBoard =
+        getLocalLeaderboard();
+
+    localBoard.push({
+
+        name: cleanName,
+
+        score: cleanScore
+
+    });
+
+    localBoard.sort(
+        (a, b) => b.score - a.score
+    );
+
+    saveLocalLeaderboard(
+        localBoard.slice(0, 5)
+    );
+
+
+    /*
+        Se non c'è URL remoto,
+        abbiamo comunque la classifica locale.
+    */
+
+    if (
+        !LEADERBOARD_API_URL ||
+        LEADERBOARD_API_URL.includes(
+            "INCOLLA_QUI"
+        )
+    ) {
+
+        updateLocalLeaderboard();
+
+        return;
+
+    }
+
+
+    try {
+
+        const params =
+            new URLSearchParams({
+
+                action: "submit",
+
+                name: cleanName,
+
+                score: String(cleanScore)
+
+            });
+
+
+        /*
+            Google Apps Script riceve
+            la richiesta POST.
+
+            no-cors:
+            il browser non ci permette di
+            leggere la risposta, ma il dato
+            viene comunque inviato.
+        */
+
+        await fetch(
+            LEADERBOARD_API_URL,
+            {
+
+                method: "POST",
+
+                mode: "no-cors",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/x-www-form-urlencoded;charset=UTF-8"
+
+                },
+
+                body: params.toString()
+
+            }
+        );
+
+
+        leaderboardStatus.textContent =
+            "Punteggio inviato";
+
+        /*
+            Aggiorniamo dopo poco,
+            dando tempo allo script di salvare.
+        */
+
+        setTimeout(
+            updateLeaderboard,
+            900
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Errore invio punteggio:",
+            error
+        );
+
+        leaderboardStatus.textContent =
+            "Punteggio salvato localmente";
+
+        updateLocalLeaderboard();
+
+    }
+
+}
+
+
+/* =========================================================
+   INIZIALIZZAZIONE
+========================================================= */
 
 function initGame() {
-    running = false; paused = false; gameOver = false;
-    distance = 0; score = 0; speed = START_SPEED;
-    obstacles = []; spawnDistance = 0; nextSpawnDistance = 400;
-    player = { ...playerConfig, y: groundY - playerConfig.h, vy: 0, grounded: true };
-    
+
+    running = false;
+
+    paused = false;
+
+    gameOver = false;
+
+    distance = 0;
+
+    score = 0;
+
+    speed = START_SPEED;
+
+    obstacles = [];
+
+    spawnDistance = 0;
+
+    nextSpawnDistance = 400;
+
+    lastTime = 0;
+
+
+    player = {
+
+        ...playerConfig,
+
+        y: groundY - playerConfig.h,
+
+        vy: 0,
+
+        grounded: true
+
+    };
+
+
     scoreElement.textContent = "0";
+
     jumpButton.disabled = true;
+
     pauseButton.disabled = true;
+
     pauseButton.textContent = "PAUSA";
+
+    startButton.disabled = false;
+
+    startButton.textContent =
+        "INIZIA PARTITA";
+
+    gameMessage.textContent =
+        "Premi INIZIA PARTITA per cominciare";
+
+
+    if (animationId !== null) {
+
+        cancelAnimationFrame(animationId);
+
+        animationId = null;
+
+    }
+
+    drawGame();
+
 }
 
-// ======================================
-// RENDERING
-// ======================================
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
 
 function drawBackground() {
-    const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, "#090b14"); 
-    sky.addColorStop(1, "#201b2b");
-    ctx.fillStyle = sky; 
-    ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = "#e9e3d6"; 
-    ctx.beginPath(); 
-    ctx.arc(320, 95, 26, 0, Math.PI * 2); 
+    const sky =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            H
+        );
+
+    sky.addColorStop(
+        0,
+        "#090b14"
+    );
+
+    sky.addColorStop(
+        1,
+        "#201b2b"
+    );
+
+    ctx.fillStyle = sky;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+        Luna
+    */
+
+    ctx.fillStyle = "#e9e3d6";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        320,
+        95,
+        26,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
 
-    ctx.fillStyle = "#101014"; 
-    ctx.fillRect(0, groundY, W, H - groundY);
-    ctx.fillStyle = "#168b87"; 
-    ctx.fillRect(0, groundY, W, 4);
+
+    /*
+        Terreno
+    */
+
+    ctx.fillStyle = "#101014";
+
+    ctx.fillRect(
+        0,
+        groundY,
+        W,
+        H - groundY
+    );
+
+
+    ctx.fillStyle = "#168b87";
+
+    ctx.fillRect(
+        0,
+        groundY,
+        W,
+        4
+    );
+
 }
+
+
+/* =========================================================
+   LUPO
+========================================================= */
 
 function drawWolf() {
+
     ctx.save();
-    
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
+
+
+    /*
+        Ombra
+    */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,0.3)";
+
     ctx.beginPath();
-    ctx.ellipse(player.x + player.w/2, groundY + 5, player.grounded ? 30 : 18, 6, 0, 0, Math.PI*2);
+
+    ctx.ellipse(
+        player.x + player.w / 2,
+        groundY + 5,
+        player.grounded ? 30 : 18,
+        6,
+        0,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
 
-    let imgToDraw;
+
+    let imageToDraw;
+
+
     if (!player.grounded) {
-        imgToDraw = images.lupoRun1;
+
+        imageToDraw =
+            images.lupoRun1;
+
     } else {
-        const frame = Math.floor(distance / 20) % 2;
-        imgToDraw = frame === 0 ? images.lupoRun1 : images.lupoRun2;
+
+        const frame =
+            Math.floor(distance / 20) % 2;
+
+        imageToDraw =
+            frame === 0
+                ? images.lupoRun1
+                : images.lupoRun2;
+
     }
 
-    if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth !== 0) {
-        ctx.drawImage(imgToDraw, player.x, player.y, player.w, player.h);
+
+    if (
+        imageToDraw &&
+        imageToDraw.complete &&
+        imageToDraw.naturalWidth > 0
+    ) {
+
+        ctx.drawImage(
+            imageToDraw,
+            player.x,
+            player.y,
+            player.w,
+            player.h
+        );
+
     } else {
+
+        /*
+            Fallback se l'immagine
+            non viene caricata.
+        */
+
         ctx.fillStyle = "#168b87";
-        ctx.fillRect(player.x, player.y, player.w, player.h);
+
+        ctx.fillRect(
+            player.x,
+            player.y,
+            player.w,
+            player.h
+        );
+
     }
+
 
     ctx.restore();
+
 }
+
+
+/* =========================================================
+   OSTACOLI
+========================================================= */
 
 function drawObstacles() {
-    for (const o of obstacles) {
+
+    for (const obstacle of obstacles) {
+
         ctx.fillStyle = "#d72c4d";
-        ctx.fillRect(o.x, o.y, o.w, o.h);
+
+        ctx.fillRect(
+            obstacle.x,
+            obstacle.y,
+            obstacle.w,
+            obstacle.h
+        );
+
+
+        /*
+            Piccolo dettaglio visivo
+        */
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.15)";
+
+        ctx.fillRect(
+            obstacle.x + 5,
+            obstacle.y + 5,
+            obstacle.w - 10,
+            4
+        );
+
     }
+
 }
 
-function drawGame() {
-    ctx.clearRect(0, 0, W, H);
-    drawBackground();
-    drawObstacles();
-    drawWolf();
 
-    if (!running && !gameOver) {
-        drawOverlay("LUPO RUNNER", "Corri lupo e schiva gli ostacoli! Tocca o premi INIZIA");
-    } else if (paused) {
-        drawOverlay("PAUSA", "Premi RIPRENDI per continuare");
-    } else if (gameOver) {
-        drawOverlay("GAME OVER", "Punteggio: " + score);
-    }
-}
+/* =========================================================
+   OVERLAY
+========================================================= */
 
 function drawOverlay(title, subtitle) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-    ctx.fillRect(0, 0, W, H);
-    ctx.textAlign = "center"; 
+
+    ctx.fillStyle =
+        "rgba(0,0,0,0.72)";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    ctx.textAlign = "center";
+
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 32px sans-serif"; 
-    ctx.fillText(title, W / 2, H / 2 - 15);
-    ctx.font = "16px sans-serif"; 
-    ctx.fillStyle = "#ccc"; 
-    ctx.fillText(subtitle, W / 2, H / 2 + 25);
+
+    ctx.font =
+        "bold 32px sans-serif";
+
+    ctx.fillText(
+        title,
+        W / 2,
+        H / 2 - 18
+    );
+
+
+    ctx.font =
+        "16px sans-serif";
+
+    ctx.fillStyle = "#ccc";
+
+    ctx.fillText(
+        subtitle,
+        W / 2,
+        H / 2 + 25
+    );
+
 }
 
-// ======================================
-// LOGICA
-// ======================================
+
+/* =========================================================
+   DISEGNO COMPLETO
+========================================================= */
+
+function drawGame() {
+
+    ctx.clearRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    drawBackground();
+
+    drawObstacles();
+
+    drawWolf();
+
+
+    if (!running && !gameOver) {
+
+        drawOverlay(
+            "LUPO RUNNER",
+            "Corri e schiva gli ostacoli!"
+        );
+
+    } else if (paused) {
+
+        drawOverlay(
+            "PAUSA",
+            "Premi RIPRENDI per continuare"
+        );
+
+    } else if (gameOver) {
+
+        drawOverlay(
+            "GAME OVER",
+            "Punteggio: " + score
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   OSTACOLO
+========================================================= */
 
 function createObstacle() {
+
     const size = 35;
-    obstacles.push({ x: W + 50, y: groundY - size, w: size, h: size });
+
+    obstacles.push({
+
+        x: W + 50,
+
+        y: groundY - size,
+
+        w: size,
+
+        h: size
+
+    });
+
 }
+
+
+/* =========================================================
+   COLLISIONE
+========================================================= */
 
 function collides(a, b) {
-    const padding = 8;
-    return a.x + padding < b.x + b.w &&
-           a.x + a.w - padding > b.x &&
-           a.y + padding < b.y + b.h &&
-           a.y + a.h - padding > b.y;
+
+    /*
+        Hitbox leggermente ridotta
+        per evitare collisioni ingiuste.
+    */
+
+    const horizontalPadding = 10;
+    const verticalPadding = 7;
+
+    return (
+
+        a.x + horizontalPadding <
+        b.x + b.w
+
+        &&
+
+        a.x + a.w - horizontalPadding >
+        b.x
+
+        &&
+
+        a.y + verticalPadding <
+        b.y + b.h
+
+        &&
+
+        a.y + a.h - verticalPadding >
+        b.y
+
+    );
+
 }
+
+
+/* =========================================================
+   DIFFICOLTÀ
+========================================================= */
+
+function calculateSpeed() {
+
+    const calculated =
+        START_SPEED +
+        score * SPEED_INCREASE_PER_SCORE;
+
+    return Math.min(
+        calculated,
+        MAX_SPEED
+    );
+
+}
+
+
+function calculateNextSpawn() {
+
+    /*
+        All'inizio gli ostacoli sono
+        più distanziati.
+
+        Con l'aumento del punteggio
+        la distanza diminuisce lentamente.
+
+        MAI sotto una soglia minima.
+    */
+
+    const difficulty =
+        Math.min(
+            score / 1000,
+            1
+        );
+
+
+    const minimum =
+        330 - (difficulty * 55);
+
+    const maximum =
+        500 - (difficulty * 70);
+
+
+    return (
+        minimum +
+        Math.random() *
+        (maximum - minimum)
+    );
+
+}
+
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
 
 function gameLoop(timestamp) {
-    if (!running || paused) return;
 
-    if (!lastTime) lastTime = timestamp;
-    const dt = Math.min((timestamp - lastTime) / 16.667, 2);
+    if (!running || paused) {
+
+        return;
+
+    }
+
+
+    if (!lastTime) {
+
+        lastTime = timestamp;
+
+    }
+
+
+    const dt =
+        Math.min(
+            (timestamp - lastTime) / 16.667,
+            2
+        );
+
+
     lastTime = timestamp;
 
-    speed = START_SPEED + (score / 2000);
-    distance += speed * dt;
-    score = Math.floor(distance / 10);
-    scoreElement.textContent = score;
 
-    player.vy += player.gravity * dt;
-    player.y += player.vy * dt;
+    /*
+        Difficoltà
+    */
 
-    if (player.y + player.h >= groundY) {
-        player.y = groundY - player.h;
+    speed =
+        calculateSpeed();
+
+
+    distance +=
+        speed * dt;
+
+
+    score =
+        Math.floor(
+            distance / 10
+        );
+
+
+    scoreElement.textContent =
+        score;
+
+
+    /*
+        Gravità
+    */
+
+    player.vy +=
+        player.gravity * dt;
+
+    player.y +=
+        player.vy * dt;
+
+
+    /*
+        Terreno
+    */
+
+    if (
+        player.y + player.h >=
+        groundY
+    ) {
+
+        player.y =
+            groundY - player.h;
+
         player.vy = 0;
+
         player.grounded = true;
+
     }
 
-    spawnDistance += speed * dt;
-    if (spawnDistance >= nextSpawnDistance) {
+
+    /*
+        Generazione ostacoli
+    */
+
+    spawnDistance +=
+        speed * dt;
+
+
+    if (
+        spawnDistance >=
+        nextSpawnDistance
+    ) {
+
         createObstacle();
+
         spawnDistance = 0;
-        nextSpawnDistance = 280 + Math.random() * 220;
+
+        nextSpawnDistance =
+            calculateNextSpawn();
+
     }
 
-    for (let i = obstacles.length - 1; i >= 0; i--) {
-        obstacles[i].x -= speed * dt;
-        if (collides(player, obstacles[i])) {
+
+    /*
+        Movimento ostacoli
+    */
+
+    for (
+        let i = obstacles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const obstacle =
+            obstacles[i];
+
+
+        obstacle.x -=
+            speed * dt;
+
+
+        /*
+            Collisione
+        */
+
+        if (
+            collides(
+                player,
+                obstacle
+            )
+        ) {
+
             endGame();
+
             return;
+
         }
-        if (obstacles[i].x + obstacles[i].w < -50) {
-            obstacles.splice(i, 1);
+
+
+        /*
+            Rimozione
+        */
+
+        if (
+            obstacle.x +
+            obstacle.w <
+            -50
+        ) {
+
+            obstacles.splice(
+                i,
+                1
+            );
+
         }
+
     }
+
 
     drawGame();
-    animationId = requestAnimationFrame(gameLoop);
+
+
+    animationId =
+        requestAnimationFrame(
+            gameLoop
+        );
+
 }
 
-// ======================================
-// CONTROLLI E TOGGLE SCHERMO
-// ======================================
+
+/* =========================================================
+   SALTO
+========================================================= */
 
 function jump() {
-    if (running && !paused && player.grounded) {
-        player.vy = player.jumpPower;
-        player.grounded = false;
+
+    if (
+        running &&
+        !paused &&
+        player.grounded
+    ) {
+
+        player.vy =
+            player.jumpPower;
+
+        player.grounded =
+            false;
+
     }
+
 }
+
+
+/* =========================================================
+   START
+========================================================= */
 
 function startGame() {
-    if (running) return;
+
+    /*
+        Impedisce doppio click
+        mentre la partita è già attiva.
+    */
+
+    if (running) {
+
+        return;
+
+    }
+
+
+    /*
+        Cancella eventuale frame precedente.
+    */
+
+    if (animationId !== null) {
+
+        cancelAnimationFrame(
+            animationId
+        );
+
+        animationId = null;
+
+    }
+
+
     initGame();
+
+
     running = true;
+
+    paused = false;
+
+    gameOver = false;
+
+
     jumpButton.disabled = false;
+
     pauseButton.disabled = false;
+
+    startButton.disabled = false;
+
+    startButton.textContent =
+        "RIAVVIA";
+
+
+    gameMessage.textContent =
+        "Salta gli ostacoli!";
+
+
     lastTime = 0;
-    animationId = requestAnimationFrame(gameLoop);
+
+
+    animationId =
+        requestAnimationFrame(
+            gameLoop
+        );
+
 }
+
+
+/* =========================================================
+   PAUSA
+========================================================= */
 
 function togglePause() {
-    if (!running && !gameOver) return;
-    paused = !paused;
-    pauseButton.textContent = paused ? "RIPRENDI" : "PAUSA";
-    if (!paused) {
-        lastTime = 0;
-        animationId = requestAnimationFrame(gameLoop);
-    } else {
-        drawGame();
+
+    if (!running) {
+
+        return;
+
     }
+
+
+    paused =
+        !paused;
+
+
+    if (paused) {
+
+        pauseButton.textContent =
+            "RIPRENDI";
+
+        gameMessage.textContent =
+            "Partita in pausa";
+
+        drawGame();
+
+        return;
+
+    }
+
+
+    pauseButton.textContent =
+        "PAUSA";
+
+    gameMessage.textContent =
+        "Continua!";
+
+
+    lastTime = 0;
+
+
+    animationId =
+        requestAnimationFrame(
+            gameLoop
+        );
+
 }
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
 
 function endGame() {
+
+    /*
+        Evita chiamate duplicate.
+    */
+
+    if (gameOver) {
+
+        return;
+
+    }
+
+
     running = false;
+
+    paused = false;
+
     gameOver = true;
+
+
     jumpButton.disabled = true;
+
     pauseButton.disabled = true;
 
-    if (score > best) {
-        best = score;
-        localStorage.setItem("lupoRunnerBest", best);
-        bestElement.textContent = best;
+
+    if (animationId !== null) {
+
+        cancelAnimationFrame(
+            animationId
+        );
+
+        animationId = null;
+
     }
 
-    if (animationId) cancelAnimationFrame(animationId);
+
+    /*
+        Record personale
+    */
+
+    if (score > best) {
+
+        best = score;
+
+        localStorage.setItem(
+            "lupoRunnerBest",
+            String(best)
+        );
+
+        bestElement.textContent =
+            best;
+
+    }
+
+
+    startButton.disabled = false;
+
+    startButton.textContent =
+        "GIOCA ANCORA";
+
+
+    gameMessage.textContent =
+        "Game Over — premi GIOCA ANCORA";
+
+
     drawGame();
 
+
+    /*
+        Sequenza separata per evitare
+        vecchi prompt sovrapposti.
+    */
+
+    gameOverSequence++;
+
+    const currentSequence =
+        gameOverSequence;
+
+
     setTimeout(() => {
-        let playerName = prompt("Game Over! Hai ottenuto " + score + " punti.\nInserisci il tuo nome:", "Lupo");
-        if (playerName && playerName.trim() !== "") {
-            let lb = getLeaderboard();
-            lb.push({ name: playerName.trim().substring(0, 15), score: score });
-            lb.sort((a, b) => b.score - a.score);
-            lb = lb.slice(0, 5);
-            saveLeaderboardData(lb);
-            updateLeaderboard();
+
+        if (
+            currentSequence !==
+            gameOverSequence
+        ) {
+
+            return;
+
         }
-    }, 200);
+
+
+        const playerName =
+            prompt(
+                "Game Over!\n\nHai ottenuto " +
+                score +
+                " punti.\n\nInserisci il tuo nome:",
+                "Lupo"
+            );
+
+
+        if (
+            playerName &&
+            playerName.trim() !== ""
+        ) {
+
+            submitScoreOnline(
+                playerName.trim(),
+                score
+            );
+
+        }
+
+    }, 250);
+
 }
 
-// Nuova gestione Espandi/Riduci (Funziona ovunque, compreso iOS)
-function toggleFullscreenMode() {
-    gameArea.classList.toggle("fullscreen-mode");
-    if (gameArea.classList.contains("fullscreen-mode")) {
-        fullscreenButton.textContent = "RIDUCI GIOCO";
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+function isFullscreen() {
+
+    return (
+        document.fullscreenElement === gameArea ||
+        document.webkitFullscreenElement === gameArea ||
+        gameArea.classList.contains(
+            "fullscreen-mode"
+        )
+    );
+
+}
+
+
+async function enterFullscreen() {
+
+    /*
+        Fullscreen API moderna
+    */
+
+    try {
+
+        if (
+            gameArea.requestFullscreen
+        ) {
+
+            await gameArea.requestFullscreen();
+
+            return;
+
+        }
+
+
+        /*
+            Safari / WebKit
+        */
+
+        if (
+            gameArea.webkitRequestFullscreen
+        ) {
+
+            gameArea.webkitRequestFullscreen();
+
+            return;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Fullscreen API non disponibile:",
+            error
+        );
+
+    }
+
+
+    /*
+        Fallback.
+    */
+
+    gameArea.classList.add(
+        "fullscreen-mode"
+    );
+
+    fullscreenButton.textContent =
+        "RIDUCI GIOCO";
+
+
+    setTimeout(
+        resizeCanvasVisual,
+        50
+    );
+
+}
+
+
+async function exitFullscreen() {
+
+    try {
+
+        if (
+            document.exitFullscreen &&
+            document.fullscreenElement
+        ) {
+
+            await document.exitFullscreen();
+
+            return;
+
+        }
+
+
+        if (
+            document.webkitExitFullscreen &&
+            document.webkitFullscreenElement
+        ) {
+
+            document.webkitExitFullscreen();
+
+            return;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Errore uscita fullscreen:",
+            error
+        );
+
+    }
+
+
+    gameArea.classList.remove(
+        "fullscreen-mode"
+    );
+
+    fullscreenButton.textContent =
+        "ESPANDI GIOCO";
+
+
+    setTimeout(
+        resizeCanvasVisual,
+        50
+    );
+
+}
+
+
+async function toggleFullscreenMode() {
+
+    if (isFullscreen()) {
+
+        await exitFullscreen();
+
     } else {
-        fullscreenButton.textContent = "ESPANDI GIOCO";
+
+        await enterFullscreen();
+
     }
+
 }
 
-startButton.addEventListener("click", startGame);
-jumpButton.addEventListener("click", jump);
-pauseButton.addEventListener("click", togglePause);
-fullscreenButton.addEventListener("click", toggleFullscreenMode);
 
-// Controlli Tastiera
-document.addEventListener("keydown", (e) => {
-    if (e.code === "Space" || e.code === "ArrowUp") {
-        e.preventDefault();
-        if (!running && !gameOver && loadingScreen.style.display === "none") startGame();
-        else jump();
+/* =========================================================
+   EVENTI FULLSCREEN
+========================================================= */
+
+function updateFullscreenButton() {
+
+    const active =
+        document.fullscreenElement === gameArea ||
+        document.webkitFullscreenElement === gameArea;
+
+
+    if (active) {
+
+        gameArea.classList.remove(
+            "fullscreen-mode"
+        );
+
+        fullscreenButton.textContent =
+            "RIDUCI GIOCO";
+
+    } else if (
+        gameArea.classList.contains(
+            "fullscreen-mode"
+        )
+    ) {
+
+        fullscreenButton.textContent =
+            "RIDUCI GIOCO";
+
+    } else {
+
+        fullscreenButton.textContent =
+            "ESPANDI GIOCO";
+
     }
-    if (e.code === "KeyP") togglePause();
-});
 
-// Touch / Click su Canvas
-canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    if (!running && !gameOver && loadingScreen.style.display === "none") startGame();
-    else jump();
-}, { passive: false });
 
-canvas.addEventListener("mousedown", () => {
-    if (!running && !gameOver && loadingScreen.style.display === "none") startGame();
-    else jump();
-});
+    setTimeout(
+        resizeCanvasVisual,
+        50
+    );
+
+}
+
+
+document.addEventListener(
+    "fullscreenchange",
+    updateFullscreenButton
+);
+
+
+document.addEventListener(
+    "webkitfullscreenchange",
+    updateFullscreenButton
+);
+
+
+/* =========================================================
+   RIDIMENSIONAMENTO
+========================================================= */
+
+function resizeCanvasVisual() {
+
+    /*
+        Il canvas mantiene sempre
+        la proporzione 2:1.
+
+        Non tocchiamo la risoluzione
+        interna 800x400.
+    */
+
+    drawGame();
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeCanvasVisual
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            resizeCanvasVisual,
+            100
+        );
+
+    }
+);
+
+
+/* =========================================================
+   EVENTI PULSANTI
+========================================================= */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+jumpButton.addEventListener(
+    "click",
+    jump
+);
+
+
+pauseButton.addEventListener(
+    "click",
+    togglePause
+);
+
+
+fullscreenButton.addEventListener(
+    "click",
+    toggleFullscreenMode
+);
+
+
+refreshBoardButton.addEventListener(
+    "click",
+    updateLeaderboard
+);
+
+
+/* =========================================================
+   TASTIERA
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        /*
+            Spazio / Freccia su
+        */
+
+        if (
+            event.code === "Space" ||
+            event.code === "ArrowUp"
+        ) {
+
+            event.preventDefault();
+
+
+            if (
+                !running &&
+                !gameOver
+            ) {
+
+                startGame();
+
+            } else if (
+                gameOver
+            ) {
+
+                startGame();
+
+            } else {
+
+                jump();
+
+            }
+
+        }
+
+
+        /*
+            P = pausa
+        */
+
+        if (
+            event.code === "KeyP"
+        ) {
+
+            event.preventDefault();
+
+            togglePause();
+
+        }
+
+
+        /*
+            F = fullscreen
+        */
+
+        if (
+            event.code === "KeyF"
+        ) {
+
+            event.preventDefault();
+
+            toggleFullscreenMode();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   TOUCH / CLICK CANVAS
+========================================================= */
+
+canvas.addEventListener(
+    "touchstart",
+    (event) => {
+
+        event.preventDefault();
+
+
+        if (!running) {
+
+            startGame();
+
+        } else {
+
+            jump();
+
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "mousedown",
+    (event) => {
+
+        /*
+            Evita che il click
+            sul canvas durante una partita
+            faccia partire un secondo gioco.
+        */
+
+        if (!running) {
+
+            startGame();
+
+        } else {
+
+            jump();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   AVVIO PAGINA
+========================================================= */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        preLoadImages(() => {
+
+            loadingScreen.style.display =
+                "none";
+
+            gameArea.classList.add(
+                "visible"
+            );
+
+
+            initGame();
+
+
+            updateLeaderboard();
+
+        });
+
+    }
+);
