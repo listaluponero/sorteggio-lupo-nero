@@ -14,9 +14,9 @@ const scoreElement = document.getElementById("score");
 const bestElement = document.getElementById("personalBest");
 const leaderboardBody = document.getElementById("leaderboardBody");
 
-// Dimensioni e parametri
-const W = canvas.width;
-const H = canvas.height;
+// Dimensioni Canvas fisso (proporzione 2:1)
+const W = 800;
+const H = 400;
 const groundY = H - 80;
 
 const START_SPEED = 4.5;
@@ -29,7 +29,7 @@ const playerConfig = {
 };
 
 // ======================================
-// GESTIONE ASSET (CARTELLA modelli)
+// GESTIONE ASSET
 // ======================================
 
 const imagesToLoad = {
@@ -42,10 +42,7 @@ let loadedImagesCount = 0;
 const totalImages = Object.keys(imagesToLoad).length;
 
 function preLoadImages(callbacks) {
-    if (totalImages === 0) {
-        callbacks.onComplete();
-        return;
-    }
+    if (totalImages === 0) return callbacks.onComplete();
 
     for (const [key, src] of Object.entries(imagesToLoad)) {
         images[key] = new Image();
@@ -57,7 +54,7 @@ function preLoadImages(callbacks) {
         };
 
         images[key].onerror = () => {
-            console.error("Errore caricamento file:", src);
+            console.error("Errore nel caricamento dell'immagine:", src);
             loadedImagesCount++;
             if (loadedImagesCount === totalImages) callbacks.onComplete();
         };
@@ -77,7 +74,7 @@ window.addEventListener("load", () => {
 });
 
 // ======================================
-// STATO DI GIOCO E CLASSIFICA
+// STATO E CLASSIFICA
 // ======================================
 
 let running = false;
@@ -142,7 +139,7 @@ function initGame() {
 }
 
 // ======================================
-// RENDERING E ANIMAZIONE
+// RENDERING
 // ======================================
 
 function drawBackground() {
@@ -166,7 +163,6 @@ function drawBackground() {
 function drawWolf() {
     ctx.save();
     
-    // Ombra
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.beginPath();
     ctx.ellipse(player.x + player.w/2, groundY + 5, player.grounded ? 30 : 18, 6, 0, 0, Math.PI*2);
@@ -204,11 +200,11 @@ function drawGame() {
     drawWolf();
 
     if (!running && !gameOver) {
-        drawOverlay("LUPO RUNNER", "Corri lupo e schiva gli ostacoli! Premi SPAZIO o INIZIA");
+        drawOverlay("LUPO RUNNER", "Corri lupo e schiva gli ostacoli! Tocca o premi INIZIA");
     } else if (paused) {
         drawOverlay("PAUSA", "Premi RIPRENDI per continuare");
     } else if (gameOver) {
-        drawOverlay("GAME OVER", "Punteggio: " + score + " - Inserisci il nome sotto");
+        drawOverlay("GAME OVER", "Punteggio: " + score);
     }
 }
 
@@ -217,15 +213,15 @@ function drawOverlay(title, subtitle) {
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = "center"; 
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 34px sans-serif"; 
+    ctx.font = "bold 32px sans-serif"; 
     ctx.fillText(title, W / 2, H / 2 - 15);
-    ctx.font = "17px sans-serif"; 
+    ctx.font = "16px sans-serif"; 
     ctx.fillStyle = "#ccc"; 
     ctx.fillText(subtitle, W / 2, H / 2 + 25);
 }
 
 // ======================================
-// LOGICA DI GIOCO
+// LOGICA
 // ======================================
 
 function createObstacle() {
@@ -285,7 +281,7 @@ function gameLoop(timestamp) {
 }
 
 // ======================================
-// GESTIONE EVENTI E CLASSIFICA FINALE
+// CONTROLLI E TOGGLE SCHERMO
 // ======================================
 
 function jump() {
@@ -332,36 +328,35 @@ function endGame() {
     if (animationId) cancelAnimationFrame(animationId);
     drawGame();
 
-    // Prompt per inserire il nome in classifica
     setTimeout(() => {
-        let playerName = prompt("Game Over! Hai totalizzato " + score + " punti.\nInserisci il tuo nome per la classifica:", "Lupo Gamer");
+        let playerName = prompt("Game Over! Hai ottenuto " + score + " punti.\nInserisci il tuo nome:", "Lupo");
         if (playerName && playerName.trim() !== "") {
             let lb = getLeaderboard();
             lb.push({ name: playerName.trim().substring(0, 15), score: score });
             lb.sort((a, b) => b.score - a.score);
-            lb = lb.slice(0, 5); // Mantieni solo i primi 5
+            lb = lb.slice(0, 5);
             saveLeaderboardData(lb);
             updateLeaderboard();
         }
     }, 200);
 }
 
-// Schermo intero
-function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        gameArea.requestFullscreen().catch(err => {
-            alert("Errore schermo intero: " + err.message);
-        });
+// Nuova gestione Espandi/Riduci (Funziona ovunque, compreso iOS)
+function toggleFullscreenMode() {
+    gameArea.classList.toggle("fullscreen-mode");
+    if (gameArea.classList.contains("fullscreen-mode")) {
+        fullscreenButton.textContent = "RIDUCI GIOCO";
     } else {
-        document.exitFullscreen();
+        fullscreenButton.textContent = "ESPANDI GIOCO";
     }
 }
 
 startButton.addEventListener("click", startGame);
 jumpButton.addEventListener("click", jump);
 pauseButton.addEventListener("click", togglePause);
-fullscreenButton.addEventListener("click", toggleFullScreen);
+fullscreenButton.addEventListener("click", toggleFullscreenMode);
 
+// Controlli Tastiera
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "ArrowUp") {
         e.preventDefault();
@@ -371,7 +366,14 @@ document.addEventListener("keydown", (e) => {
     if (e.code === "KeyP") togglePause();
 });
 
-canvas.addEventListener("click", () => {
+// Touch / Click su Canvas
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (!running && !gameOver && loadingScreen.style.display === "none") startGame();
+    else jump();
+}, { passive: false });
+
+canvas.addEventListener("mousedown", () => {
     if (!running && !gameOver && loadingScreen.style.display === "none") startGame();
     else jump();
 });
