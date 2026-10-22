@@ -4,6 +4,7 @@
 /* =========================================================
    LUPO RUNNER — LISTA LUPO NERO
    Avvio, salto, pausa, fullscreen, ostacoli, record e classifica.
+   Aggiornamento: angeli con discesa permanente e hitbox ridotte.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -197,13 +198,11 @@ const player = {
 
     ctx.save();
 
-    // Ombra
     ctx.fillStyle = "#0008";
     ctx.beginPath();
     ctx.ellipse(x + 47, GROUND + 3, 47, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Coda
     ctx.strokeStyle = "#7f888f";
     ctx.lineWidth = 10;
     ctx.lineCap = "round";
@@ -212,7 +211,6 @@ const player = {
     ctx.quadraticCurveTo(x - 3, y + 17, x + 1, y + 6);
     ctx.stroke();
 
-    // Zampe
     ctx.strokeStyle = "#5a6268";
     ctx.lineWidth = 9;
     ctx.beginPath();
@@ -222,11 +220,9 @@ const player = {
     ctx.lineTo(x + 64 - swing, y + 62);
     ctx.stroke();
 
-    // Corpo
     roundedRect(x + 13, y + 27, 61, 30, 12, "#7f888f");
     roundedRect(x + 30, y + 32, 37, 23, 7, "#005b66");
 
-    // Testa e orecchie
     ctx.fillStyle = "#7f888f";
     ctx.beginPath();
     ctx.ellipse(x + 68, y + 22, 21, 19, 0.1, 0, Math.PI * 2);
@@ -244,19 +240,16 @@ const player = {
     ctx.lineTo(x + 84, y + 17);
     ctx.fill();
 
-    // Muso
     ctx.fillStyle = "#a6aeb3";
     ctx.beginPath();
     ctx.ellipse(x + 82, y + 29, 15, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Occhio
     ctx.fillStyle = "#151719";
     ctx.beginPath();
     ctx.arc(x + 75, y + 18, 2.8, 0, Math.PI * 2);
     ctx.fill();
 
-    // Naso
     ctx.fillStyle = "#3a2a22";
     ctx.beginPath();
     ctx.arc(x + 95, y + 27, 4, 0, Math.PI * 2);
@@ -276,7 +269,6 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // Luna
   ctx.fillStyle = "#dce7df";
   ctx.globalAlpha = 0.8;
   ctx.beginPath();
@@ -284,7 +276,6 @@ function drawBackground() {
   ctx.fill();
   ctx.globalAlpha = 1;
 
-  // Stelle
   for (let i = 0; i < 28; i++) {
     const x = (i * 137 + 37) % W;
     const y = (i * 43 + 19) % 150;
@@ -294,7 +285,6 @@ function drawBackground() {
   }
   ctx.globalAlpha = 1;
 
-  // Sagome di alberi
   const offset = (worldTime * speed * 0.18) % 110;
   for (let x = -110; x < W + 110; x += 110) {
     const px = x - offset;
@@ -312,7 +302,6 @@ function drawBackground() {
     ctx.fill();
   }
 
-  // Terreno
   ctx.fillStyle = "#111a19";
   ctx.fillRect(0, GROUND, W, H - GROUND);
 
@@ -323,7 +312,6 @@ function drawBackground() {
   ctx.lineTo(W, GROUND);
   ctx.stroke();
 
-  // Trattini in movimento
   ctx.strokeStyle = "#34514d";
   ctx.lineWidth = 2;
   const groundOffset = (worldTime * speed) % 52;
@@ -358,7 +346,12 @@ function makeObstacle(type) {
     obstacle.w = 55;
     obstacle.h = 65;
     obstacle.y = GROUND - 105;
+
+    // Circa il 38% degli angeli effettua una discesa.
     obstacle.dips = Math.random() < 0.38;
+    obstacle.dipStarted = false;
+    obstacle.dipY = 0;
+    obstacle.dipSpeed = random(0.45, 0.75);
   } else if (type === "crate") {
     obstacle.w = 43;
     obstacle.h = 46;
@@ -382,6 +375,44 @@ function spawnObstacle() {
   const pool = ["snake", "crate", "heart", "sheep", "angel"];
   const type = pool[Math.floor(Math.random() * pool.length)];
   obstacles.push(makeObstacle(type));
+}
+
+/*
+  POSIZIONE DELL'ANGELO
+
+  Prima della discesa l'angelo oscilla leggermente.
+  Quando inizia a scendere, il movimento è solo verso il basso.
+  Una volta raggiunta la posizione finale, rimane lì.
+*/
+function getAngelY(o) {
+  if (o.dips && o.dipStarted) {
+    return o.y + o.dipY;
+  }
+
+  return o.y + Math.sin(worldTime * 0.045 + o.phase) * 7;
+}
+
+function updateAngel(o, factor) {
+  if (!o.dips) return;
+
+  // Inizia la discesa quando si avvicina al lupo.
+  if (!o.dipStarted && o.x < W * 0.72) {
+    o.dipStarted = true;
+
+    // Evita un salto improvviso nella posizione iniziale.
+    o.dipY = Math.max(
+      0,
+      Math.sin(worldTime * 0.045 + o.phase) * 7
+    );
+  }
+
+  if (o.dipStarted) {
+    // dipY aumenta soltanto: non può più diminuire.
+    o.dipY = Math.min(
+      43,
+      o.dipY + o.dipSpeed * factor
+    );
+  }
 }
 
 function drawSnake(o) {
@@ -465,10 +496,12 @@ function drawSheep(o) {
   ctx.fillStyle = "#5a6268";
   roundedRect(o.x + 11, o.y + 34, 6, 13, 2, "#5a6268");
   roundedRect(o.x + 35, o.y + 34, 6, 13, 2, "#5a6268");
+
   ctx.fillStyle = "#c5c5c5";
   ctx.beginPath();
   ctx.ellipse(o.x + 44, o.y + 21, 10, 11, 0, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.fillStyle = "#191919";
   ctx.beginPath();
   ctx.arc(o.x + 47, o.y + 18, 2, 0, Math.PI * 2);
@@ -477,10 +510,7 @@ function drawSheep(o) {
 }
 
 function drawAngel(o) {
-  const dip = o.dips
-    ? Math.max(0, Math.sin(worldTime * 0.055 + o.phase)) * 43
-    : 0;
-  const y = o.y + Math.sin(worldTime * 0.045 + o.phase) * 7 + dip;
+  const y = getAngelY(o);
 
   if (imageReady(images.angel)) {
     ctx.drawImage(images.angel, o.x, y, o.w, o.h);
@@ -492,21 +522,18 @@ function drawAngel(o) {
   ctx.strokeStyle = "#c5d3d1";
   ctx.lineWidth = 3;
 
-  // Ali
   ctx.beginPath();
   ctx.ellipse(o.x + 12, y + 27, 15, 8, -0.6, 0, Math.PI * 2);
   ctx.ellipse(o.x + 43, y + 27, 15, 8, 0.6, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  // Aureola
   ctx.strokeStyle = "#e6c96b";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.ellipse(o.x + 28, y + 5, 12, 4, 0, 0, Math.PI * 2);
   ctx.stroke();
 
-  // Corpo
   ctx.fillStyle = "#f2f0e8";
   ctx.beginPath();
   ctx.ellipse(o.x + 28, y + 32, 11, 19, 0, 0, Math.PI * 2);
@@ -515,6 +542,7 @@ function drawAngel(o) {
   ctx.beginPath();
   ctx.arc(o.x + 28, y + 16, 10, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.restore();
 }
 
@@ -569,11 +597,12 @@ function drawProjectiles() {
 /* COLLISIONI */
 
 function playerHitbox() {
+  // Hitbox più stretta rispetto all'immagine del lupo.
   return {
-    x: player.x + 15,
-    y: player.y + 12,
-    w: player.w - 29,
-    h: player.h - 17
+    x: player.x + 22,
+    y: player.y + 20,
+    w: player.w - 42,
+    h: player.h - 28
   };
 }
 
@@ -593,19 +622,35 @@ function checkCollisions() {
     let box;
 
     if (o.type === "angel") {
-      const dip = o.dips
-        ? Math.max(0, Math.sin(worldTime * 0.055 + o.phase)) * 43
-        : 0;
+      const y = getAngelY(o);
+
       box = {
-        x: o.x + 9,
-        y: o.y + Math.sin(worldTime * 0.045 + o.phase) * 7 + dip + 9,
-        w: o.w - 18,
-        h: o.h - 18
+        x: o.x + 15,
+        y: y + 15,
+        w: o.w - 30,
+        h: o.h - 30
       };
     } else if (o.type === "snake") {
-      box = { x: o.x + 5, y: o.y + 7, w: o.w - 10, h: o.h - 8 };
+      box = {
+        x: o.x + 9,
+        y: o.y + 10,
+        w: o.w - 18,
+        h: o.h - 13
+      };
+    } else if (o.type === "sheep") {
+      box = {
+        x: o.x + 10,
+        y: o.y + 10,
+        w: o.w - 20,
+        h: o.h - 17
+      };
     } else {
-      box = { x: o.x + 5, y: o.y + 5, w: o.w - 10, h: o.h - 7 };
+      box = {
+        x: o.x + 9,
+        y: o.y + 9,
+        w: o.w - 18,
+        h: o.h - 16
+      };
     }
 
     if (intersects(hitbox, box)) {
@@ -616,10 +661,10 @@ function checkCollisions() {
 
   for (const p of projectiles) {
     const box = {
-      x: p.x + 3,
-      y: p.y + 3,
-      w: p.w - 6,
-      h: p.h - 6
+      x: p.x + 6,
+      y: p.y + 6,
+      w: p.w - 12,
+      h: p.h - 12
     };
 
     if (intersects(hitbox, box)) {
@@ -665,6 +710,7 @@ function updateButtons() {
   }
 
   if (jumpButton) jumpButton.disabled = !running || paused || dead;
+
   if (pauseButton) {
     pauseButton.disabled = !running || dead;
     pauseButton.textContent = paused ? "RIPRENDI" : "PAUSA";
@@ -723,6 +769,7 @@ function endGame() {
   cancelAnimationFrame(animationId);
 
   score = Math.floor(score);
+
   if (score > personalBest) {
     personalBest = score;
     saveBest(personalBest);
@@ -755,11 +802,11 @@ function updateGame(dt) {
   player.update(dt);
 
   spawnTimer += factor;
+
   if (spawnTimer >= nextSpawn) {
     spawnObstacle();
     spawnTimer = 0;
 
-    // Lascia spazio tra i pericoli, riducendolo gradualmente.
     const difficulty = Math.min(1, score / 2200);
     nextSpawn = random(102 - difficulty * 20, 145 - difficulty * 22);
   }
@@ -767,8 +814,14 @@ function updateGame(dt) {
   for (const o of obstacles) {
     o.x -= speed * factor;
 
+    // Aggiorna la discesa dell'angelo senza permettergli di risalire.
+    if (o.type === "angel") {
+      updateAngel(o, factor);
+    }
+
     if (o.type === "sheep" && o.fires && !o.fired) {
       o.fireDelay -= factor;
+
       if (o.fireDelay <= 0) {
         fireWool(o);
         o.fired = true;
@@ -808,6 +861,7 @@ function gameLoop(timestamp) {
   if (!running || paused || dead) return;
 
   if (!lastTime) lastTime = timestamp;
+
   const dt = Math.min(timestamp - lastTime, MAX_DELTA);
   lastTime = timestamp;
 
@@ -887,6 +941,7 @@ document.addEventListener("fullscreenchange", () => {
     fullscreenGame?.classList.remove("fullscreen-fallback");
     document.body.style.overflow = previousBodyOverflow;
   }
+
   updateFullscreenButton();
 });
 
@@ -941,6 +996,7 @@ function readLocalBoard() {
 
 function saveLocalScore(nickname, points) {
   const board = readLocalBoard();
+
   board.push({
     nickname,
     score: points,
@@ -982,6 +1038,7 @@ function getNickname() {
   );
 
   if (nickname === null) return "";
+
   nickname = nickname.trim().replace(/\s+/g, " ").slice(0, 18);
 
   if (!nickname) {
@@ -1000,6 +1057,7 @@ async function submitScore(points) {
   if (submittingScore || points <= 0) return;
 
   const nickname = getNickname();
+
   if (!nickname) {
     setBoardStatus("Punteggio non inviato: non hai inserito un nome.");
     return;
@@ -1010,8 +1068,6 @@ async function submitScore(points) {
   setBoardStatus("Invio del punteggio alla classifica...");
 
   try {
-    // Il formato inviato è JSON. L'effettiva registrazione dipende
-    // dalle operazioni supportate dallo script Google Apps Script.
     await fetch(LEADERBOARD_API_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1028,7 +1084,9 @@ async function submitScore(points) {
       "Richiesta inviata. Aggiorno la classifica; se il punteggio non compare, controlla lo script."
     );
   } catch (_) {
-    setBoardStatus("Non riesco a raggiungere il servizio. Il punteggio è conservato su questo dispositivo.");
+    setBoardStatus(
+      "Non riesco a raggiungere il servizio. Il punteggio è conservato su questo dispositivo."
+    );
   } finally {
     submittingScore = false;
     refreshBoard();
@@ -1066,6 +1124,7 @@ function renderBoard(entries, sourceMessage) {
   if (sorted.length === 0) {
     leaderboardBody.innerHTML =
       '<tr><td colspan="3" class="empty-row">Nessun punteggio disponibile.</td></tr>';
+
     setBoardStatus(sourceMessage);
     return;
   }
@@ -1090,6 +1149,7 @@ async function refreshBoard() {
 
   leaderboardBody.innerHTML =
     '<tr><td colspan="3" class="empty-row">Caricamento classifica...</td></tr>';
+
   setBoardStatus("Connessione alla classifica...");
 
   try {
@@ -1105,10 +1165,15 @@ async function refreshBoard() {
       renderBoard(entries, "Classifica caricata dal servizio online.");
     } else {
       const local = readLocalBoard();
-      renderBoard(local, "Il servizio online non ha restituito punteggi. Mostro quelli salvati su questo dispositivo.");
+
+      renderBoard(
+        local,
+        "Il servizio online non ha restituito punteggi. Mostro quelli salvati su questo dispositivo."
+      );
     }
   } catch (_) {
     const local = readLocalBoard();
+
     renderBoard(
       local,
       "Classifica online non raggiungibile. Mostro i punteggi salvati su questo dispositivo."
