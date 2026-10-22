@@ -1,9 +1,3 @@
-../assets/modelli/modelli_sorteggio/lupoperde.png
-```[cite: 1]
-
-Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.html`. Basta fare un copia e incolla totale nel tuo file su GitHub:
-
-```html
 <!doctype html>
 <html lang="it">
 <head>
@@ -151,11 +145,11 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       color: var(--text);
     }
 
-    /* STAGE MASCOTTE (Ingrandito per evitare che esca fuori durante il salto) */
+    /* STAGE MASCOTTE */
     .wolf-stage {
       position: relative;
       width: 100%;
-      height: 320px;
+      height: 330px;
       margin: 15px 0 20px;
       display: flex;
       align-items: center;
@@ -170,7 +164,7 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
       transition: transform 0.4s ease;
       will-change: transform;
-      z-index: 2;
+      z-index: 3;
     }
 
     /* NUVOLA DI FUMO INIZIALE */
@@ -194,13 +188,13 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       opacity: 1;
     }
 
-    /* NUVOLA DI PIOGGIA E PIOGGIA GENERATA IN CODICE */
+    /* NUVOLA DI PIOGGIA ALZATA */
     #rainCloud {
       position: absolute;
-      top: 25px;
+      top: 5px;
       left: 50%;
       transform: translateX(-50%) translateY(-10px);
-      width: 130px;
+      width: 150px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease, transform 0.5s ease;
@@ -218,14 +212,14 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       100% { transform: translateX(-50%) translateY(5px); }
     }
 
-    /* Contenitore gocce di pioggia */
+    /* CONTENITORE PIOGGIA PIÙ LARGO */
     .rain-overlay {
       position: absolute;
-      top: 80px;
+      top: 55px;
       left: 50%;
       transform: translateX(-50%);
-      width: 120px;
-      height: 140px;
+      width: 200px;
+      height: 220px;
       pointer-events: none;
       z-index: 4;
       overflow: hidden;
@@ -241,17 +235,52 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       position: absolute;
       background: linear-gradient(transparent, rgba(56, 189, 248, 0.9));
       width: 2px;
-      height: 14px;
+      height: 16px;
       opacity: 0.8;
-      animation: fall 0.5s linear infinite;
+      animation: fall 0.45s linear infinite;
     }
 
     @keyframes fall {
       0% { transform: translateY(-10px); opacity: 0.9; }
-      100% { transform: translateY(120px); opacity: 0.1; }
+      100% { transform: translateY(210px); opacity: 0.1; }
     }
 
-    /* 1. ANIMAZIONE IDLE (Respiro) */
+    /* POZZANGHERA E ONDE A TERRA AI PIEDI DEL LUPO */
+    .puddle-container {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 25px;
+      background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.35) 0%, rgba(15, 23, 42, 0.6) 60%, transparent 80%);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .show-cloud .puddle-container {
+      opacity: 1;
+    }
+
+    .ripple {
+      position: absolute;
+      border: 1px solid rgba(56, 189, 248, 0.7);
+      border-radius: 50%;
+      animation: rippleEffect 1.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    @keyframes rippleEffect {
+      0% { width: 0px; height: 0px; opacity: 1; }
+      100% { width: 100px; height: 18px; opacity: 0; }
+    }
+
+    /* ANIMAZIONI LUPO */
     .pose-idle { 
       animation: idleBreath 3s ease-in-out infinite; 
     }
@@ -261,7 +290,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       50% { transform: translateY(-5px) scale(1.02); }
     }
 
-    /* 2. ANIMAZIONE VITTORIA (Salto felice) */
     .pose-victory { 
       animation: victoryJump 0.6s ease-in-out infinite alternate !important; 
     }
@@ -271,7 +299,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       100% { transform: translateY(-25px) rotate(3deg) scale(1.06); }
     }
 
-    /* 3. ANIMAZIONE SCONFITTA (Accasciato e triste) */
     .pose-defeat { 
       animation: defeatDrop 0.5s ease-out forwards !important; 
     }
@@ -465,14 +492,22 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
 
     <!-- STAGE MASCOTTE -->
     <div class="wolf-stage" id="wolfStage">
-      <!-- NUVOLA PIOGGIA SCONFITTA E PIOGGIA GENERATA IN JS -->
+      <!-- NUVOLA PIOGGIA SVG -->
       <svg id="rainCloud" viewBox="0 0 300 120">
         <path d="M 50 60 Q 70 30 110 45 Q 150 20 190 50 Q 220 40 240 70 Q 210 100 50 90 Z" fill="#334155"/>
         <path d="M 80 95 L 75 115 M 130 95 L 125 120 M 180 95 L 175 115" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
       </svg>
+      
+      <!-- CONTENITORE GOCCE PIOGGIA -->
       <div class="rain-overlay" id="rainOverlayContainer"></div>
 
-      <!-- TUA IMMAGINE REALE -->
+      <!-- POZZANGHERA AI PIEDI -->
+      <div class="puddle-container" id="puddle">
+        <div class="ripple" style="animation-delay: 0s;"></div>
+        <div class="ripple" style="animation-delay: 0.6s;"></div>
+      </div>
+
+      <!-- MASCOTTE LUPO -->
       <img id="wolfImg" class="pose-idle" src="lupo.png" alt="Mascotte Lupo Nero">
     </div>
 
@@ -554,16 +589,16 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
 
     let timerInterval = null;
 
-    // Genera le gocce di pioggia via codice nel container
+    // Genera la pioggia dinamica più ampia (25 gocce)
     function generaPioggiaDinamica() {
       rainOverlayContainer.innerHTML = '';
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 25; i++) {
         const drop = document.createElement('div');
         drop.className = 'drop';
         drop.style.left = (Math.random() * 100) + '%';
         drop.style.top = (Math.random() * 20) + 'px';
         drop.style.animationDelay = (Math.random() * 0.5) + 's';
-        drop.style.animationDuration = (0.35 + Math.random() * 0.3) + 's';
+        drop.style.animationDuration = (0.35 + Math.random() * 0.25) + 's';
         rainOverlayContainer.appendChild(drop);
       }
     }
@@ -591,12 +626,10 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
         smoke.classList.add('active');
       }, 10);
 
-      // A metà animazione fumo cambiamo posa/immagine
       setTimeout(() => {
         if (callback) callback();
       }, 350);
 
-      // Rimuoviamo l'elemento fumo alla fine
       setTimeout(() => {
         smoke.classList.remove('active');
         setTimeout(() => smoke.remove(), 500);
@@ -729,7 +762,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       }
     }
 
-    // Gestione esito comune (Vittoria o Sconfitta)
     function applicaRisultato(isWin) {
       triggerSmokeEffect(() => {
         if (isWin) {
@@ -761,7 +793,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
           showMessage(loseHtml, "#aaa", "anim-shake");
         }
 
-        // Riabilita subito il bottone nei test admin (nessun timer di blocco)
         submitBtn.disabled = false;
         submitBtn.textContent = "ESTRAI IL PREMIO";
       });
@@ -773,9 +804,8 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
       const nickname = instagramInput.value.trim().toLowerCase();
       if (!nickname) return;
 
-      // 👑 COMANDI ADMIN PER TESTARE ALL'INFINITO (Senza salvare su Excel e senza blocchi)
       if (nickname === 'admin_admin') {
-        const simulaVittoria = Math.random() < 0.5; // 50% di probabilità casuale
+        const simulaVittoria = Math.random() < 0.5;
         applicaRisultato(simulaVittoria);
         return;
       }
@@ -788,7 +818,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
         return;
       }
 
-      // NICKNAME NORMALE (Salva su Excel e attiva il blocco)
       submitBtn.disabled = true;
       submitBtn.textContent = "ESTRAZIONE IN CORSO...";
 
@@ -808,7 +837,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
 
         if (!res.allowed) {
           showMessage("⏱️ Hai già partecipato. Attendi lo scadere del timer.", "#e52b38");
-          // Attiva il timer vero e proprio
           if (timerInterval) clearInterval(timerInterval);
           let endTime = Date.now() + res.remainingMs;
           statusBox.style.display = 'block';
@@ -835,7 +863,6 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
           return;
         }
 
-        // Esito normale dal database
         applicaRisultato(res.won);
 
       } catch (err) {
@@ -847,4 +874,3 @@ Di seguito trovi il **codice completo e pronto all'uso** del file `sorteggio.htm
   </script>
 </body>
 </html>
-```[cite: 1]
