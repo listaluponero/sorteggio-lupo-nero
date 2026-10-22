@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -20,58 +20,65 @@
     </div>
 
     <main id="gameArea">
-        <div class="game-header-ui">
-            <div class="score-box">
-                <span>PUNTI</span>
-                <strong id="score">0</strong>
+
+        <!-- CONTENITORE COMPLETO DEL GIOCO -->
+        <div id="fullscreenGame">
+
+            <div class="game-header-ui">
+                <div class="score-box">
+                    <span>PUNTI</span>
+                    <strong id="score">0</strong>
+                </div>
+
+                <div class="score-box">
+                    <span>RECORD</span>
+                    <strong id="personalBest">0</strong>
+                </div>
             </div>
 
-            <div class="score-box">
-                <span>RECORD</span>
-                <strong id="personalBest">0</strong>
+            <div class="game-title">
+                <h1>LUPO RUNNER</h1>
+                <p>Corri. Salta. Sopravvivi.</p>
             </div>
+
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas
+                    id="gameCanvas"
+                    width="800"
+                    height="400"
+                    aria-label="Lupo Runner">
+                </canvas>
+            </div>
+
+            <div id="gameMessage" aria-live="polite">
+                Premi INIZIA PARTITA per cominciare
+            </div>
+
+            <div class="game-controls">
+                <button id="startGame" class="btn btn-start" type="button">
+                    INIZIA PARTITA
+                </button>
+
+                <button id="jumpGame" class="btn btn-jump" type="button" disabled>
+                    SALTA
+                </button>
+
+                <button id="pauseGame" class="btn btn-pause" type="button" disabled>
+                    PAUSA
+                </button>
+
+                <button id="fullscreenBtn" class="btn btn-fullscreen" type="button">
+                    ESPANDI GIOCO
+                </button>
+
+                <button id="backToList" class="btn btn-back" type="button">
+                    ← TORNA ALLA LISTA
+                </button>
+            </div>
+
         </div>
 
-        <div class="game-title">
-            <h1>LUPO RUNNER</h1>
-            <p>Corri. Salta. Sopravvivi.</p>
-        </div>
-
-        <div class="canvas-wrapper">
-            <canvas
-                id="gameCanvas"
-                width="800"
-                height="400"
-                aria-label="Lupo Runner">
-            </canvas>
-        </div>
-
-        <div id="gameMessage" aria-live="polite">
-            Premi INIZIA PARTITA per cominciare
-        </div>
-
-        <div class="game-controls">
-            <button id="startGame" class="btn btn-start" type="button">
-                INIZIA PARTITA
-            </button>
-
-            <button id="jumpGame" class="btn btn-jump" type="button" disabled>
-                SALTA
-            </button>
-
-            <button id="pauseGame" class="btn btn-pause" type="button" disabled>
-                PAUSA
-            </button>
-
-            <button id="fullscreenBtn" class="btn btn-fullscreen" type="button">
-                ESPANDI GIOCO
-            </button>
-
-            <button id="backToList" class="btn btn-back" type="button">
-                ← TORNA ALLA LISTA
-            </button>
-        </div>
-
+        <!-- CLASSIFICA: RIMANE FUORI DAL FULLSCREEN -->
         <section class="leaderboard-container">
             <div class="leaderboard-header">
                 <h2>CLASSIFICA TOP 5</h2>
@@ -110,3 +117,4 @@
     <script src="gioco.js"></script>
 </body>
 </html>
+```
