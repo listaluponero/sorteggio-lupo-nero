@@ -605,3 +605,247 @@ th {
         font-size: 0.8rem;
     }
 }
+
+/* ===== FIX FULLSCREEN: area completa e comandi sempre visibili ===== */
+#gameArea:fullscreen,
+#gameArea:-webkit-full-screen,
+#gameArea.fullscreen-mode {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 10px 14px;
+    overflow: auto;
+    background: #090909;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 5px;
+    text-align: center;
+}
+
+#gameArea:fullscreen #fullscreenGame,
+#gameArea:-webkit-full-screen #fullscreenGame,
+#gameArea.fullscreen-mode #fullscreenGame {
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 5px;
+}
+
+#gameArea:fullscreen .game-header-ui,
+#gameArea:-webkit-full-screen .game-header-ui,
+#gameArea.fullscreen-mode .game-header-ui {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+#gameArea:fullscreen .game-title,
+#gameArea:-webkit-full-screen .game-title,
+#gameArea.fullscreen-mode .game-title {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+#gameArea:fullscreen .canvas-wrapper,
+#gameArea:-webkit-full-screen .canvas-wrapper,
+#gameArea.fullscreen-mode .canvas-wrapper {
+    width: 100%;
+    max-width: 1400px;
+    flex: 1 1 auto;
+    min-height: 140px;
+    max-height: 58dvh;
+    margin: 2px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#gameArea:fullscreen #gameCanvas,
+#gameArea:-webkit-full-screen #gameCanvas,
+#gameArea.fullscreen-mode #gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 58dvh;
+    aspect-ratio: auto;
+    object-fit: fill;
+}
+
+#gameArea:fullscreen #gameMessage,
+#gameArea:-webkit-full-screen #gameMessage,
+#gameArea.fullscreen-mode #gameMessage {
+    flex: 0 0 auto;
+    min-height: 20px;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+#gameArea:fullscreen .game-controls,
+#gameArea:-webkit-full-screen .game-controls,
+#gameArea.fullscreen-mode .game-controls {
+    position: relative;
+    z-index: 100000;
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 2px 0 max(2px, env(safe-area-inset-bottom));
+    visibility: visible;
+    opacity: 1;
+}
+
+#gameArea:fullscreen .game-controls .btn,
+#gameArea:-webkit-full-screen .game-controls .btn,
+#gameArea.fullscreen-mode .game-controls .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 105px;
+    min-height: 42px;
+    padding: 9px 13px;
+    font-size: 0.82rem;
+    visibility: visible;
+    opacity: 1;
+}
+
+#gameArea:fullscreen #startGame,
+#gameArea:-webkit-full-screen #startGame,
+#gameArea.fullscreen-mode #startGame {
+    display: inline-flex;
+}
+
+#gameArea:fullscreen .leaderboard-container,
+#gameArea:-webkit-full-screen .leaderboard-container,
+#gameArea.fullscreen-mode .leaderboard-container,
+#gameArea:fullscreen ~ .game-footer,
+#gameArea:-webkit-full-screen ~ .game-footer,
+#gameArea.fullscreen-mode ~ .game-footer {
+    display: none !important;
+}
+
+/* Mobile: canvas grande, centrato e pulsanti su due colonne. */
+@media (max-width: 650px) {
+    #gameArea:fullscreen,
+    #gameArea:-webkit-full-screen,
+    #gameArea.fullscreen-mode {
+        padding: max(5px, env(safe-area-inset-top)) 7px max(5px, env(safe-area-inset-bottom));
+        gap: 4px;
+    }
+
+    #gameArea:fullscreen .game-title h1,
+    #gameArea:-webkit-full-screen .game-title h1,
+    #gameArea.fullscreen-mode .game-title h1 {
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+
+    #gameArea:fullscreen .game-title p,
+    #gameArea:-webkit-full-screen .game-title p,
+    #gameArea.fullscreen-mode .game-title p {
+        display: none;
+    }
+
+    #gameArea:fullscreen .canvas-wrapper,
+    #gameArea:-webkit-full-screen .canvas-wrapper,
+    #gameArea.fullscreen-mode .canvas-wrapper {
+        flex: 1 1 auto;
+        width: 100%;
+        min-height: 0;
+        max-height: none;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    #gameArea:fullscreen #gameCanvas,
+    #gameArea:-webkit-full-screen #gameCanvas,
+    #gameArea.fullscreen-mode #gameCanvas {
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+    }
+
+    #gameArea:fullscreen .game-controls,
+    #gameArea:-webkit-full-screen .game-controls,
+    #gameArea.fullscreen-mode .game-controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+    }
+
+    #gameArea:fullscreen .game-controls .btn,
+    #gameArea:-webkit-full-screen .game-controls .btn,
+    #gameArea.fullscreen-mode .game-controls .btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 38px;
+        padding: 7px 4px;
+        font-size: 0.72rem;
+    }
+
+    #gameArea:fullscreen #startGame,
+    #gameArea:-webkit-full-screen #startGame,
+    #gameArea.fullscreen-mode #startGame {
+        grid-column: 1 / -1;
+    }
+
+    #gameArea:fullscreen .game-header-ui .score-box,
+    #gameArea:-webkit-full-screen .game-header-ui .score-box,
+    #gameArea.fullscreen-mode .game-header-ui .score-box {
+        min-width: 0;
+        padding: 5px 7px;
+    }
+}
+
+/* Landscape e schermi bassi: recupera spazio verticale. */
+@media (max-height: 520px) {
+    #gameArea:fullscreen,
+    #gameArea:-webkit-full-screen,
+    #gameArea.fullscreen-mode {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        gap: 2px;
+    }
+
+    #gameArea:fullscreen .game-title,
+    #gameArea:-webkit-full-screen .game-title,
+    #gameArea.fullscreen-mode .game-title {
+        display: none;
+    }
+
+    #gameArea:fullscreen .canvas-wrapper,
+    #gameArea:-webkit-full-screen .canvas-wrapper,
+    #gameArea.fullscreen-mode .canvas-wrapper {
+        max-height: none;
+    }
+
+    #gameArea:fullscreen #gameCanvas,
+    #gameArea:-webkit-full-screen #gameCanvas,
+    #gameArea.fullscreen-mode #gameCanvas {
+        max-height: none;
+    }
+
+    #gameArea:fullscreen .game-controls .btn,
+    #gameArea:-webkit-full-screen .game-controls .btn,
+    #gameArea.fullscreen-mode .game-controls .btn {
+        min-height: 32px;
+        padding: 5px 8px;
+        font-size: 0.72rem;
+    }
+}
