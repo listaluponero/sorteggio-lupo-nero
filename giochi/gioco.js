@@ -1,12 +1,7 @@
 "use strict";
 
 /* =========================================================
-   LUPO RUNNER — VERSIONE COMPLETA MOBILE & DESKTOP
-   - Controlli Touch & Tastiera
-   - Collisioni ottimizzate
-   - Pecora con lancio gomitolo di lana
-   - Angelo ostacolo che scende
-   - Fullscreen e Classifica
+   LUPO RUNNER — VERSIONE SICURA MOBILE & DESKTOP
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -17,7 +12,7 @@ const LEADERBOARD_API_URL =
 ========================================================= */
 
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas ? canvas.getContext("2d") : null;
 
 const loadingScreen = document.getElementById("loadingScreen");
 const gameArea = document.getElementById("gameArea");
@@ -42,8 +37,10 @@ const gameMessage = document.getElementById("gameMessage");
 const W = 800;
 const H = 400;
 
-canvas.width = W;
-canvas.height = H;
+if (canvas) {
+    canvas.width = W;
+    canvas.height = H;
+}
 
 const groundY = H - 80;
 
@@ -57,7 +54,7 @@ let animationFrameId = null;
 
 let score = 0;
 let personalBest = localStorage.getItem("lupo_runner_best") || 0;
-bestElement.textContent = personalBest;
+if (bestElement) bestElement.textContent = personalBest;
 
 let gameSpeed = 5;
 let frameCount = 0;
@@ -77,11 +74,10 @@ const lupo = {
     isJumping: false,
 
     draw() {
+        if (!ctx) return;
         ctx.fillStyle = "#4a5568";
-        // Corpo Lupo
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
-        // Dettaglio Orecchie
         ctx.fillStyle = "#2d3748";
         ctx.beginPath();
         ctx.moveTo(this.x + 10, this.y);
@@ -89,7 +85,6 @@ const lupo = {
         ctx.lineTo(this.x + 30, this.y);
         ctx.fill();
 
-        // Occhio
         ctx.fillStyle = "#ecc94b";
         ctx.fillRect(this.x + 35, this.y + 10, 8, 8);
     },
@@ -124,7 +119,7 @@ let projectiles = [];
 
 class Obstacle {
     constructor(type) {
-        this.type = type; // 'pecora', 'angelo', 'ostacolo_basso'
+        this.type = type;
         this.x = W + 50;
         this.markedForDeletion = false;
 
@@ -136,11 +131,10 @@ class Obstacle {
         } else if (type === "angelo") {
             this.width = 40;
             this.height = 40;
-            this.y = -50; // Parte dall'alto e scende
+            this.y = -50;
             this.targetY = groundY - 100;
             this.speedY = 3;
         } else {
-            // Ostacolo Basso generico
             this.width = 30;
             this.height = 50;
             this.y = groundY - this.height;
@@ -154,7 +148,6 @@ class Obstacle {
             this.y += this.speedY;
         }
 
-        // La pecora lancia il gomitolo quando si avvicina
         if (this.type === "pecora" && !this.hasThrown && this.x < W - 250) {
             projectiles.push(new Projectile(this.x, this.y + 10));
             this.hasThrown = true;
@@ -166,8 +159,9 @@ class Obstacle {
     }
 
     draw() {
+        if (!ctx) return;
         if (this.type === "pecora") {
-            ctx.fillStyle = this.hasThrown ? "#a0aec0" : "#edf2f7"; // Diventa innocua/grigia dopo il lancio
+            ctx.fillStyle = this.hasThrown ? "#a0aec0" : "#edf2f7";
             ctx.fillRect(this.x, this.y, this.width, this.height);
         } else if (this.type === "angelo") {
             ctx.fillStyle = "#e2e8f0";
@@ -186,7 +180,7 @@ class Projectile {
         this.x = x;
         this.y = y;
         this.radius = 12;
-        this.speedX = gameSpeed + 3; // Gomitolo più veloce e prevedibile
+        this.speedX = gameSpeed + 3;
         this.markedForDeletion = false;
     }
 
@@ -198,6 +192,7 @@ class Projectile {
     }
 
     draw() {
+        if (!ctx) return;
         ctx.fillStyle = "#dd6b20";
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -205,14 +200,9 @@ class Projectile {
     }
 }
 
-/* =========================================================
-   GESTIONE GENERAZIONE OSTACOLI
-========================================================= */
-
 function handleObstacles() {
     frameCount++;
 
-    // Genera un ostacolo ad intervalli distanziati
     if (frameCount % 120 === 0) {
         const types = ["pecora", "angelo", "basso"];
         const randomType = types[Math.floor(Math.random() * types.length)];
@@ -233,12 +223,7 @@ function handleObstacles() {
     projectiles = projectiles.filter((proj) => !proj.markedForDeletion);
 }
 
-/* =========================================================
-   COLLISIONI (RIDEFINITE E RIDOTTE)
-========================================================= */
-
 function checkCollisions() {
-    // Hitbox leggermente ridotta per il lupo per rendere il gioco più equo
     const pBox = {
         x: lupo.x + 5,
         y: lupo.y + 5,
@@ -246,9 +231,7 @@ function checkCollisions() {
         h: lupo.height - 10
     };
 
-    // Collisione con Ostacoli
     for (let obs of obstacles) {
-        // La pecora non fa più danno dopo che ha lanciato la lana
         if (obs.type === "pecora" && obs.hasThrown) continue;
 
         if (
@@ -262,7 +245,6 @@ function checkCollisions() {
         }
     }
 
-    // Collisione con Gomitoli (Proiettili)
     for (let proj of projectiles) {
         if (
             pBox.x < proj.x + proj.radius &&
@@ -276,16 +258,11 @@ function checkCollisions() {
     }
 }
 
-/* =========================================================
-   DISEGNO AMBIENTE (TERRENO E SFONDO)
-========================================================= */
-
 function drawEnvironment() {
-    // Cielo
+    if (!ctx) return;
     ctx.fillStyle = "#1a202c";
     ctx.fillRect(0, 0, W, H);
 
-    // Terreno
     ctx.fillStyle = "#2d3748";
     ctx.fillRect(0, groundY, W, H - groundY);
 
@@ -297,15 +274,10 @@ function drawEnvironment() {
     ctx.stroke();
 }
 
-/* =========================================================
-   LOOP PRINCIPALE DEL GIOCO
-========================================================= */
-
 function gameLoop() {
-    if (!gameRunning || gamePaused) return;
+    if (!gameRunning || gamePaused || !ctx) return;
 
     ctx.clearRect(0, 0, W, H);
-
     drawEnvironment();
 
     lupo.update();
@@ -314,11 +286,9 @@ function gameLoop() {
     handleObstacles();
     checkCollisions();
 
-    // Aggiornamento Punteggio
     score++;
-    scoreElement.textContent = Math.floor(score / 5);
+    if (scoreElement) scoreElement.textContent = Math.floor(score / 5);
 
-    // Aumento graduale della velocità
     if (score % 500 === 0) {
         gameSpeed += 0.5;
     }
@@ -326,14 +296,9 @@ function gameLoop() {
     animationFrameId = requestAnimationFrame(gameLoop);
 }
 
-/* =========================================================
-   AVVIO E GAME OVER
-========================================================= */
-
 function startGame() {
     if (gameRunning) return;
 
-    // Reset Stato
     gameRunning = true;
     gamePaused = false;
     score = 0;
@@ -345,11 +310,10 @@ function startGame() {
     lupo.y = groundY - lupo.height;
     lupo.isJumping = false;
 
-    // Aggiorna UI Tasti
-    startButton.disabled = true;
-    jumpButton.disabled = false;
-    pauseButton.disabled = false;
-    gameMessage.textContent = "Corri e schiva gli ostacoli!";
+    if (startButton) startButton.disabled = true;
+    if (jumpButton) jumpButton.disabled = false;
+    if (pauseButton) pauseButton.disabled = false;
+    if (gameMessage) gameMessage.textContent = "Corri e schiva gli ostacoli!";
 
     gameLoop();
 }
@@ -359,17 +323,17 @@ function gameOver() {
     cancelAnimationFrame(animationFrameId);
 
     const finalScore = Math.floor(score / 5);
-    gameMessage.textContent = `GAME OVER! Punti realizzati: ${finalScore}`;
+    if (gameMessage) gameMessage.textContent = `GAME OVER! Punti realizzati: ${finalScore}`;
 
     if (finalScore > personalBest) {
         personalBest = finalScore;
         localStorage.setItem("lupo_runner_best", personalBest);
-        bestElement.textContent = personalBest;
+        if (bestElement) bestElement.textContent = personalBest;
     }
 
-    startButton.disabled = false;
-    jumpButton.disabled = true;
-    pauseButton.disabled = true;
+    if (startButton) startButton.disabled = false;
+    if (jumpButton) jumpButton.disabled = true;
+    if (pauseButton) pauseButton.disabled = true;
 
     submitScore(finalScore);
 }
@@ -379,24 +343,23 @@ function togglePause() {
 
     gamePaused = !gamePaused;
     if (!gamePaused) {
-        pauseButton.textContent = "PAUSA";
-        gameMessage.textContent = "Gioco Ripreso!";
+        if (pauseButton) pauseButton.textContent = "PAUSA";
+        if (gameMessage) gameMessage.textContent = "Gioco Ripreso!";
         gameLoop();
     } else {
-        pauseButton.textContent = "RIPRENDI";
-        gameMessage.textContent = "Gioco in Pausa";
+        if (pauseButton) pauseButton.textContent = "RIPRENDI";
+        if (gameMessage) gameMessage.textContent = "Gioco in Pausa";
     }
 }
 
 /* =========================================================
-   CONTROLLI TOUCH E TASTIERA (OTTIMIZZATI MOBILE)
+   CONTROLLI E EVENTI
 ========================================================= */
 
-// Eventi Tastiera (PC)
 window.addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "ArrowUp") {
         e.preventDefault();
-        if (!gameRunning && !startButton.disabled) {
+        if (!gameRunning && startButton && !startButton.disabled) {
             startGame();
         } else {
             lupo.jump();
@@ -404,7 +367,6 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-// Eventi Touch Screen e Canvas (Smartphone)
 function handleJumpTouch(e) {
     if (e) e.preventDefault();
     if (gameRunning && !gamePaused) {
@@ -412,56 +374,65 @@ function handleJumpTouch(e) {
     }
 }
 
-// Tap diretto su schermo/canvas per saltare
-canvas.addEventListener("touchstart", handleJumpTouch, { passive: false });
-canvas.addEventListener("mousedown", handleJumpTouch);
+if (canvas) {
+    canvas.addEventListener("touchstart", handleJumpTouch, { passive: false });
+    canvas.addEventListener("mousedown", handleJumpTouch);
+}
 
-// Pulsante Salta
-jumpButton.addEventListener("touchstart", handleJumpTouch, { passive: false });
-jumpButton.addEventListener("click", handleJumpTouch);
+if (jumpButton) {
+    jumpButton.addEventListener("touchstart", handleJumpTouch, { passive: false });
+    jumpButton.addEventListener("click", handleJumpTouch);
+}
 
-// Altri Pulsanti
-startButton.addEventListener("click", startGame);
-pauseButton.addEventListener("click", togglePause);
+if (startButton) startButton.addEventListener("click", startGame);
+if (pauseButton) pauseButton.addEventListener("click", togglePause);
 
-// Fullscreen
-fullscreenButton.addEventListener("click", () => {
-    const wrapper = document.querySelector(".canvas-wrapper") || canvas;
-    if (!document.fullscreenElement) {
-        if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-        else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-    } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-    }
-});
+if (fullscreenButton) {
+    fullscreenButton.addEventListener("click", () => {
+        const wrapper = document.querySelector(".canvas-wrapper") || canvas;
+        if (!document.fullscreenElement) {
+            if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+            else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    });
+}
 
-// Torna alla lista
 if (backToListButton) {
     backToListButton.addEventListener("click", () => {
         window.location.href = "../index.html";
     });
 }
 
+if (refreshBoardButton) {
+    refreshBoardButton.addEventListener("click", fetchLeaderboard);
+}
+
 /* =========================================================
-   GESTIONE CLASSIFICA (API GOOGLE SCRIPT)
+   CLASSIFICA
 ========================================================= */
 
 async function fetchLeaderboard() {
-    leaderboardStatus.textContent = "Aggiornamento classifica...";
+    if (leaderboardStatus) leaderboardStatus.textContent = "Aggiornamento classifica...";
     try {
         const response = await fetch(LEADERBOARD_API_URL);
         const data = await response.json();
         
-        leaderboardBody.innerHTML = "";
-        data.slice(0, 5).forEach((item, index) => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${index + 1}</td><td>${item.nome || 'Giocatore'}</td><td>${item.punti || 0}</td>`;
-            leaderboardBody.appendChild(tr);
-        });
-        leaderboardStatus.textContent = "";
+        if (leaderboardBody) {
+            leaderboardBody.innerHTML = "";
+            data.slice(0, 5).forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>${index + 1}</td><td>${item.nome || 'Giocatore'}</td><td>${item.punti || 0}</td>`;
+                leaderboardBody.appendChild(tr);
+            });
+        }
+        if (leaderboardStatus) leaderboardStatus.textContent = "";
     } catch (err) {
-        leaderboardBody.innerHTML = `<tr><td colspan="3">Impossibile caricare la classifica</td></tr>`;
-        leaderboardStatus.textContent = "";
+        if (leaderboardBody) {
+            leaderboardBody.innerHTML = `<tr><td colspan="3">Impossibile caricare la classifica</td></tr>`;
+        }
+        if (leaderboardStatus) leaderboardStatus.textContent = "";
     }
 }
 
@@ -481,18 +452,16 @@ async function submitScore(points) {
     }
 }
 
-if (refreshBoardButton) {
-    refreshBoardButton.addEventListener("click", fetchLeaderboard);
-}
-
 /* =========================================================
-   INIZIALIZZAZIONE (RIMOZIONE SCHERMATA DI CARICAMENTO)
+   INIZIALIZZAZIONE SICURA ( RIMUOVE LO SCHERMO NERO )
 ========================================================= */
 
-window.addEventListener("load", () => {
-    // Nasconde il carrello/loadingScreen subito dopo il caricamento
+window.addEventListener("DOMContentLoaded", () => {
     if (loadingScreen) {
         loadingScreen.style.display = "none";
+    }
+    if (gameArea) {
+        gameArea.classList.add("visible");
     }
     drawEnvironment();
     lupo.draw();
