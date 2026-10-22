@@ -154,6 +154,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     #wolfImg {
@@ -163,12 +164,34 @@
       filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
       transition: transform 0.4s ease;
       will-change: transform;
+      z-index: 2;
     }
 
-    /* NUVOLA DI PIOGGIA PERFETTAMENTE CENTRATA SOPRA LA TESTA */
+    /* NUBE DI FUMO INIZIALE */
+    .smoke-cloud {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(220,220,220,0.9) 0%, rgba(100,100,100,0.4) 50%, rgba(255,255,255,0) 75%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+      z-index: 6;
+    }
+
+    .smoke-cloud.active {
+      transform: translate(-50%, -50%) scale(1.8);
+      opacity: 1;
+    }
+
+    /* NUVOLA DI PIOGGIA E PIOGGIA GENERATA IN CODICE */
     #rainCloud {
       position: absolute;
-      top: 0px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%) translateY(-10px);
       width: 130px;
@@ -178,7 +201,6 @@
       z-index: 5;
     }
 
-    /* QUANDO ENTRA IN STATO SCONFITTA, LA NUVOLA APPARE E FLUTTUA */
     .show-cloud #rainCloud {
       opacity: 1;
       transform: translateX(-50%) translateY(0px);
@@ -188,6 +210,39 @@
     @keyframes cloudFloat {
       0% { transform: translateX(-50%) translateY(0px); }
       100% { transform: translateX(-50%) translateY(5px); }
+    }
+
+    /* Contenitore gocce di pioggia */
+    .rain-overlay {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      z-index: 4;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .show-cloud .rain-overlay {
+      opacity: 1;
+    }
+
+    .drop {
+      position: absolute;
+      background: linear-gradient(transparent, rgba(56, 189, 248, 0.9));
+      width: 2px;
+      height: 14px;
+      opacity: 0.8;
+      animation: fall 0.5s linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10px); opacity: 0.9; }
+      100% { transform: translateY(100px); opacity: 0.1; }
     }
 
     /* 1. ANIMAZIONE IDLE (Respiro) */
@@ -404,11 +459,12 @@
 
     <!-- STAGE MASCOTTE -->
     <div class="wolf-stage" id="wolfStage">
-      <!-- NUVOLA PIOGGIA SCONFITTA -->
+      <!-- NUVOLA PIOGGIA SCONFITTA E PIOGGIA GENERATA IN JS -->
       <svg id="rainCloud" viewBox="0 0 300 120">
         <path d="M 50 60 Q 70 30 110 45 Q 150 20 190 50 Q 220 40 240 70 Q 210 100 50 90 Z" fill="#334155"/>
         <path d="M 80 95 L 75 115 M 130 95 L 125 120 M 180 95 L 175 115" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
       </svg>
+      <div class="rain-overlay" id="rainOverlayContainer"></div>
 
       <!-- TUA IMMAGINE REALE -->
       <img id="wolfImg" class="pose-idle" src="lupo.png" alt="Mascotte Lupo Nero">
@@ -488,16 +544,57 @@
     const messageElement = document.getElementById('message');
     const wolfStage = document.getElementById('wolfStage');
     const wolfImg = document.getElementById('wolfImg');
+    const rainOverlayContainer = document.getElementById('rainOverlayContainer');
 
     let timerInterval = null;
+
+    // Genera le gocce di pioggia via codice nel container
+    function generaPioggiaDinamica() {
+      rainOverlayContainer.innerHTML = '';
+      for (let i = 0; i < 12; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'drop';
+        drop.style.left = (Math.random() * 100) + '%';
+        drop.style.top = (Math.random() * 20) + 'px';
+        drop.style.animationDelay = (Math.random() * 0.5) + 's';
+        drop.style.animationDuration = (0.35 + Math.random() * 0.3) + 's';
+        rainOverlayContainer.appendChild(drop);
+      }
+    }
 
     function setWolfPose(pose) {
       wolfImg.className = 'pose-' + pose;
       if (pose === 'defeat') {
+        wolfImg.src = 'assets/modelli/modelli_sorteggio/lupoperde.png';
         wolfStage.classList.add('show-cloud');
+        generaPioggiaDinamica();
       } else {
+        wolfImg.src = 'lupo.png';
         wolfStage.classList.remove('show-cloud');
+        rainOverlayContainer.innerHTML = '';
       }
+    }
+
+    // Effetto nuvola di fumo sul lupo al click
+    function triggerSmokeEffect(callback) {
+      const smoke = document.createElement('div');
+      smoke.className = 'smoke-cloud';
+      wolfStage.appendChild(smoke);
+
+      setTimeout(() => {
+        smoke.classList.add('active');
+      }, 10);
+
+      // A metà animazione fumo cambiamo posa/immagine
+      setTimeout(() => {
+        if (callback) callback();
+      }, 350);
+
+      // Rimuoviamo l'elemento fumo alla fine
+      setTimeout(() => {
+        smoke.classList.remove('active');
+        setTimeout(() => smoke.remove(), 500);
+      }, 400);
     }
 
     function playSound(type) {
@@ -690,21 +787,23 @@
       if (nickname.toLowerCase() === '@testadmin') {
         const simulaVittoria = true; // Metti false se vuoi testare la sconfitta al volo
 
-        if (simulaVittoria) {
-          setWolfPose('victory');
-          playSound('win');
-          let winHtml = '🎉 <strong>TEST ADMIN: VITTORIA FORZATA!</strong><br><br>';
-          winHtml += 'Premio: <strong>Maglietta Ufficiale Lupo Nero</strong><br>';
-          winHtml += 'Codice: <strong>LN-TEST99</strong>';
-          showMessage(winHtml, "#28a745", "anim-win");
-          launchConfetti();
-        } else {
-          setWolfPose('defeat');
-          playSound('lose');
-          const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
-          let loseHtml = '😔 <strong>TEST ADMIN: SCONFITTA FORZATA</strong><br>' + randomPhrase;
-          showMessage(loseHtml, "#aaa", "anim-shake");
-        }
+        triggerSmokeEffect(() => {
+          if (simulaVittoria) {
+            setWolfPose('victory');
+            playSound('win');
+            let winHtml = '🎉 <strong>TEST ADMIN: VITTORIA FORZATA!</strong><br><br>';
+            winHtml += 'Premio: <strong>Maglietta Ufficiale Lupo Nero</strong><br>';
+            winHtml += 'Codice: <strong>LN-TEST99</strong>';
+            showMessage(winHtml, "#28a745", "anim-win");
+            launchConfetti();
+          } else {
+            setWolfPose('defeat');
+            playSound('lose');
+            const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
+            let loseHtml = '😔 <strong>TEST ADMIN: SCONFITTA FORZATA</strong><br>' + randomPhrase;
+            showMessage(loseHtml, "#aaa", "anim-shake");
+          }
+        });
         return;
       }
 
@@ -733,42 +832,48 @@
           return;
         }
 
-        if (res.won) {
-          setWolfPose('victory');
-          playSound('win');
+        // Attiviamo l'effetto fumo e in seguito mostriamo il risultato corretto
+        triggerSmokeEffect(() => {
+          if (res.won) {
+            setWolfPose('victory');
+            playSound('win');
 
-          let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
-          winHtml += 'Premio: <strong>' + res.prize + '</strong><br>';
-          winHtml += 'Codice: <strong>LN-' + res.code + '</strong><br><br>';
-          winHtml += '⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>';
-          winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
-          winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
-          
-          showMessage(winHtml, "#28a745", "anim-win");
-          launchConfetti();
-        } else {
-          setWolfPose('defeat');
-          playSound('lose');
+            let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
+            winHtml += 'Premio: <strong>' + res.prize + '</strong><br>';
+            winHtml += 'Codice: <strong>LN-' + res.code + '</strong><br><br>';
+            winHtml += '⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>';
+            winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
+            winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
+            
+            showMessage(winHtml, "#28a745", "anim-win");
+            launchConfetti();
+          } else {
+            setWolfPose('defeat');
+            playSound('lose');
 
-          const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
-          
-          let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
-          loseHtml += '<div class="story-prompt">';
-          loseHtml += '📸 Ti piace la risposta che ti è uscita?<br>';
-          loseHtml += '<strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>';
-          loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
-          loseHtml += '</div>';
+            const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
+            
+            let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
+            loseHtml += '<div class="story-prompt">';
+            loseHtml += '📸 Ti piace la risposta che ti è uscita?<br>';
+            loseHtml += '<strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>';
+            loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
+            loseHtml += '</div>';
 
-          showMessage(loseHtml, "#aaa", "anim-shake");
-        }
+            showMessage(loseHtml, "#aaa", "anim-shake");
+          }
 
-        startTimer(res.remainingMs || 28800000);
+          startTimer(res.remainingMs || 28800000);
+        });
 
       } catch (err) {
         showMessage("❌ Errore di rete. Controlla la connessione e riprova.", "#e52b38");
         submitBtn.disabled = false;
-      } finally {
         submitBtn.textContent = "ESTRAI IL PREMIO";
+      } finally {
+        setTimeout(() => {
+          submitBtn.textContent = "ESTRAI IL PREMIO";
+        }, 500);
       }
     });
 
