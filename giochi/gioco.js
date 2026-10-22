@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================
-   LUPO RUNNER — VERSIONE SICURA MOBILE & DESKTOP
+   LUPO RUNNER — ANIMAZIONE CORSA + SERPENTE + CUORE
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -31,6 +31,31 @@ const leaderboardStatus = document.getElementById("leaderboardStatus");
 const gameMessage = document.getElementById("gameMessage");
 
 /* =========================================================
+   CARICAMENTO IMMAGINI UFFICIALI (LUPO, PECORA, ANGELO, GOMITOLO, SERPENTE, CUORE)
+========================================================= */
+
+const immagini = {
+    lupoFrame1: new Image(),
+    lupoFrame2: new Image(),
+    pecoraOstacolo: new Image(),
+    angeloOstacolo: new Image(),
+    serpenteOstacolo: new Image(),
+    gomitoloLana: new Image(),
+    cuoreBonus: new Image()
+};
+
+// Frame corsa lupo
+immagini.lupoFrame1.src = "../assets/modelli/modelli_sorteggio/lupocorre1.png";
+immagini.lupoFrame2.src = "../assets/modelli/modelli_sorteggio/lupocorre2.png";
+
+// Ostacoli e bonus
+immagini.pecoraOstacolo.src = "../assets/modelli/modelli_sorteggio/pecora.png";
+immagini.angeloOstacolo.src = "../assets/modelli/modelli_sorteggio/angelo.png";
+immagini.serpenteOstacolo.src = "../assets/modelli/modelli_sorteggio/serpente.png";
+immagini.gomitoloLana.src = "../assets/modelli/modelli_sorteggio/gomitolo.png";
+immagini.cuoreBonus.src = "../assets/modelli/modelli_sorteggio/cuore.png";
+
+/* =========================================================
    CANVAS E COSTANTI DI GIOCO
 ========================================================= */
 
@@ -43,10 +68,6 @@ if (canvas) {
 }
 
 const groundY = H - 80;
-
-/* =========================================================
-   DIFFICOLTÀ E STATO DEL GIOCO
-========================================================= */
 
 let gameRunning = false;
 let gamePaused = false;
@@ -75,18 +96,19 @@ const lupo = {
 
     draw() {
         if (!ctx) return;
-        ctx.fillStyle = "#4a5568";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        
-        ctx.fillStyle = "#2d3748";
-        ctx.beginPath();
-        ctx.moveTo(this.x + 10, this.y);
-        ctx.lineTo(this.x + 20, this.y - 15);
-        ctx.lineTo(this.x + 30, this.y);
-        ctx.fill();
 
-        ctx.fillStyle = "#ecc94b";
-        ctx.fillRect(this.x + 35, this.y + 10, 8, 8);
+        let imgDaUsare = immagini.lupoFrame1;
+        if (gameRunning && !gamePaused && !this.isJumping) {
+            const frameAnim = Math.floor(frameCount / 10) % 2;
+            imgDaUsare = (frameAnim === 0) ? immagini.lupoFrame1 : immagini.lupoFrame2;
+        }
+
+        if (imgDaUsare.complete && imgDaUsare.naturalWidth !== 0) {
+            ctx.drawImage(imgDaUsare, this.x, this.y, this.width, this.height);
+        } else {
+            ctx.fillStyle = "#4a5568";
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
     },
 
     update() {
@@ -111,15 +133,16 @@ const lupo = {
 };
 
 /* =========================================================
-   OSTACOLI E PROIETTILI
+   OSTACOLI, PROIETTILI E BONUS (CUORE)
 ========================================================= */
 
 let obstacles = [];
 let projectiles = [];
+let bonuses = [];
 
 class Obstacle {
     constructor(type) {
-        this.type = type;
+        this.type = type; // 'pecora', 'angelo', 'serpente'
         this.x = W + 50;
         this.markedForDeletion = false;
 
@@ -134,9 +157,9 @@ class Obstacle {
             this.y = -50;
             this.targetY = groundY - 100;
             this.speedY = 3;
-        } else {
-            this.width = 30;
-            this.height = 50;
+        } else if (type === "serpente") {
+            this.width = 40;
+            this.height = 25; // Più basso, richiede attenzione
             this.y = groundY - this.height;
         }
     }
@@ -161,16 +184,28 @@ class Obstacle {
     draw() {
         if (!ctx) return;
         if (this.type === "pecora") {
-            ctx.fillStyle = this.hasThrown ? "#a0aec0" : "#edf2f7";
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            if (immagini.pecoraOstacolo.complete && immagini.pecoraOstacolo.naturalWidth !== 0) {
+                ctx.drawImage(immagini.pecoraOstacolo, this.x, this.y, this.width, this.height);
+            } else {
+                ctx.fillStyle = this.hasThrown ? "#a0aec0" : "#edf2f7";
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
         } else if (this.type === "angelo") {
-            ctx.fillStyle = "#e2e8f0";
-            ctx.beginPath();
-            ctx.arc(this.x + 20, this.y + 20, 20, 0, Math.PI * 2);
-            ctx.fill();
-        } else {
-            ctx.fillStyle = "#e53e3e";
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            if (immagini.angeloOstacolo.complete && immagini.angeloOstacolo.naturalWidth !== 0) {
+                ctx.drawImage(immagini.angeloOstacolo, this.x, this.y, this.width, this.height);
+            } else {
+                ctx.fillStyle = "#e2e8f0";
+                ctx.beginPath();
+                ctx.arc(this.x + 20, this.y + 20, 20, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (this.type === "serpente") {
+            if (immagini.serpenteOstacolo.complete && immagini.serpenteOstacolo.naturalWidth !== 0) {
+                ctx.drawImage(immagini.serpenteOstacolo, this.x, this.y, this.width, this.height);
+            } else {
+                ctx.fillStyle = "#48bb78";
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
         }
     }
 }
@@ -193,20 +228,60 @@ class Projectile {
 
     draw() {
         if (!ctx) return;
-        ctx.fillStyle = "#dd6b20";
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
+        if (immagini.gomitoloLana.complete && immagini.gomitoloLana.naturalWidth !== 0) {
+            ctx.drawImage(immagini.gomitoloLana, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+        } else {
+            ctx.fillStyle = "#dd6b20";
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 }
 
-function handleObstacles() {
+// Classe Bonus Cuore
+class BonusHeart {
+    constructor() {
+        this.x = W + 50;
+        this.y = groundY - 120 - Math.random() * 60; // Altezza variabile raggiungibile saltando
+        this.width = 30;
+        this.height = 30;
+        this.markedForDeletion = false;
+    }
+
+    update() {
+        this.x -= gameSpeed;
+        if (this.x + this.width < 0) {
+            this.markedForDeletion = true;
+        }
+    }
+
+    draw() {
+        if (!ctx) return;
+        if (immagini.cuoreBonus.complete && immagini.cuoreBonus.naturalWidth !== 0) {
+            ctx.drawImage(immagini.cuoreBonus, this.x, this.y, this.width, this.height);
+        } else {
+            ctx.fillStyle = "#e53e3e";
+            ctx.beginPath();
+            ctx.arc(this.x + 15, this.y + 15, 15, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+function handleObstaclesAndBonuses() {
     frameCount++;
 
-    if (frameCount % 120 === 0) {
-        const types = ["pecora", "angelo", "basso"];
+    // Generatore ostacoli
+    if (frameCount % 110 === 0) {
+        const types = ["pecora", "angelo", "serpente"];
         const randomType = types[Math.floor(Math.random() * types.length)];
         obstacles.push(new Obstacle(randomType));
+    }
+
+    // Generatore bonus cuore periodico
+    if (frameCount % 250 === 0) {
+        bonuses.push(new BonusHeart());
     }
 
     obstacles.forEach((obs) => {
@@ -219,8 +294,14 @@ function handleObstacles() {
         proj.draw();
     });
 
+    bonuses.forEach((bonus) => {
+        bonus.update();
+        bonus.draw();
+    });
+
     obstacles = obstacles.filter((obs) => !obs.markedForDeletion);
     projectiles = projectiles.filter((proj) => !proj.markedForDeletion);
+    bonuses = bonuses.filter((bonus) => !bonus.markedForDeletion);
 }
 
 function checkCollisions() {
@@ -231,6 +312,7 @@ function checkCollisions() {
         h: lupo.height - 10
     };
 
+    // Collisione con Ostacoli
     for (let obs of obstacles) {
         if (obs.type === "pecora" && obs.hasThrown) continue;
 
@@ -245,6 +327,7 @@ function checkCollisions() {
         }
     }
 
+    // Collisione con Proiettili (Gomitolo)
     for (let proj of projectiles) {
         if (
             pBox.x < proj.x + proj.radius &&
@@ -254,6 +337,20 @@ function checkCollisions() {
         ) {
             gameOver();
             return;
+        }
+    }
+
+    // Raccolta Bonus Cuore (Aumenta il punteggio extra)
+    for (let bonus of bonuses) {
+        if (
+            !bonus.markedForDeletion &&
+            pBox.x < bonus.x + bonus.width &&
+            pBox.x + pBox.w > bonus.x &&
+            pBox.y < bonus.y + bonus.height &&
+            pBox.y + pBox.h > bonus.y
+        ) {
+            bonus.markedForDeletion = true;
+            score += 100; // Bonus punti immediato
         }
     }
 }
@@ -283,7 +380,7 @@ function gameLoop() {
     lupo.update();
     lupo.draw();
 
-    handleObstacles();
+    handleObstaclesAndBonuses();
     checkCollisions();
 
     score++;
@@ -306,6 +403,7 @@ function startGame() {
     frameCount = 0;
     obstacles = [];
     projectiles = [];
+    bonuses = [];
 
     lupo.y = groundY - lupo.height;
     lupo.isJumping = false;
@@ -313,7 +411,7 @@ function startGame() {
     if (startButton) startButton.disabled = true;
     if (jumpButton) jumpButton.disabled = false;
     if (pauseButton) pauseButton.disabled = false;
-    if (gameMessage) gameMessage.textContent = "Corri e schiva gli ostacoli!";
+    if (gameMessage) gameMessage.textContent = "Corri, schiva i pericoli e raccogli i cuori!";
 
     gameLoop();
 }
@@ -453,7 +551,7 @@ async function submitScore(points) {
 }
 
 /* =========================================================
-   INIZIALIZZAZIONE SICURA ( RIMUOVE LO SCHERMO NERO )
+   INIZIALIZZAZIONE SICURA
 ========================================================= */
 
 window.addEventListener("DOMContentLoaded", () => {
