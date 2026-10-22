@@ -167,7 +167,7 @@
       z-index: 2;
     }
 
-    /* NUBE DI FUMO INIZIALE */
+    /* NUVOLA DI FUMO INIZIALE */
     .smoke-cloud {
       position: absolute;
       top: 50%;
@@ -712,40 +712,6 @@
       });
     }
 
-    function startTimer(ms) {
-      if (timerInterval) clearInterval(timerInterval);
-      let endTime = Date.now() + ms;
-
-      statusBox.style.display = 'block';
-      submitBtn.disabled = true;
-      instagramInput.disabled = true;
-
-      function update() {
-        let remaining = endTime - Date.now();
-        if (remaining <= 0) {
-          clearInterval(timerInterval);
-          statusBox.style.display = 'none';
-          submitBtn.disabled = false;
-          instagramInput.disabled = false;
-          setWolfPose('idle');
-          showMessage("Ora puoi effettuare un nuovo tentativo!", "#28a745");
-          return;
-        }
-
-        let h = Math.floor((remaining / 3600000) % 24);
-        let m = Math.floor((remaining / 60000) % 60);
-        let s = Math.floor((remaining / 1000) % 60);
-
-        timerElement.textContent = 
-          String(h).padStart(2, '0') + ':' + 
-          String(m).padStart(2, '0') + ':' + 
-          String(s).padStart(2, '0');
-      }
-
-      update();
-      timerInterval = setInterval(update, 1000);
-    }
-
     function showMessage(html, color = '#f4f4f4', animClass = '') {
       messageElement.className = '';
       messageElement.innerHTML = html;
@@ -757,65 +723,73 @@
       }
     }
 
-    async function checkExistingCooldown() {
-      const savedNickname = localStorage.getItem('ln_last_nick') || '';
-      if (savedNickname) {
-        instagramInput.value = savedNickname;
-      }
+    // Gestione esito comune (Vittoria o Sconfitta)
+    function applicaRisultato(isWin) {
+      triggerSmokeEffect(() => {
+        if (isWin) {
+          setWolfPose('victory');
+          playSound('win');
 
-      try {
-        const res = await jsonp(SCRIPT_URL, {
-          action: 'status',
-          nickname: savedNickname || 'check_device',
-          deviceId: getDeviceId()
-        });
+          let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
+          winHtml += 'Premio: <strong>Maglietta Ufficiale Lupo Nero</strong><br>';
+          winHtml += 'Codice: <strong>LN-TEST99</strong><br><br>';
+          winHtml += '⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>';
+          winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
+          winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
+          
+          showMessage(winHtml, "#28a745", "anim-win");
+          launchConfetti();
+        } else {
+          setWolfPose('defeat');
+          playSound('lose');
 
-        if (res && res.success && !res.allowed && res.remainingMs > 0) {
-          showMessage("⏱️ Hai già un tentativo in corso su questo dispositivo. Attendi lo scadere del timer.", "#e52b38");
-          startTimer(res.remainingMs);
+          const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
+          
+          let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
+          loseHtml += '<div class="story-prompt">';
+          loseHtml += '📸 Ti piace la risposta che ti è uscita?<br>';
+          loseHtml += '<strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>';
+          loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
+          loseHtml += '</div>';
+
+          showMessage(loseHtml, "#aaa", "anim-shake");
         }
-      } catch (e) { }
+
+        // Riabilita subito il bottone nei test admin (nessun timer di blocco)
+        submitBtn.disabled = false;
+        submitBtn.textContent = "ESTRAI IL PREMIO";
+      });
     }
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const nickname = instagramInput.value.trim();
+      const nickname = instagramInput.value.trim().toLowerCase();
       if (!nickname) return;
 
-      // 👑 MODALITÀ TEST ADMIN: Digita "@testadmin" per testare senza blocchi e decidere l'esito
-      if (nickname.toLowerCase() === '@testadmin') {
-        const simulaVittoria = true; // Metti false se vuoi testare la sconfitta al volo
-
-        triggerSmokeEffect(() => {
-          if (simulaVittoria) {
-            setWolfPose('victory');
-            playSound('win');
-            let winHtml = '🎉 <strong>TEST ADMIN: VITTORIA FORZATA!</strong><br><br>';
-            winHtml += 'Premio: <strong>Maglietta Ufficiale Lupo Nero</strong><br>';
-            winHtml += 'Codice: <strong>LN-TEST99</strong>';
-            showMessage(winHtml, "#28a745", "anim-win");
-            launchConfetti();
-          } else {
-            setWolfPose('defeat');
-            playSound('lose');
-            const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
-            let loseHtml = '😔 <strong>TEST ADMIN: SCONFITTA FORZATA</strong><br>' + randomPhrase;
-            showMessage(loseHtml, "#aaa", "anim-shake");
-          }
-        });
+      // 👑 COMANDI ADMIN PER TESTARE ALL'INFINITO (Senza salvare su Excel e senza blocchi)
+      if (nickname === 'admin_admin') {
+        const simulaVittoria = Math.random() < 0.5; // 50% di probabilità casuale
+        applicaRisultato(simulaVittoria);
+        return;
+      }
+      if (nickname === 'admin_win') {
+        applicaRisultato(true);
+        return;
+      }
+      if (nickname === 'admin_lose') {
+        applicaRisultato(false);
         return;
       }
 
-      localStorage.setItem('ln_last_nick', nickname);
-
+      // NICKNAME NORMALE (Salva su Excel e attiva il blocco)
       submitBtn.disabled = true;
       submitBtn.textContent = "ESTRAZIONE IN CORSO...";
 
       try {
         const res = await jsonp(SCRIPT_URL, {
           action: 'attempt',
-          nickname: nickname,
+          nickname: instagramInput.value.trim(),
           deviceId: getDeviceId()
         });
 
@@ -828,56 +802,42 @@
 
         if (!res.allowed) {
           showMessage("⏱️ Hai già partecipato. Attendi lo scadere del timer.", "#e52b38");
-          startTimer(res.remainingMs);
+          // Attiva il timer vero e proprio
+          if (timerInterval) clearInterval(timerInterval);
+          let endTime = Date.now() + res.remainingMs;
+          statusBox.style.display = 'block';
+          instagramInput.disabled = true;
+          
+          function updateTimer() {
+            let remaining = endTime - Date.now();
+            if (remaining <= 0) {
+              clearInterval(timerInterval);
+              statusBox.style.display = 'none';
+              submitBtn.disabled = false;
+              instagramInput.disabled = false;
+              setWolfPose('idle');
+              showMessage("Ora puoi effettuare un nuovo tentativo!", "#28a745");
+              return;
+            }
+            let h = Math.floor((remaining / 3600000) % 24);
+            let m = Math.floor((remaining / 60000) % 60);
+            let s = Math.floor((remaining / 1000) % 60);
+            timerElement.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+          }
+          updateTimer();
+          timerInterval = setInterval(updateTimer, 1000);
           return;
         }
 
-        // Attiviamo l'effetto fumo e in seguito mostriamo il risultato corretto
-        triggerSmokeEffect(() => {
-          if (res.won) {
-            setWolfPose('victory');
-            playSound('win');
-
-            let winHtml = '🎉 <strong>CONGRATULAZIONI! HAI VINTO!</strong><br><br>';
-            winHtml += 'Premio: <strong>' + res.prize + '</strong><br>';
-            winHtml += 'Codice: <strong>LN-' + res.code + '</strong><br><br>';
-            winHtml += '⚠️ <strong>PASSAGGIO FONDAMENTALE PER RISCATTARE:</strong><br>';
-            winHtml += 'Fai uno SCREENSHOT di questa schermata e invialo subito in DM a:<br>';
-            winHtml += '<a href="https://www.instagram.com/ReLupoNero" target="_blank" rel="noopener" class="claim-btn">📩 INVIA SCREENSHOT A @ReLupoNero</a>';
-            
-            showMessage(winHtml, "#28a745", "anim-win");
-            launchConfetti();
-          } else {
-            setWolfPose('defeat');
-            playSound('lose');
-
-            const randomPhrase = LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)];
-            
-            let loseHtml = '😔 <strong>' + randomPhrase + '</strong>';
-            loseHtml += '<div class="story-prompt">';
-            loseHtml += '📸 Ti piace la risposta che ti è uscita?<br>';
-            loseHtml += '<strong>Fai uno screenshot, pubblicalo nelle Storie e tagga <a href="https://www.instagram.com/Lista.LupoNero" target="_blank" rel="noopener">@Lista.LupoNero</a>!</strong><br>';
-            loseHtml += 'Ti ripostiamo sulla pagina ufficiale! 🐺🔥';
-            loseHtml += '</div>';
-
-            showMessage(loseHtml, "#aaa", "anim-shake");
-          }
-
-          startTimer(res.remainingMs || 28800000);
-        });
+        // Esito normale dal database
+        applicaRisultato(res.won);
 
       } catch (err) {
         showMessage("❌ Errore di rete. Controlla la connessione e riprova.", "#e52b38");
         submitBtn.disabled = false;
         submitBtn.textContent = "ESTRAI IL PREMIO";
-      } finally {
-        setTimeout(() => {
-          submitBtn.textContent = "ESTRAI IL PREMIO";
-        }, 500);
       }
     });
-
-    checkExistingCooldown();
   </script>
 </body>
 </html>
