@@ -1,77 +1,160 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#090909">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Lupo Runner | Lupo Games</title>
-    <link rel="stylesheet" href="gioco.css">
-    <script src="gioco.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="color-scheme" content="dark">
+  <title>Lupo Runner | Lista Lupo Nero</title>
+
+  <link rel="stylesheet" href="gioco.css">
+  <script src="gioco.js" defer></script>
 </head>
+
 <body>
-    <div id="loadingScreen">
-        <div class="spinner"></div>
-        <p>Caricamento modelli del lupo...</p>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-wolf">🐺</div>
+    <h1>LUPO RUNNER</h1>
+    <p>Il branco si sta preparando...</p>
+    <div class="loading-bar">
+      <span></span>
     </div>
+  </div>
 
-    <main id="gameArea">
-        <div id="fullscreenGame">
-            <div class="game-header-ui">
-                <div class="score-box">
-                    <span>PUNTI</span>
-                    <strong id="score">0</strong>
-                </div>
-                <div class="score-box">
-                    <span>RECORD</span>
-                    <strong id="personalBest">0</strong>
-                </div>
-            </div>
+  <main id="gameArea">
+    <section id="fullscreenGame" class="game-panel">
+      <header class="game-header-ui">
+        <a
+          class="brand-link"
+          href="../index.html"
+          aria-label="Torna alla Lista Lupo Nero"
+        >
+          <span class="brand-symbol">🐺</span>
+          <span class="brand-text">
+            <strong>LUPO RUNNER</strong>
+            <small>LISTA LUPO NERO</small>
+          </span>
+        </a>
 
-            <div class="game-title">
-                <h1>LUPO RUNNER</h1>
-                <p>Corri. Salta. Sopravvivi.</p>
-            </div>
+        <div class="game-stats">
+          <div class="score-box">
+            <span class="stat-label">PUNTEGGIO</span>
+            <strong id="score">0</strong>
+          </div>
 
-            <div class="canvas-wrapper" id="canvasWrapper">
-                <canvas id="gameCanvas" width="800" height="400"
-                    aria-label="Lupo Runner" tabindex="0"></canvas>
-            </div>
+          <div class="score-box">
+            <span class="stat-label">RECORD</span>
+            <strong id="personalBest">0</strong>
+          </div>
+        </div>
+      </header>
 
-            <div id="gameMessage" aria-live="polite">
-                Premi INIZIA PARTITA per cominciare
-            </div>
+      <div class="game-title">
+        <h1>Corri con il branco.</h1>
+        <p>Salta gli ostacoli, evita i pericoli e resisti più a lungo possibile.</p>
+      </div>
 
-            <div class="game-controls">
-                <button id="startGame" class="btn btn-start" type="button">INIZIA PARTITA</button>
-                <button id="jumpGame" class="btn btn-jump" type="button" disabled>SALTA</button>
-                <button id="pauseGame" class="btn btn-pause" type="button" disabled>PAUSA</button>
-                <button id="fullscreenBtn" class="btn btn-fullscreen" type="button">ESPANDI GIOCO</button>
-                <button id="backToList" class="btn btn-back" type="button">← TORNA ALLA LISTA</button>
-            </div>
+      <div id="canvasWrapper" class="canvas-wrapper">
+        <canvas
+          id="gameCanvas"
+          width="800"
+          height="400"
+          aria-label="Area di gioco Lupo Runner"
+        ></canvas>
+
+        <div id="gameMessage" class="game-message" aria-live="polite">
+          <div class="message-content">
+            <span class="message-wolf">🐺</span>
+            <strong>PRONTO A CORRERE?</strong>
+            <p>Premi INIZIA e prepara le zampe.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-controls">
+        <div class="controls">
+          <span class="control-hint">
+            <kbd>SPAZIO</kbd> / <kbd>↑</kbd> / tocco per saltare
+          </span>
         </div>
 
-        <section class="leaderboard-container" id="leaderboard">
-            <div class="leaderboard-header">
-                <h2>CLASSIFICA TOP 5</h2>
-                <button id="refreshBoard" class="refresh-btn" type="button">AGGIORNA</button>
-            </div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>Pos</th><th>Nome</th><th>Punti</th></tr>
-                    </thead>
-                    <tbody id="leaderboardBody">
-                        <tr><td colspan="3">Caricamento...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="leaderboardStatus"></div>
-        </section>
-    </main>
+        <div class="game-buttons">
+          <button id="startGame" class="game-button primary" type="button">
+            INIZIA
+          </button>
 
-    <footer class="game-footer">Lupo Games</footer>
+          <button id="jumpGame" class="game-button" type="button" disabled>
+            SALTA
+          </button>
+
+          <button id="pauseGame" class="game-button" type="button" disabled>
+            PAUSA
+          </button>
+
+          <button
+            id="fullscreenBtn"
+            class="game-button fullscreen-button"
+            type="button"
+            aria-pressed="false"
+          >
+            ESPANDI GIOCO
+          </button>
+
+          <a id="backToList" class="game-button back-button" href="../index.html">
+            TORNA ALLA LISTA
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="leaderboard-container" id="leaderboard">
+      <div class="leaderboard-header">
+        <div>
+          <span class="section-eyebrow">IL BRANCO</span>
+          <h2>Classifica dei lupi</h2>
+          <p>I migliori punteggi registrati.</p>
+        </div>
+
+        <button id="refreshBoard" class="game-button refresh-button" type="button">
+          AGGIORNA
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th scope="col">POS.</th>
+              <th scope="col">LUPETTO</th>
+              <th scope="col">PUNTI</th>
+            </tr>
+          </thead>
+
+          <tbody id="leaderboardBody">
+            <tr>
+              <td colspan="3" class="empty-row">Caricamento classifica...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite">
+        Connessione alla classifica...
+      </p>
+    </section>
+  </main>
+
+  <footer class="game-footer">
+    <p>
+      <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener noreferrer">
+        @Lista.LupoNero
+      </a>
+      <span>·</span>
+      <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener noreferrer">
+        @ReLupoNero
+      </a>
+    </p>
+    <small>Libertà · Musica · Branco</small>
+  </footer>
 </body>
 </html>
