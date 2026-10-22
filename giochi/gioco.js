@@ -1,13 +1,12 @@
-
 "use strict";
 
 /* =========================================================
    LUPO RUNNER — VERSIONE COMPLETA
    - Lupo animato con PNG e fallback disegnato
    - Angelo PNG in volo
-   - Serpente disegnato e animato in JavaScript
-   - Pecora PNG che può lanciare gomitoli
-   - Cassa musicale e cuore viola disegnati
+   - Serpente disegnato e animato
+   - Pecora che può lanciare gomitoli
+   - Cassa musicale e cuore viola
    - Punteggio, record, pausa, fullscreen e classifica
 ========================================================= */
 
@@ -37,19 +36,20 @@ const gameMessage = document.getElementById("gameMessage");
 
 /* ================= IMMAGINI ================= */
 
-// Percorso relativo a giochi/gioco.js.
-// I nomi corrispondono ESATTAMENTE alla struttura GitHub.
 const MODEL_PATH = "../assets/modelli/modello_gioco_corsa/";
 
 function caricaImmagine(nomeFile) {
     const img = new Image();
     img.src = MODEL_PATH + nomeFile;
+
     img.onload = () => {
         if (!gameRunning && ctx) renderStatico();
     };
+
     img.onerror = () => {
         console.warn("Immagine non caricata:", img.src);
     };
+
     return img;
 }
 
@@ -88,7 +88,9 @@ let nextObstacleFrame = 90;
 let obstacles = [];
 let projectiles = [];
 
-if (bestElement) bestElement.textContent = personalBest;
+if (bestElement) {
+    bestElement.textContent = personalBest;
+}
 
 /* ================= LUPO ================= */
 
@@ -134,7 +136,6 @@ const lupo = {
         if (immagineDisponibile(frame)) {
             ctx.drawImage(frame, this.x, this.y, this.width, this.height);
         } else {
-            // Fallback vettoriale: lupo di profilo, non un cubo.
             this.drawWolfFallback();
         }
     },
@@ -143,19 +144,18 @@ const lupo = {
         const x = this.x;
         const y = this.y;
         const w = this.width;
-        const h = this.height;
 
         ctx.save();
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
 
-        // Ombra a terra.
+        // Ombra a terra
         ctx.fillStyle = "rgba(0,0,0,0.25)";
         ctx.beginPath();
         ctx.ellipse(x + w * 0.48, groundY - 2, 35, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Coda.
+        // Coda
         ctx.strokeStyle = "#5A6268";
         ctx.lineWidth = 9;
         ctx.beginPath();
@@ -164,7 +164,7 @@ const lupo = {
         ctx.quadraticCurveTo(x + 17, y + 18, x + 28, y + 23);
         ctx.stroke();
 
-        // Corpo.
+        // Corpo
         ctx.fillStyle = "#7F888F";
         ctx.strokeStyle = "#1E2022";
         ctx.lineWidth = 2.5;
@@ -173,13 +173,13 @@ const lupo = {
         ctx.fill();
         ctx.stroke();
 
-        // Pancia.
+        // Pancia
         ctx.fillStyle = "#B0B7BC";
         ctx.beginPath();
         ctx.ellipse(x + 49, y + 48, 20, 8, 0.05, 0, Math.PI * 2);
         ctx.fill();
 
-        // Zampe alternate durante la corsa.
+        // Zampe alternate
         const step = Math.floor(frameCount / 5) % 2;
         ctx.strokeStyle = "#5A6268";
         ctx.lineWidth = 8;
@@ -195,14 +195,14 @@ const lupo = {
             ctx.stroke();
         }
 
-        // Collo e testa.
+        // Testa e collo
         ctx.fillStyle = "#7F888F";
         ctx.beginPath();
         ctx.ellipse(x + 69, y + 25, 17, 16, -0.2, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Muso rivolto a destra.
+        // Muso
         ctx.fillStyle = "#B0B7BC";
         ctx.beginPath();
         ctx.moveTo(x + 73, y + 28);
@@ -212,7 +212,7 @@ const lupo = {
         ctx.fill();
         ctx.stroke();
 
-        // Orecchio.
+        // Orecchio
         ctx.fillStyle = "#5A6268";
         ctx.beginPath();
         ctx.moveTo(x + 60, y + 18);
@@ -222,7 +222,7 @@ const lupo = {
         ctx.fill();
         ctx.stroke();
 
-        // Occhio.
+        // Occhio
         ctx.fillStyle = "#EAE6DF";
         ctx.beginPath();
         ctx.ellipse(x + 76, y + 23, 4.2, 3.2, 0, 0, Math.PI * 2);
@@ -233,13 +233,13 @@ const lupo = {
         ctx.arc(x + 78, y + 23, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Naso.
+        // Naso
         ctx.fillStyle = "#1E2022";
         ctx.beginPath();
         ctx.arc(x + 89, y + 32, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Dettaglio turchese sulla schiena.
+        // Dettaglio turchese
         ctx.strokeStyle = "#007D87";
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -328,6 +328,7 @@ class Obstacle {
             projectiles.push(
                 new Projectile(this.x + 8, this.y + this.height * 0.55)
             );
+
             this.hasThrown = true;
         }
 
@@ -411,7 +412,6 @@ class Obstacle {
     }
 
     drawAngelFallback() {
-        // Angelo stilizzato in volo orizzontale.
         const x = this.x;
         const y = this.y;
         const bob = Math.sin(this.phase) * 2;
@@ -421,7 +421,7 @@ class Obstacle {
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
 
-        // Ali distese dietro.
+        // Ali
         ctx.fillStyle = "#EAE6DF";
         ctx.strokeStyle = "#AAB5C0";
         ctx.lineWidth = 1.5;
@@ -442,7 +442,7 @@ class Obstacle {
         ctx.fill();
         ctx.stroke();
 
-        // Corpo e tunica.
+        // Corpo e tunica
         ctx.fillStyle = "#F6F3EA";
         ctx.beginPath();
         ctx.moveTo(27, 22);
@@ -454,7 +454,7 @@ class Obstacle {
         ctx.fill();
         ctx.stroke();
 
-        // Fascia dorata.
+        // Fascia
         ctx.strokeStyle = "#D5A64C";
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -462,20 +462,20 @@ class Obstacle {
         ctx.lineTo(44, 33);
         ctx.stroke();
 
-        // Testa.
+        // Testa
         ctx.fillStyle = "#F0C6A4";
         ctx.beginPath();
         ctx.arc(51, 17, 7, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Capelli.
+        // Capelli
         ctx.fillStyle = "#B87940";
         ctx.beginPath();
         ctx.arc(50, 14, 7, Math.PI, Math.PI * 2);
         ctx.fill();
 
-        // Braccio teso in avanti, posa Superman.
+        // Braccio in avanti
         ctx.strokeStyle = "#F0C6A4";
         ctx.lineWidth = 5;
         ctx.beginPath();
@@ -484,13 +484,12 @@ class Obstacle {
         ctx.lineTo(72, 13);
         ctx.stroke();
 
-        // Mano.
         ctx.fillStyle = "#F0C6A4";
         ctx.beginPath();
         ctx.arc(73, 13, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Gambe all'indietro.
+        // Gambe
         ctx.strokeStyle = "#EAE6DF";
         ctx.lineWidth = 5;
         ctx.beginPath();
@@ -502,7 +501,7 @@ class Obstacle {
         ctx.lineTo(23, 40);
         ctx.stroke();
 
-        // Aureola.
+        // Aureola
         ctx.strokeStyle = "#F3CF65";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -513,7 +512,6 @@ class Obstacle {
     }
 
     drawSnake() {
-        // Serpente ondulato disegnato direttamente nel canvas.
         const x = this.x;
         const y = this.y;
         const w = this.width;
@@ -525,15 +523,14 @@ class Obstacle {
 
         const wave = this.phase + frameCount * 0.12;
 
-        // Ombra.
+        // Ombra
         ctx.strokeStyle = "rgba(0,0,0,0.3)";
         ctx.lineWidth = 12;
         ctx.beginPath();
 
         for (let i = 0; i <= 12; i++) {
             const px = x + (i / 12) * w;
-            const py = y + h * 0.62 +
-                Math.sin(i * 0.8 + wave) * 6;
+            const py = y + h * 0.62 + Math.sin(i * 0.8 + wave) * 6;
 
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
@@ -541,15 +538,14 @@ class Obstacle {
 
         ctx.stroke();
 
-        // Corpo verde scuro.
+        // Corpo
         ctx.strokeStyle = "#245B3D";
         ctx.lineWidth = 12;
         ctx.beginPath();
 
         for (let i = 0; i <= 12; i++) {
             const px = x + (i / 12) * w;
-            const py = y + h * 0.52 +
-                Math.sin(i * 0.8 + wave) * 6;
+            const py = y + h * 0.52 + Math.sin(i * 0.8 + wave) * 6;
 
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
@@ -557,15 +553,14 @@ class Obstacle {
 
         ctx.stroke();
 
-        // Dorso verde.
+        // Dorso
         ctx.strokeStyle = "#59A65A";
         ctx.lineWidth = 7;
         ctx.beginPath();
 
         for (let i = 0; i <= 12; i++) {
             const px = x + (i / 12) * w;
-            const py = y + h * 0.47 +
-                Math.sin(i * 0.8 + wave) * 6;
+            const py = y + h * 0.47 + Math.sin(i * 0.8 + wave) * 6;
 
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
@@ -573,7 +568,7 @@ class Obstacle {
 
         ctx.stroke();
 
-        // Testa rivolta verso il giocatore.
+        // Testa
         const headX = x + w - 4;
         const headY = y + h * 0.45 + Math.sin(12 * 0.8 + wave) * 6;
 
@@ -586,7 +581,7 @@ class Obstacle {
         ctx.fill();
         ctx.stroke();
 
-        // Occhio giallo.
+        // Occhio
         ctx.fillStyle = "#F3D35C";
         ctx.beginPath();
         ctx.arc(headX + 3, headY - 5, 2.5, 0, Math.PI * 2);
@@ -597,7 +592,7 @@ class Obstacle {
         ctx.arc(headX + 4, headY - 5, 1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Lingua biforcuta.
+        // Lingua biforcuta
         ctx.strokeStyle = "#D94C65";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -787,7 +782,6 @@ function checkCollisions() {
     };
 
     for (const obs of obstacles) {
-        // Collisione leggermente tollerante per serpente e angelo.
         const marginX = obs.type === "serpente" ? 8 : 6;
         const marginY = obs.type === "serpente" ? 5 : 5;
 
@@ -1040,152 +1034,3 @@ if (canvasWrapper) {
         }
 
         if (gameRunning && !gamePaused) lupo.jump();
-    });
-} else if (canvas) {
-    canvas.addEventListener("pointerdown", () => {
-        if (gameRunning && !gamePaused) lupo.jump();
-    });
-}
-
-if (startButton) startButton.addEventListener("click", startGame);
-if (pauseButton) pauseButton.addEventListener("click", togglePause);
-
-/* ================= FULLSCREEN ================= */
-
-if (fullscreenButton) {
-    fullscreenButton.addEventListener("click", async () => {
-        const wrapper =
-            document.querySelector(".canvas-wrapper") || canvas;
-
-        if (!wrapper) return;
-
-        try {
-            if (!document.fullscreenElement) {
-                if (wrapper.requestFullscreen) {
-                    await wrapper.requestFullscreen();
-                } else if (wrapper.webkitRequestFullscreen) {
-                    wrapper.webkitRequestFullscreen();
-                }
-            } else if (document.exitFullscreen) {
-                await document.exitFullscreen();
-            }
-        } catch (err) {
-            console.error("Fullscreen non disponibile:", err);
-        }
-    });
-}
-
-/* ================= TORNA ALLA LISTA ================= */
-
-if (backToListButton) {
-    backToListButton.addEventListener("click", () => {
-        window.location.href = "../index.html";
-    });
-}
-
-/* ================= CLASSIFICA ONLINE ================= */
-
-if (refreshBoardButton) {
-    refreshBoardButton.addEventListener("click", fetchLeaderboard);
-}
-
-async function fetchLeaderboard() {
-    if (leaderboardStatus) {
-        leaderboardStatus.textContent = "Aggiornamento classifica...";
-    }
-
-    try {
-        const response = await fetch(LEADERBOARD_API_URL);
-
-        if (!response.ok) {
-            throw new Error("Risposta del server non valida");
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data)) {
-            throw new Error("Formato classifica non valido");
-        }
-
-        if (leaderboardBody) {
-            leaderboardBody.innerHTML = "";
-
-            data.slice(0, 5).forEach((item, index) => {
-                const tr = document.createElement("tr");
-                const tdPosizione = document.createElement("td");
-                const tdNome = document.createElement("td");
-                const tdPunti = document.createElement("td");
-
-                tdPosizione.textContent = String(index + 1);
-                tdNome.textContent = item.nome || "Giocatore";
-                tdPunti.textContent = String(item.punti || 0);
-
-                tr.append(tdPosizione, tdNome, tdPunti);
-                leaderboardBody.appendChild(tr);
-            });
-
-            if (data.length === 0) {
-                leaderboardBody.innerHTML =
-                    '<tr><td colspan="3">Ancora nessun punteggio</td></tr>';
-            }
-        }
-
-        if (leaderboardStatus) leaderboardStatus.textContent = "";
-    } catch (err) {
-        console.error("Errore caricamento classifica:", err);
-
-        if (leaderboardBody) {
-            leaderboardBody.innerHTML =
-                '<tr><td colspan="3">Impossibile caricare la classifica</td></tr>';
-        }
-
-        if (leaderboardStatus) {
-            leaderboardStatus.textContent = "Classifica non disponibile";
-        }
-    }
-}
-
-async function submitScore(points) {
-    if (points <= 0) return;
-
-    const playerName = (
-        prompt("Inserisci il tuo nome per la classifica:") || "Anonimo"
-    ).trim().slice(0, 30) || "Anonimo";
-
-    try {
-        await fetch(LEADERBOARD_API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nome: playerName,
-                punti: points
-            })
-        });
-
-        setTimeout(fetchLeaderboard, 1500);
-    } catch (err) {
-        console.error("Errore invio punteggio:", err);
-    }
-}
-
-/* ================= INIZIALIZZAZIONE ================= */
-
-function inizializzaGioco() {
-    if (loadingScreen) loadingScreen.style.display = "none";
-    if (gameArea) gameArea.classList.add("visible");
-
-    if (jumpButton) jumpButton.disabled = true;
-    if (pauseButton) pauseButton.disabled = true;
-
-    renderStatico();
-    fetchLeaderboard();
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", inizializzaGioco);
-} else {
-    inizializzaGioco();
-}
