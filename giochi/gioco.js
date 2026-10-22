@@ -1,9 +1,8 @@
-```javascript
 "use strict";
 
 /* =========================================================
-   LUPO RUNNER — VERSIONE COMPLETA RIPRISTINATA
-   Compatibile con index.html e gioco.css forniti
+   LUPO RUNNER — VERSIONE COMPLETA CORRETTA
+   Compatibile con giochi/index.html e gioco.css
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -15,7 +14,6 @@ const canvas = $("gameCanvas");
 const ctx = canvas ? canvas.getContext("2d") : null;
 const loadingScreen = $("loadingScreen");
 const gameArea = $("gameArea");
-const fullscreenGame = $("fullscreenGame");
 const canvasWrapper = $("canvasWrapper");
 
 const startButton = $("startGame");
@@ -43,25 +41,44 @@ if (canvas) {
 
 let gameRunning = false;
 let gamePaused = false;
-let animationFrameId = null;
+let animationFrameId = 0;
 let score = 0;
-let personalBest = Number(localStorage.getItem("lupo_runner_best")) || 0;
 let gameSpeed = 5;
 let frameCount = 0;
 let nextObstacleFrame = 90;
 let obstacles = [];
 let projectiles = [];
 let lastTime = 0;
+let lastSpeedScore = 0;
 
-if (bestElement) bestElement.textContent = personalBest;
+function readBest() {
+  try {
+    return Number(localStorage.getItem("lupo_runner_best")) || 0;
+  } catch (_) {
+    return 0;
+  }
+}
+
+let personalBest = readBest();
+
+if (bestElement) {
+  bestElement.textContent = String(personalBest);
+}
+
+/* ================= IMMAGINI ================= */
 
 function loadImage(filename) {
   const img = new Image();
-  img.src = MODEL_PATH + filename;
-  img.onload = () => {
+
+  img.onload = function () {
     if (!gameRunning) renderStatico();
   };
-  img.onerror = () => console.warn("Immagine non caricata:", img.src);
+
+  img.onerror = function () {
+    console.warn("Immagine non caricata:", MODEL_PATH + filename);
+  };
+
+  img.src = MODEL_PATH + filename;
   return img;
 }
 
@@ -73,7 +90,7 @@ const immagini = {
 };
 
 function imageReady(img) {
-  return Boolean(img && img.complete && img.naturalWidth > 0);
+  return !!(img && img.complete && img.naturalWidth > 0);
 }
 
 /* ================= LUPO ================= */
@@ -90,10 +107,12 @@ const lupo = {
 
   update() {
     if (!this.isJumping) return;
+
     this.vy += this.gravity;
     this.y += this.vy;
 
     const floor = groundY - this.height;
+
     if (this.y >= floor) {
       this.y = floor;
       this.vy = 0;
@@ -103,14 +122,16 @@ const lupo = {
 
   jump() {
     if (!gameRunning || gamePaused || this.isJumping) return;
+
     this.isJumping = true;
     this.vy = this.jumpPower;
   },
 
   draw() {
-    const frame = Math.floor(frameCount / 7) % 2 === 0
-      ? immagini.lupoFrame1
-      : immagini.lupoFrame2;
+    const frame =
+      Math.floor(frameCount / 7) % 2 === 0
+        ? immagini.lupoFrame1
+        : immagini.lupoFrame2;
 
     if (imageReady(frame)) {
       ctx.drawImage(frame, this.x, this.y, this.width, this.height);
@@ -127,11 +148,13 @@ const lupo = {
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
 
+    // Ombra
     ctx.fillStyle = "rgba(0,0,0,.25)";
     ctx.beginPath();
     ctx.ellipse(x + 45, groundY - 2, 34, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // Coda
     ctx.strokeStyle = "#5A6268";
     ctx.lineWidth = 8;
     ctx.beginPath();
@@ -139,6 +162,7 @@ const lupo = {
     ctx.quadraticCurveTo(x + 3, y + 26, x + 5, y + 10);
     ctx.stroke();
 
+    // Corpo
     ctx.fillStyle = "#7F888F";
     ctx.strokeStyle = "#1E2022";
     ctx.lineWidth = 2.5;
@@ -147,18 +171,21 @@ const lupo = {
     ctx.fill();
     ctx.stroke();
 
+    // Pancia
     ctx.fillStyle = "#B0B7BC";
     ctx.beginPath();
     ctx.ellipse(x + 49, y + 48, 19, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // Zampe animate
     const step = Math.floor(frameCount / 5) % 2;
-    ctx.strokeStyle = "#5A6268";
-    ctx.lineWidth = 8;
 
     const legs = step
       ? [[31, 48, 24, 60], [48, 48, 57, 60], [65, 47, 72, 58]]
       : [[31, 48, 37, 60], [48, 48, 42, 60], [65, 47, 60, 58]];
+
+    ctx.strokeStyle = "#5A6268";
+    ctx.lineWidth = 8;
 
     for (const leg of legs) {
       ctx.beginPath();
@@ -167,12 +194,14 @@ const lupo = {
       ctx.stroke();
     }
 
+    // Testa
     ctx.fillStyle = "#7F888F";
     ctx.beginPath();
     ctx.ellipse(x + 69, y + 25, 17, 16, -0.2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
+    // Muso
     ctx.fillStyle = "#B0B7BC";
     ctx.beginPath();
     ctx.moveTo(x + 73, y + 28);
@@ -182,6 +211,7 @@ const lupo = {
     ctx.fill();
     ctx.stroke();
 
+    // Orecchio
     ctx.fillStyle = "#5A6268";
     ctx.beginPath();
     ctx.moveTo(x + 60, y + 18);
@@ -191,6 +221,7 @@ const lupo = {
     ctx.fill();
     ctx.stroke();
 
+    // Occhio
     ctx.fillStyle = "#EAE6DF";
     ctx.beginPath();
     ctx.ellipse(x + 76, y + 23, 4, 3, 0, 0, Math.PI * 2);
@@ -201,11 +232,13 @@ const lupo = {
     ctx.arc(x + 78, y + 23, 2, 0, Math.PI * 2);
     ctx.fill();
 
+    // Naso
     ctx.fillStyle = "#1E2022";
     ctx.beginPath();
     ctx.arc(x + 89, y + 32, 3, 0, Math.PI * 2);
     ctx.fill();
 
+    // Dettaglio felpa
     ctx.strokeStyle = "#007D87";
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -265,7 +298,10 @@ class Obstacle {
       }
 
       if (this.dipsDown && this.dipStarted) {
-        this.y = Math.min(this.y + 1.2, groundY - this.height - 8);
+        this.y = Math.min(
+          this.y + 1.2,
+          groundY - this.height - 8
+        );
       } else {
         this.y = this.baseY + Math.sin(this.phase) * 9;
       }
@@ -277,23 +313,42 @@ class Obstacle {
       !this.hasThrown &&
       this.x < W - 230
     ) {
-      projectiles.push(new Projectile(this.x + 8, this.y + this.height * 0.55));
+      projectiles.push(
+        new Projectile(
+          this.x + 8,
+          this.y + this.height * 0.55
+        )
+      );
       this.hasThrown = true;
     }
 
-    if (this.x + this.width < 0) this.markedForDeletion = true;
+    if (this.x + this.width < 0) {
+      this.markedForDeletion = true;
+    }
   }
 
   draw() {
     if (this.type === "pecora") {
       if (imageReady(immagini.pecora)) {
-        ctx.drawImage(immagini.pecora, this.x, this.y, this.width, this.height);
+        ctx.drawImage(
+          immagini.pecora,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
       } else {
         this.drawSheep();
       }
     } else if (this.type === "angelo") {
       if (imageReady(immagini.angelo)) {
-        ctx.drawImage(immagini.angelo, this.x, this.y, this.width, this.height);
+        ctx.drawImage(
+          immagini.angelo,
+          this.x,
+          this.y,
+          this.width,
+          this.height
+        );
       } else {
         this.drawAngel();
       }
@@ -325,6 +380,7 @@ class Obstacle {
 
     ctx.strokeStyle = "#39353A";
     ctx.lineWidth = 4;
+
     for (const lx of [15, 28, 39]) {
       ctx.beginPath();
       ctx.moveTo(x + lx, y + 35);
@@ -332,7 +388,7 @@ class Obstacle {
       ctx.stroke();
     }
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#FFFFFF";
     ctx.beginPath();
     ctx.arc(x + 47, y + 19, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -404,7 +460,6 @@ class Obstacle {
     ctx.lineTo(72, 13);
     ctx.stroke();
 
-    ctx.fillStyle = "#F3CF65";
     ctx.strokeStyle = "#F3CF65";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -423,18 +478,24 @@ class Obstacle {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    for (const line of [
+    const lines = [
       { color: "rgba(0,0,0,.3)", width: 12, offset: 0.62 },
       { color: "#245B3D", width: 12, offset: 0.52 },
       { color: "#59A65A", width: 7, offset: 0.47 }
-    ]) {
+    ];
+
+    for (const line of lines) {
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
       ctx.beginPath();
 
       for (let i = 0; i <= 12; i++) {
         const px = x + (i / 12) * this.width;
-        const py = y + this.height * line.offset + Math.sin(i * 0.8 + wave) * 6;
+        const py =
+          y +
+          this.height * line.offset +
+          Math.sin(i * 0.8 + wave) * 6;
+
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
@@ -443,7 +504,10 @@ class Obstacle {
     }
 
     const hx = x + this.width - 4;
-    const hy = y + this.height * 0.45 + Math.sin(12 * 0.8 + wave) * 6;
+    const hy =
+      y +
+      this.height * 0.45 +
+      Math.sin(12 * 0.8 + wave) * 6;
 
     ctx.fillStyle = "#397A45";
     ctx.strokeStyle = "#173C2A";
@@ -504,7 +568,7 @@ class Obstacle {
     ctx.arc(x + w / 2, y + h / 2, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 12px sans-serif";
     ctx.fillText("♪", x + 5, y - 3);
   }
@@ -522,10 +586,26 @@ class Obstacle {
 
     ctx.beginPath();
     ctx.moveTo(x + w / 2, y + h - 3);
-    ctx.bezierCurveTo(x + w * .38, y + h * .78, x, y + h * .48, x + w * .12, y + h * .25);
-    ctx.bezierCurveTo(x + w * .22, y - 2, x + w * .43, y + h * .05, x + w / 2, y + h * .23);
-    ctx.bezierCurveTo(x + w * .65, y + h * .02, x + w * .92, y - 2, x + w * .98, y + h * .28);
-    ctx.bezierCurveTo(x + w, y + h * .53, x + w * .63, y + h * .83, x + w / 2, y + h - 3);
+    ctx.bezierCurveTo(
+      x + w * 0.38, y + h * 0.78,
+      x, y + h * 0.48,
+      x + w * 0.12, y + h * 0.25
+    );
+    ctx.bezierCurveTo(
+      x + w * 0.22, y - 2,
+      x + w * 0.43, y + h * 0.05,
+      x + w / 2, y + h * 0.23
+    );
+    ctx.bezierCurveTo(
+      x + w * 0.65, y + h * 0.02,
+      x + w * 0.92, y - 2,
+      x + w * 0.98, y + h * 0.28
+    );
+    ctx.bezierCurveTo(
+      x + w, y + h * 0.53,
+      x + w * 0.63, y + h * 0.83,
+      x + w / 2, y + h - 3
+    );
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -548,16 +628,21 @@ class Projectile {
   update() {
     this.x -= this.speedX;
     this.rotation += 0.12;
-    if (this.x + this.radius < 0) this.markedForDeletion = true;
+
+    if (this.x + this.radius < 0) {
+      this.markedForDeletion = true;
+    }
   }
 
   draw() {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation);
+
     ctx.fillStyle = "#D6B4FF";
     ctx.strokeStyle = "#8B5AC7";
     ctx.lineWidth = 2;
+
     ctx.beginPath();
     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
     ctx.fill();
@@ -571,6 +656,7 @@ class Projectile {
     ctx.moveTo(-2, -9);
     ctx.quadraticCurveTo(-8, 0, 2, 9);
     ctx.stroke();
+
     ctx.restore();
   }
 }
@@ -582,9 +668,11 @@ function drawEnvironment() {
   ctx.fillRect(0, 0, W, H);
 
   ctx.fillStyle = "#343044";
+
   for (let i = 0; i < 18; i++) {
     const x = ((i * 97 - frameCount * 0.25) % W + W) % W;
     const y = 35 + (i * 37) % 150;
+
     ctx.beginPath();
     ctx.arc(x, y, 1.5, 0, Math.PI * 2);
     ctx.fill();
@@ -602,6 +690,7 @@ function drawEnvironment() {
 
   ctx.strokeStyle = "#424654";
   ctx.lineWidth = 2;
+
   const offset = (frameCount * gameSpeed) % 60;
 
   for (let x = -offset; x < W; x += 60) {
@@ -614,6 +703,7 @@ function drawEnvironment() {
 
 function renderStatico() {
   if (!ctx || gameRunning) return;
+
   ctx.clearRect(0, 0, W, H);
   drawEnvironment();
   lupo.draw();
@@ -627,10 +717,15 @@ function handleObstacles() {
   if (frameCount >= nextObstacleFrame) {
     const types = ["pecora", "angelo", "serpente", "cassa", "cuore"];
     const type = types[Math.floor(Math.random() * types.length)];
+
     obstacles.push(new Obstacle(type));
 
     const reduction = Math.min(gameSpeed * 3, 25);
-    const interval = Math.max(55, 75 + Math.floor(Math.random() * 45) - reduction);
+    const interval = Math.max(
+      55,
+      75 + Math.floor(Math.random() * 45) - reduction
+    );
+
     nextObstacleFrame = frameCount + interval;
   }
 
@@ -644,12 +739,12 @@ function handleObstacles() {
     projectile.draw();
   }
 
-  obstacles = obstacles.filter((o) => !o.markedForDeletion);
-  projectiles = projectiles.filter((p) => !p.markedForDeletion);
+  obstacles = obstacles.filter((item) => !item.markedForDeletion);
+  projectiles = projectiles.filter((item) => !item.markedForDeletion);
 }
 
 function checkCollisions() {
-  const p = {
+  const player = {
     x: lupo.x + 16,
     y: lupo.y + 10,
     w: lupo.width - 28,
@@ -657,119 +752,180 @@ function checkCollisions() {
   };
 
   for (const obs of obstacles) {
-    const mx = obs.type === "serpente" ? 8 : 6;
-    const my = 5;
+    const marginX = obs.type === "serpente" ? 8 : 6;
+    const marginY = 5;
 
-    if (
-      p.x < obs.x + obs.width - mx &&
-      p.x + p.w > obs.x + mx &&
-      p.y < obs.y + obs.height - my &&
-      p.y + p.h > obs.y + my
-    ) {
+    const hit =
+      player.x < obs.x + obs.width - marginX &&
+      player.x + player.w > obs.x + marginX &&
+      player.y < obs.y + obs.height - marginY &&
+      player.y + player.h > obs.y + marginY;
+
+    if (hit) {
       gameOver();
       return;
     }
   }
 
   for (const proj of projectiles) {
-    if (
-      p.x < proj.x + proj.radius * .75 &&
-      p.x + p.w > proj.x - proj.radius * .75 &&
-      p.y < proj.y + proj.radius * .75 &&
-      p.y + p.h > proj.y - proj.radius * .75
-    ) {
+    const r = proj.radius * 0.75;
+
+    const hit =
+      player.x < proj.x + r &&
+      player.x + player.w > proj.x - r &&
+      player.y < proj.y + r &&
+      player.y + player.h > proj.y - r;
+
+    if (hit) {
       gameOver();
       return;
     }
   }
 }
 
-function gameLoop(timestamp = 0) {
+function gameLoop(timestamp) {
   if (!gameRunning || gamePaused || !ctx) return;
 
-  // Evita avanzamenti eccessivi dopo una scheda rimasta in background.
-  const delta = lastTime ? Math.min(timestamp - lastTime, 40) : 16;
-  lastTime = timestamp;
-  const steps = Math.max(1, delta / 16.67);
+  const now = Number.isFinite(timestamp) ? timestamp : 0;
+  const delta = lastTime ? Math.min(now - lastTime, 40) : 16.67;
+  lastTime = now;
+
+  const steps = Math.max(0.5, delta / 16.67);
 
   ctx.clearRect(0, 0, W, H);
   drawEnvironment();
+
   lupo.update();
   lupo.draw();
   handleObstacles();
 
   if (!gameRunning) return;
+
   checkCollisions();
+
   if (!gameRunning) return;
 
   score += steps;
 
-  if (scoreElement) scoreElement.textContent = Math.floor(score / 5);
-  if (Math.floor(score) > 0 && Math.floor(score) % 500 === 0) {
-    gameSpeed = Math.min(gameSpeed + 0.35, 10);
+  const displayedScore = Math.floor(score / 5);
+
+  if (scoreElement) {
+    scoreElement.textContent = String(displayedScore);
+  }
+
+  const speedLevel = Math.floor(score / 500);
+
+  if (speedLevel > lastSpeedScore) {
+    lastSpeedScore = speedLevel;
+    gameSpeed = Math.min(5 + speedLevel * 0.35, 10);
   }
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
 
-/* ================= PUNTEGGIO / CLASSIFICA ================= */
+/* ================= CLASSIFICA ================= */
+
+function setLeaderboardMessage(message) {
+  if (leaderboardStatus) {
+    leaderboardStatus.textContent = message;
+  }
+}
 
 function askNickname() {
-  const name = window.prompt("Inserisci il tuo nickname per la classifica:");
-  if (name === null) return "";
-  return name.trim().slice(0, 24);
+  const answer = window.prompt(
+    "Inserisci il tuo nickname per la classifica:"
+  );
+
+  if (answer === null) return "";
+
+  return answer.trim().slice(0, 24);
 }
 
 async function fetchLeaderboard() {
   if (!leaderboardBody) return;
 
-  if (leaderboardStatus) leaderboardStatus.textContent = "Caricamento classifica...";
-  leaderboardBody.innerHTML = "<tr><td colspan='3'>Caricamento...</td></tr>";
+  setLeaderboardMessage("Caricamento classifica...");
+  leaderboardBody.innerHTML =
+    "<tr><td colspan=\"3\">Caricamento...</td></tr>";
 
   try {
-    const response = await fetch(LEADERBOARD_API_URL, { method: "GET" });
-    if (!response.ok) throw new Error("Risposta server non valida");
+    const response = await fetch(LEADERBOARD_API_URL + "?t=" + Date.now(), {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Risposta server non valida: " + response.status);
+    }
 
     const data = await response.json();
-    const rows = Array.isArray(data)
-      ? data
-      : (Array.isArray(data.classifica) ? data.classifica :
-         Array.isArray(data.leaderboard) ? data.leaderboard : []);
+
+    let rows = [];
+
+    if (Array.isArray(data)) {
+      rows = data;
+    } else if (data && Array.isArray(data.classifica)) {
+      rows = data.classifica;
+    } else if (data && Array.isArray(data.leaderboard)) {
+      rows = data.leaderboard;
+    } else if (data && Array.isArray(data.data)) {
+      rows = data.data;
+    }
+
+    rows = rows
+      .map((entry) => ({
+        nome: String(
+          entry.nome ?? entry.nickname ?? entry.name ?? "Lupetto"
+        ),
+        punti: Number(
+          entry.punti ?? entry.score ?? entry.punteggio ?? 0
+        )
+      }))
+      .filter((entry) => Number.isFinite(entry.punti))
+      .sort((a, b) => b.punti - a.punti)
+      .slice(0, 5);
 
     leaderboardBody.innerHTML = "";
 
     if (!rows.length) {
-      leaderboardBody.innerHTML = "<tr><td colspan='3'>Nessun punteggio disponibile</td></tr>";
+      leaderboardBody.innerHTML =
+        "<tr><td colspan=\"3\">Nessun punteggio disponibile</td></tr>";
     } else {
-      rows.slice(0, 5).forEach((entry, index) => {
-        const name = entry.nome ?? entry.nickname ?? entry.name ?? "Lupetto";
-        const points = Number(entry.punti ?? entry.score ?? entry.punteggio ?? 0);
+      rows.forEach((entry, index) => {
         const tr = document.createElement("tr");
-        [String(index + 1), String(name), String(points)].forEach((value) => {
-          const td = document.createElement("td");
-          td.textContent = value;
-          tr.appendChild(td);
-        });
+
+        [String(index + 1), entry.nome, String(entry.punti)].forEach(
+          (value) => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            tr.appendChild(td);
+          }
+        );
+
         leaderboardBody.appendChild(tr);
       });
     }
 
-    if (leaderboardStatus) leaderboardStatus.textContent = "Classifica aggiornata.";
+    setLeaderboardMessage("Classifica aggiornata.");
   } catch (error) {
     console.error("Errore caricamento classifica:", error);
-    leaderboardBody.innerHTML = "<tr><td colspan='3'>Classifica non disponibile</td></tr>";
-    if (leaderboardStatus) {
-      leaderboardStatus.textContent = "Impossibile leggere la classifica. Riprova tra poco.";
-    }
+
+    leaderboardBody.innerHTML =
+      "<tr><td colspan=\"3\">Classifica non disponibile</td></tr>";
+
+    setLeaderboardMessage(
+      "Impossibile leggere la classifica. Il gioco resta utilizzabile."
+    );
   }
 }
 
 async function submitScore(finalScore) {
   const nickname = askNickname();
+
   if (!nickname) {
-    if (leaderboardStatus) {
-      leaderboardStatus.textContent = "Punteggio non inviato: nickname non inserito.";
-    }
+    setLeaderboardMessage(
+      "Punteggio non inviato: nickname non inserito."
+    );
     return;
   }
 
@@ -777,21 +933,23 @@ async function submitScore(finalScore) {
     await fetch(LEADERBOARD_API_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      headers: {
+        "Content-Type": "text/plain;charset=UTF-8"
+      },
       body: JSON.stringify({
         nome: nickname,
-        nickname,
+        nickname: nickname,
         punti: finalScore,
         score: finalScore
       })
     });
 
-    if (leaderboardStatus) {
-      leaderboardStatus.textContent = "Invio del punteggio effettuato. Aggiorna la classifica tra qualche secondo.";
-    }
+    setLeaderboardMessage(
+      "Richiesta di invio effettuata. Aggiorna la classifica tra qualche secondo."
+    );
   } catch (error) {
     console.error("Errore invio punteggio:", error);
-    if (leaderboardStatus) leaderboardStatus.textContent = "Invio del punteggio non riuscito.";
+    setLeaderboardMessage("Invio del punteggio non riuscito.");
   }
 }
 
@@ -799,6 +957,11 @@ async function submitScore(finalScore) {
 
 function startGame() {
   if (gameRunning) return;
+
+  if (!ctx) {
+    showFatalError("Il canvas del gioco non è disponibile.");
+    return;
+  }
 
   cancelAnimationFrame(animationFrameId);
 
@@ -808,9 +971,10 @@ function startGame() {
   gameSpeed = 5;
   frameCount = 0;
   nextObstacleFrame = 90;
+  lastTime = 0;
+  lastSpeedScore = 0;
   obstacles = [];
   projectiles = [];
-  lastTime = 0;
 
   lupo.y = groundY - lupo.height;
   lupo.vy = 0;
@@ -822,16 +986,20 @@ function startGame() {
     startButton.disabled = true;
     startButton.textContent = "IN CORSO";
   }
+
   if (jumpButton) jumpButton.disabled = false;
+
   if (pauseButton) {
     pauseButton.disabled = false;
     pauseButton.textContent = "PAUSA";
   }
+
   if (gameMessage) {
-    gameMessage.textContent = "Corri, salta gli ostacoli e schiva i gomitoli!";
+    gameMessage.textContent =
+      "Corri, salta gli ostacoli e schiva i gomitoli!";
   }
 
-  gameLoop();
+  animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function gameOver() {
@@ -839,30 +1007,44 @@ function gameOver() {
 
   gameRunning = false;
   gamePaused = false;
+
   cancelAnimationFrame(animationFrameId);
 
   const finalScore = Math.floor(score / 5);
 
-  if (gameMessage) gameMessage.textContent = `GAME OVER! Punti realizzati: ${finalScore}`;
+  if (gameMessage) {
+    gameMessage.textContent =
+      "GAME OVER! Punti realizzati: " + finalScore;
+  }
 
   if (finalScore > personalBest) {
     personalBest = finalScore;
-    localStorage.setItem("lupo_runner_best", String(personalBest));
-    if (bestElement) bestElement.textContent = String(personalBest);
+
+    try {
+      localStorage.setItem("lupo_runner_best", String(personalBest));
+    } catch (error) {
+      console.warn("Impossibile salvare il record locale.", error);
+    }
+
+    if (bestElement) {
+      bestElement.textContent = String(personalBest);
+    }
   }
 
   if (startButton) {
     startButton.disabled = false;
     startButton.textContent = "RIGIOCA";
   }
+
   if (jumpButton) jumpButton.disabled = true;
+
   if (pauseButton) {
     pauseButton.disabled = true;
     pauseButton.textContent = "PAUSA";
   }
 
-  submitScore(finalScore);
   renderStatico();
+  submitScore(finalScore);
 }
 
 function togglePause() {
@@ -872,115 +1054,152 @@ function togglePause() {
 
   if (gamePaused) {
     cancelAnimationFrame(animationFrameId);
+
     if (pauseButton) pauseButton.textContent = "RIPRENDI";
     if (gameMessage) gameMessage.textContent = "Gioco in pausa";
   } else {
     lastTime = 0;
+
     if (pauseButton) pauseButton.textContent = "PAUSA";
-    if (gameMessage) gameMessage.textContent = "Gioco ripreso!";
+    if (gameMessage) {
+      gameMessage.textContent = "Gioco ripreso!";
+    }
+
     animationFrameId = requestAnimationFrame(gameLoop);
   }
 }
 
-/* ================= FULLSCREEN ================= */
+/* ================= SCHERMO INTERO ================= */
 
 async function toggleFullscreen() {
-  const target = gameArea;
-  if (!target) return;
+  if (!gameArea) return;
 
-  const isFallback = target.classList.contains("fullscreen-mode");
+  const fallbackActive = gameArea.classList.contains("fullscreen-mode");
 
   try {
-    if (document.fullscreenElement === target) {
+    if (document.fullscreenElement === gameArea) {
       await document.exitFullscreen();
-      target.classList.remove("fullscreen-mode");
-      if (fullscreenButton) fullscreenButton.textContent = "ESPANDI GIOCO";
       return;
     }
 
-    if (isFallback) {
-      target.classList.remove("fullscreen-mode");
-      if (fullscreenButton) fullscreenButton.textContent = "ESPANDI GIOCO";
+    if (fallbackActive) {
+      gameArea.classList.remove("fullscreen-mode");
+      updateFullscreenButton();
       return;
     }
 
-    if (target.requestFullscreen) {
-      await target.requestFullscreen();
+    if (gameArea.requestFullscreen) {
+      await gameArea.requestFullscreen();
     } else {
-      target.classList.add("fullscreen-mode");
+      gameArea.classList.add("fullscreen-mode");
     }
 
-    if (fullscreenButton) fullscreenButton.textContent = "ESCI DA SCHERMO INTERO";
+    updateFullscreenButton();
   } catch (error) {
-    console.warn("Fullscreen nativo non disponibile, uso modalità di riserva.", error);
-    target.classList.add("fullscreen-mode");
-    if (fullscreenButton) fullscreenButton.textContent = "ESCI DA SCHERMO INTERO";
+    console.warn("Fullscreen nativo non disponibile:", error);
+
+    gameArea.classList.add("fullscreen-mode");
+    updateFullscreenButton();
   }
 }
 
-document.addEventListener("fullscreenchange", () => {
-  const active = document.fullscreenElement === gameArea ||
-    Boolean(gameArea && gameArea.classList.contains("fullscreen-mode"));
+function updateFullscreenButton() {
+  if (!fullscreenButton) return;
 
-  if (fullscreenButton) {
-    fullscreenButton.textContent = active ? "ESCI DA SCHERMO INTERO" : "ESPANDI GIOCO";
-  }
-});
+  const active =
+    document.fullscreenElement === gameArea ||
+    gameArea.classList.contains("fullscreen-mode");
+
+  fullscreenButton.textContent = active
+    ? "ESCI DA SCHERMO INTERO"
+    : "ESPANDI GIOCO";
+}
+
+document.addEventListener("fullscreenchange", updateFullscreenButton);
 
 /* ================= CONTROLLI ================= */
 
 function handleJump(event) {
   if (event) event.preventDefault();
-  if (gameRunning && !gamePaused) lupo.jump();
+
+  if (gameRunning && !gamePaused) {
+    lupo.jump();
+  }
 }
 
-if (startButton) startButton.addEventListener("click", startGame);
+if (startButton) {
+  startButton.addEventListener("click", startGame);
+}
+
 if (jumpButton) {
   jumpButton.addEventListener("pointerdown", handleJump);
 }
-if (pauseButton) pauseButton.addEventListener("click", togglePause);
-if (fullscreenButton) fullscreenButton.addEventListener("click", toggleFullscreen);
-if (refreshBoardButton) refreshBoardButton.addEventListener("click", fetchLeaderboard);
+
+if (pauseButton) {
+  pauseButton.addEventListener("click", togglePause);
+}
+
+if (fullscreenButton) {
+  fullscreenButton.addEventListener("click", toggleFullscreen);
+}
+
+if (refreshBoardButton) {
+  refreshBoardButton.addEventListener("click", fetchLeaderboard);
+}
 
 if (backToListButton) {
-  backToListButton.addEventListener("click", () => {
+  backToListButton.addEventListener("click", function () {
     window.location.href = "../../";
   });
 }
 
 if (canvasWrapper) {
-  canvasWrapper.addEventListener("pointerdown", (event) => {
+  canvasWrapper.addEventListener("pointerdown", function (event) {
     if (event.target.closest("button, input, textarea")) return;
-    if (gameRunning && !gamePaused) lupo.jump();
+
+    if (gameRunning && !gamePaused) {
+      lupo.jump();
+    }
   });
 }
 
-window.addEventListener("keydown", (event) => {
+window.addEventListener("keydown", function (event) {
   if (event.code !== "Space" && event.code !== "ArrowUp") return;
 
-  const tag = document.activeElement?.tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
+  const tag = document.activeElement
+    ? document.activeElement.tagName
+    : "";
+
+  if (
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "BUTTON"
+  ) {
+    return;
+  }
 
   event.preventDefault();
 
   if (!gameRunning && startButton && !startButton.disabled) {
     startGame();
-  } else {
+  } else if (gameRunning && !gamePaused) {
     lupo.jump();
   }
 });
 
-window.addEventListener("resize", () => {
+window.addEventListener("resize", function () {
   if (!gameRunning) renderStatico();
 });
 
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && gameRunning && !gamePaused) togglePause();
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden && gameRunning && !gamePaused) {
+    togglePause();
+  }
 });
 
-/* ================= INIZIALIZZAZIONE ================= */
+/* ================= ERRORI / INIZIALIZZAZIONE ================= */
 
-function inizializzaGioco() {
+function showFatalError(message) {
   if (loadingScreen) loadingScreen.style.display = "none";
 
   if (gameArea) {
@@ -988,20 +1207,43 @@ function inizializzaGioco() {
     gameArea.style.display = "block";
   }
 
-  if (!ctx) {
-    if (gameMessage) {
-      gameMessage.textContent = "Errore: canvas del gioco non disponibile.";
-    }
-    return;
+  if (gameMessage) {
+    gameMessage.textContent = "Errore: " + message;
   }
 
-  renderStatico();
-  fetchLeaderboard();
+  console.error("Lupo Runner:", message);
+}
+
+function inizializzaGioco() {
+  try {
+    if (loadingScreen) loadingScreen.style.display = "none";
+
+    if (gameArea) {
+      gameArea.classList.add("visible");
+      gameArea.style.display = "block";
+    }
+
+    if (!canvas || !ctx) {
+      showFatalError("Canvas non trovato. Controlla l'HTML del gioco.");
+      return;
+    }
+
+    renderStatico();
+
+    // La classifica non deve impedire l'avvio del gioco.
+    fetchLeaderboard();
+  } catch (error) {
+    console.error("Errore inizializzazione Lupo Runner:", error);
+    showFatalError("Errore durante l'inizializzazione. Controlla la Console.");
+  }
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", inizializzaGioco, { once: true });
+  document.addEventListener(
+    "DOMContentLoaded",
+    inizializzaGioco,
+    { once: true }
+  );
 } else {
   inizializzaGioco();
 }
-```
