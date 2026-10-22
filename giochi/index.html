@@ -1,34 +1,27 @@
+
 <!doctype html>
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
   <meta name="color-scheme" content="dark">
   <title>Lupo Runner | Lista Lupo Nero</title>
-
   <link rel="stylesheet" href="gioco.css">
   <script src="gioco.js" defer></script>
 </head>
-
 <body>
   <div id="loadingScreen" class="loading-screen">
     <div class="loading-wolf">🐺</div>
     <h1>LUPO RUNNER</h1>
     <p>Il branco si sta preparando...</p>
-    <div class="loading-bar">
-      <span></span>
-    </div>
+    <div class="loading-bar"><span></span></div>
   </div>
 
   <main id="gameArea">
     <section id="fullscreenGame" class="game-panel">
       <header class="game-header-ui">
-        <a
-          class="brand-link"
-          href="../index.html"
-          aria-label="Torna alla Lista Lupo Nero"
-        >
+        <a class="brand-link" href="../index.html" aria-label="Torna alla Lista Lupo Nero">
           <span class="brand-symbol">🐺</span>
           <span class="brand-text">
             <strong>LUPO RUNNER</strong>
@@ -41,7 +34,6 @@
             <span class="stat-label">PUNTEGGIO</span>
             <strong id="score">0</strong>
           </div>
-
           <div class="score-box">
             <span class="stat-label">RECORD</span>
             <strong id="personalBest">0</strong>
@@ -55,12 +47,8 @@
       </div>
 
       <div id="canvasWrapper" class="canvas-wrapper">
-        <canvas
-          id="gameCanvas"
-          width="800"
-          height="400"
-          aria-label="Area di gioco Lupo Runner"
-        ></canvas>
+        <canvas id="gameCanvas" width="800" height="400"
+          aria-label="Area di gioco Lupo Runner"></canvas>
 
         <div id="gameMessage" class="game-message" aria-live="polite">
           <div class="message-content">
@@ -79,27 +67,11 @@
         </div>
 
         <div class="game-buttons">
-          <button id="startGame" class="game-button primary" type="button">
-            INIZIA
-          </button>
-
-          <button id="jumpGame" class="game-button" type="button" disabled>
-            SALTA
-          </button>
-
-          <button id="pauseGame" class="game-button" type="button" disabled>
-            PAUSA
-          </button>
-
-          <button
-            id="fullscreenBtn"
-            class="game-button fullscreen-button"
-            type="button"
-            aria-pressed="false"
-          >
-            ESPANDI GIOCO
-          </button>
-
+          <button id="startGame" class="game-button primary" type="button">INIZIA</button>
+          <button id="jumpGame" class="game-button" type="button" disabled>SALTA</button>
+          <button id="pauseGame" class="game-button" type="button" disabled>PAUSA</button>
+          <button id="fullscreenBtn" class="game-button fullscreen-button"
+            type="button" aria-pressed="false">ESPANDI GIOCO</button>
           <a id="backToList" class="game-button back-button" href="../index.html">
             TORNA ALLA LISTA
           </a>
@@ -114,7 +86,6 @@
           <h2>Classifica dei lupi</h2>
           <p>I migliori punteggi registrati.</p>
         </div>
-
         <button id="refreshBoard" class="game-button refresh-button" type="button">
           AGGIORNA
         </button>
@@ -129,15 +100,11 @@
               <th scope="col">PUNTI</th>
             </tr>
           </thead>
-
           <tbody id="leaderboardBody">
-            <tr>
-              <td colspan="3" class="empty-row">Caricamento classifica...</td>
-            </tr>
+            <tr><td colspan="3" class="empty-row">Caricamento classifica...</td></tr>
           </tbody>
         </table>
       </div>
-
       <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite">
         Connessione alla classifica...
       </p>
@@ -146,13 +113,11 @@
 
   <footer class="game-footer">
     <p>
-      <a href="https://www.instagram.com/lista.luponero/" target="_blank" rel="noopener noreferrer">
-        @Lista.LupoNero
-      </a>
+      <a href="https://www.instagram.com/lista.luponero/" target="_blank"
+        rel="noopener noreferrer">@Lista.LupoNero</a>
       <span>·</span>
-      <a href="https://www.instagram.com/reluponero/" target="_blank" rel="noopener noreferrer">
-        @ReLupoNero
-      </a>
+      <a href="https://www.instagram.com/reluponero/" target="_blank"
+        rel="noopener noreferrer">@ReLupoNero</a>
     </p>
     <small>Libertà · Musica · Branco</small>
   </footer>
