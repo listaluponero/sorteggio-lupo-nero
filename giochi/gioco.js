@@ -1,10 +1,11 @@
-
+```javascript
 "use strict";
 
 /* =========================================================
    LUPO RUNNER — LISTA LUPO NERO
    Avvio, salto, pausa, fullscreen, ostacoli, record e classifica.
-   Aggiornamento: angeli con discesa permanente e hitbox ridotte.
+   FIX: angeli normali attraversabili senza collisioni.
+   Gli angeli che scendono rimangono pericolosi.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -345,9 +346,11 @@ function makeObstacle(type) {
   } else if (type === "angel") {
     obstacle.w = 55;
     obstacle.h = 65;
-    obstacle.y = GROUND - 105;
 
-    // Circa il 38% degli angeli effettua una discesa.
+    // Gli angeli normali volano alti.
+    // Quelli che scendono diventano pericolosi.
+    obstacle.y = GROUND - 145;
+
     obstacle.dips = Math.random() < 0.38;
     obstacle.dipStarted = false;
     obstacle.dipY = 0;
@@ -377,16 +380,16 @@ function spawnObstacle() {
   obstacles.push(makeObstacle(type));
 }
 
-/*
-  POSIZIONE DELL'ANGELO
+/* MOVIMENTO ANGELO */
 
-  Prima della discesa l'angelo oscilla leggermente.
-  Quando inizia a scendere, il movimento è solo verso il basso.
-  Una volta raggiunta la posizione finale, rimane lì.
-*/
 function getAngelY(o) {
   if (o.dips && o.dipStarted) {
     return o.y + o.dipY;
+  }
+
+  // Gli angeli normali restano alti e passabili sotto.
+  if (!o.dips) {
+    return o.y + Math.sin(worldTime * 0.025 + o.phase) * 3;
   }
 
   return o.y + Math.sin(worldTime * 0.045 + o.phase) * 7;
@@ -398,8 +401,6 @@ function updateAngel(o, factor) {
   // Inizia la discesa quando si avvicina al lupo.
   if (!o.dipStarted && o.x < W * 0.72) {
     o.dipStarted = true;
-
-    // Evita un salto improvviso nella posizione iniziale.
     o.dipY = Math.max(
       0,
       Math.sin(worldTime * 0.045 + o.phase) * 7
@@ -407,9 +408,9 @@ function updateAngel(o, factor) {
   }
 
   if (o.dipStarted) {
-    // dipY aumenta soltanto: non può più diminuire.
+    // Discesa progressiva, senza risalita.
     o.dipY = Math.min(
-      43,
+      70,
       o.dipY + o.dipSpeed * factor
     );
   }
@@ -597,7 +598,6 @@ function drawProjectiles() {
 /* COLLISIONI */
 
 function playerHitbox() {
-  // Hitbox più stretta rispetto all'immagine del lupo.
   return {
     x: player.x + 22,
     y: player.y + 20,
@@ -619,15 +619,25 @@ function checkCollisions() {
   const hitbox = playerHitbox();
 
   for (const o of obstacles) {
+    // FIX IMPORTANTE:
+    // Gli angeli normali NON possono causare collisioni.
+    // Si controllano soltanto quelli che hanno la discesa attiva.
+    if (o.type === "angel" && !o.dips) {
+      continue;
+    }
+
     let box;
 
     if (o.type === "angel") {
       const y = getAngelY(o);
 
+      // L'angelo che scende diventa pericoloso quando
+      // raggiunge realmente la traiettoria del lupo.
+      // Hitbox ridotta per evitare collisioni ingiuste.
       box = {
-        x: o.x + 15,
+        x: o.x + 17,
         y: y + 15,
-        w: o.w - 30,
+        w: o.w - 34,
         h: o.h - 30
       };
     } else if (o.type === "snake") {
@@ -814,7 +824,6 @@ function updateGame(dt) {
   for (const o of obstacles) {
     o.x -= speed * factor;
 
-    // Aggiorna la discesa dell'angelo senza permettergli di risalire.
     if (o.type === "angel") {
       updateAngel(o, factor);
     }
@@ -1201,3 +1210,4 @@ function initialise() {
 }
 
 initialise();
+```
