@@ -2,7 +2,7 @@
 
 /* =========================================================
     LUPO RUNNER — LISTA LUPO NERO
-    Avvio, salto, pausa, fullscreen, ostacoli, record e classifica.
+    Avvio, salto, pausa, fullscreen, ostacoli, bonus, record e classifica.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -14,7 +14,6 @@ const canvas = $("gameCanvas");
 const ctx = canvas ? canvas.getContext("2d") : null;
 const loadingScreen = $("loadingScreen");
 const fullscreenGame = $("fullscreenGame");
-const canvasWrapper = $("canvasWrapper");
 
 const startButton = $("startGame");
 const jumpButton = $("jumpGame");
@@ -32,13 +31,12 @@ const W = 800;
 const H = 400;
 const GROUND = 320;
 const BEST_KEY = "lupo_runner_best";
-const LOCAL_BOARD_KEY = "lupoRunnerLeaderboard";
 const MODEL_PATH = "../assets/modelli/modello_gioco_corsa/";
 const MAX_DELTA = 34;
 
 if (!canvas || !ctx) {
   if (loadingScreen) loadingScreen.classList.add("hidden");
-  throw new Error("Lupo Runner: canvas di gioco non trovato. Controlla l'ID gameCanvas in index.html.");
+  throw new Error("Lupo Runner: canvas non trovato.");
 }
 
 canvas.width = W;
@@ -56,12 +54,9 @@ let spawnTimer = 0;
 let nextSpawn = 100;
 let obstacles = [];
 let projectiles = [];
+let floatingPopups = []; // Per mostrare "+300" a schermo
 let personalBest = readBest();
-let submittingScore = false;
 let fallbackFullscreen = false;
-let previousBodyOverflow = "";
-let lastBoardRequest = 0;
-let frame = 0;
 
 if (bestElement) bestElement.textContent = String(personalBest);
 
@@ -107,16 +102,8 @@ function random(min, max) {
 function roundedRect(x, y, width, height, radius, fill, stroke) {
   ctx.beginPath();
   ctx.roundRect(x, y, width, height, radius);
-
-  if (fill) {
-    ctx.fillStyle = fill;
-    ctx.fill();
-  }
-
-  if (stroke) {
-    ctx.strokeStyle = stroke;
-    ctx.stroke();
-  }
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
 }
 
 function drawText(text, x, y, size, color, align) {
@@ -124,14 +111,6 @@ function drawText(text, x, y, size, color, align) {
   ctx.textAlign = align || "left";
   ctx.fillStyle = color;
   ctx.fillText(String(text), x, y);
-}
-
-function stageName() {
-  if (score < 300) return "APPRENDIMENTO";
-  if (score < 800) return "ATTENZIONE";
-  if (score < 1600) return "SOPRAVVIVENZA";
-  if (score < 2800) return "LUPO NERO";
-  return "INCUBO";
 }
 
 /* LUPO */
@@ -178,25 +157,19 @@ const player = {
   },
 
   draw() {
-    const image = Math.floor(this.animation / 7) % 2 === 0
-      ? images.wolf1
-      : images.wolf2;
-
+    const image = Math.floor(this.animation / 7) % 2 === 0 ? images.wolf1 : images.wolf2;
     if (imageReady(image)) {
       ctx.drawImage(image, this.x, this.y, this.w, this.h);
       return;
     }
-
     this.drawFallback();
   },
 
   drawFallback() {
-    const x = this.x;
-    const y = this.y;
     ctx.save();
     ctx.fillStyle = "#0008";
     ctx.beginPath();
-    ctx.ellipse(x + 47, GROUND + 3, 47, 7, 0, 0, Math.PI * 2);
+    ctx.ellipse(this.x + 47, GROUND + 3, 47, 7, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -220,19 +193,7 @@ function drawBackground() {
   ctx.fill();
   ctx.globalAlpha = 1;
 
-  for (let i = 0; i < 28; i++) {
-    const x = (i * 137 + 37) % W;
-    const y = (i * 43 + 19) % 150;
-
-    ctx.fillStyle = "#c2d8d3";
-    ctx.globalAlpha = 0.3 + ((i % 3) * 0.2);
-    ctx.fillRect(x, y, 2, 2);
-  }
-
-  ctx.globalAlpha = 1;
-
   const offset = (worldTime * speed * 0.18) % 110;
-
   for (let x = -110; x < W + 110; x += 110) {
     const px = x - offset;
     ctx.fillStyle = "#101d1d";
@@ -252,11 +213,9 @@ function drawBackground() {
   ctx.moveTo(0, GROUND);
   ctx.lineTo(W, GROUND);
   ctx.stroke();
-
-  drawText(stageName(), W - 18, 28, 12, "#65cfc4", "right");
 }
 
-/* OSTACOLI */
+/* OSTACOLI E BONUS */
 
 function makeObstacle(type) {
   const obstacle = {
@@ -270,8 +229,8 @@ function makeObstacle(type) {
   };
 
   if (type === "snake") {
-    obstacle.w = 68;
-    obstacle.h = 32;
+    obstacle.w = 60;
+    obstacle.h = 35;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "angel") {
     obstacle.w = 64;
@@ -286,9 +245,11 @@ function makeObstacle(type) {
     obstacle.h = 52;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "heart") {
-    obstacle.w = 42;
-    obstacle.h = 42;
-    obstacle.y = GROUND - obstacle.h;
+    // CUORE FLUTTUANTE BONUS: dimensioni dimezzate (20x20)
+    obstacle.w = 20;
+    obstacle.h = 20;
+    obstacle.baseY = GROUND - 100; // Fluttua in alto
+    obstacle.y = obstacle.baseY;
   } else if (type === "sheep") {
     obstacle.w = 58;
     obstacle.h = 50;
@@ -307,9 +268,7 @@ function spawnObstacle() {
 }
 
 function getAngelY(o) {
-  if (o.dips && o.dipStarted) {
-    return o.y + o.dipY;
-  }
+  if (o.dips && o.dipStarted) return o.y + o.dipY;
   return o.y + Math.sin(worldTime * 0.045 + o.phase) * 7;
 }
 
@@ -330,59 +289,49 @@ function drawSnake(o) {
     return;
   }
   ctx.save();
-  ctx.fillStyle = "#e0c957";
-  roundedRect(o.x, o.y, o.w, o.h, 8, "#e0c957");
+  roundedRect(o.x, o.y, o.w, o.h, 6, "#e0c957");
   ctx.restore();
 }
 
-/* CASSA MUSICALE / SUBWOOFER DISEGNATA VIA CODICE */
 function drawSubwoofer(o) {
   ctx.save();
-  // Corpo principale della cassa nero/grigio scuro con bordo turchese
   roundedRect(o.x, o.y, o.w, o.h, 6, "#15181c", "#35d6cc");
-  
-  // Pannello superiore (controlli)
   ctx.fillStyle = "#252b33";
   ctx.fillRect(o.x + 4, o.y + 4, o.w - 8, 10);
-
-  // Woofer centrale (cono dell'altoparlante)
   ctx.fillStyle = "#0c0e12";
   ctx.beginPath();
-  ctx.arc(o.x + o.w / 2, o.y + 33, 13, 0, Math.PI * 2);
+  ctx.arc(o.x + o.w / 2, o.y + 33, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = "#35d6cc";
   ctx.lineWidth = 2;
   ctx.stroke();
-
-  // Centrowoofer
   ctx.fillStyle = "#35d6cc";
   ctx.beginPath();
   ctx.arc(o.x + o.w / 2, o.y + 33, 4, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.restore();
 }
 
-/* CUORE VIOLA DISEGNATO VIA CODICE */
+/* CUORE VIOLA FLUTTUANTE DIMEZZATO */
 function drawHeart(o) {
+  o.y = o.baseY + Math.sin(worldTime * 0.08 + o.phase) * 12; // Animazione fluttuante
   ctx.save();
   const x = o.x;
-  const y = o.y + 4;
+  const y = o.y;
 
-  ctx.fillStyle = "#7c3aed";
-  ctx.strokeStyle = "#a78bfa";
-  ctx.lineWidth = 2;
+  ctx.fillStyle = "#a78bfa";
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
 
-  ctx.moveTo(x + 21, y + 36);
-  ctx.bezierCurveTo(x + 9, y + 25, x - 1, y + 16, x + 4, y + 7);
-  ctx.bezierCurveTo(x + 8, y - 1, x + 18, y, x + 21, y + 8);
-  ctx.bezierCurveTo(x + 27, y - 1, x + 37, y, x + 38, y + 9);
-  ctx.bezierCurveTo(x + 39, y + 19, x + 30, y + 27, x + 21, y + 36);
+  ctx.moveTo(x + 10, y + 18);
+  ctx.bezierCurveTo(x + 4, y + 12, x - 1, y + 8, x + 2, y + 3);
+  ctx.bezierCurveTo(x + 4, y - 1, x + 9, y, x + 10, y + 4);
+  ctx.bezierCurveTo(x + 13, y - 1, x + 18, y, x + 19, y + 4);
+  ctx.bezierCurveTo(x + 20, y + 9, x + 15, y + 13, x + 10, y + 18);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-
   ctx.restore();
 }
 
@@ -392,7 +341,6 @@ function drawSheep(o) {
     return;
   }
   ctx.save();
-  ctx.fillStyle = "#e9e8e4";
   roundedRect(o.x, o.y, o.w, o.h, 10, "#e9e8e4");
   ctx.restore();
 }
@@ -404,7 +352,6 @@ function drawAngel(o) {
     return;
   }
   ctx.save();
-  ctx.fillStyle = "#f2f0e8";
   roundedRect(o.x, y, o.w, o.h, 10, "#f2f0e8");
   ctx.restore();
 }
@@ -419,14 +366,31 @@ function drawObstacles() {
   }
 }
 
+/* POPUP "+300" */
+function drawPopups(factor) {
+  for (let i = floatingPopups.length - 1; i >= 0; i--) {
+    const p = floatingPopups[i];
+    p.y -= 1 * factor;
+    p.alpha -= 0.02 * factor;
+    if (p.alpha <= 0) {
+      floatingPopups.splice(i, 1);
+      continue;
+    }
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    drawText("+300", p.x, p.y, 20, "#a78bfa", "center");
+    ctx.restore();
+  }
+}
+
 /* PROIETTILI DI LANA */
 
 function fireWool(o) {
   projectiles.push({
     x: o.x - 2,
     y: GROUND - 33,
-    w: 23,
-    h: 23,
+    w: 20,
+    h: 20,
     vx: speed + 2.1,
     spin: 0
   });
@@ -439,13 +403,13 @@ function drawProjectiles() {
     ctx.rotate(p.spin);
     ctx.fillStyle = "#f1f0e9";
     ctx.beginPath();
-    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.arc(0, 0, 9, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 }
 
-/* COLLISIONI */
+/* COLLISIONI E BONUS */
 
 function playerHitbox() {
   return {
@@ -468,24 +432,37 @@ function intersects(a, b) {
 function checkCollisions() {
   const hitbox = playerHitbox();
 
-  for (const o of obstacles) {
-    let box;
-    if (o.type === "angel") {
-      const y = getAngelY(o);
-      if (!o.dips) continue;
-      box = { x: o.x + 15, y: y + 15, w: o.w - 30, h: o.h - 30 };
-    } else {
-      box = { x: o.x + 6, y: o.y + 6, w: o.w - 12, h: o.h - 12 };
-    }
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const o = obstacles[i];
 
-    if (intersects(hitbox, box)) {
-      endGame();
-      return;
+    // GESTIONE CUORE VIOLA BONUS (+300 punti)
+    if (o.type === "heart") {
+      const box = { x: o.x, y: o.y, w: o.w, h: o.h };
+      if (intersects(hitbox, box)) {
+        score += 300;
+        floatingPopups.push({ x: o.x + 10, y: o.y, alpha: 1.0 });
+        obstacles.splice(i, 1); // Rimuovi il cuore preso
+        continue;
+      }
+    } else {
+      let box;
+      if (o.type === "angel") {
+        const y = getAngelY(o);
+        if (!o.dips) continue;
+        box = { x: o.x + 15, y: y + 15, w: o.w - 30, h: o.h - 30 };
+      } else {
+        box = { x: o.x + 6, y: o.y + 6, w: o.w - 12, h: o.h - 12 };
+      }
+
+      if (intersects(hitbox, box)) {
+        endGame();
+        return;
+      }
     }
   }
 
   for (const p of projectiles) {
-    const box = { x: p.x + 6, y: p.y + 6, w: p.w - 12, h: p.h - 12 };
+    const box = { x: p.x + 4, y: p.y + 4, w: p.w - 8, h: p.h - 8 };
     if (intersects(hitbox, box)) {
       endGame();
       return;
@@ -532,8 +509,8 @@ function startGame() {
   nextSpawn = 90;
   obstacles = [];
   projectiles = [];
+  floatingPopups = [];
   lastTime = 0;
-  frame = 0;
   dead = false;
   paused = false;
   running = true;
@@ -581,7 +558,6 @@ function endGame() {
 
 function updateGame(dt) {
   const factor = dt / 16.667;
-  frame++;
   worldTime += factor;
   speed = Math.min(8.2, 4.5 + score * 0.0009);
   score += factor * 0.34;
@@ -607,7 +583,7 @@ function updateGame(dt) {
     }
   }
 
-  obstacles = obstacles.filter((o) => o.x + o.w > -20);
+  obstacles = obstacles.filter((o) => o.x + o.w > -30);
 
   for (const p of projectiles) {
     p.x -= p.vx * factor;
@@ -626,6 +602,7 @@ function drawScene() {
   drawBackground();
   drawObstacles();
   drawProjectiles();
+  drawPopups(1);
   player.draw();
 }
 
@@ -644,7 +621,40 @@ function gameLoop(timestamp) {
   }
 }
 
-/* EVENTI CONTROLLI */
+/* SCHERMO INTERO (FULLSCREEN) CORRETTO */
+
+function toggleFullscreen() {
+  const elem = fullscreenGame || document.documentElement;
+
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen().catch(() => enableFallbackFullscreen(true));
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else {
+      enableFallbackFullscreen(true);
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+    enableFallbackFullscreen(false);
+  }
+}
+
+function enableFallbackFullscreen(enable) {
+  fallbackFullscreen = enable;
+  if (fullscreenGame) {
+    fullscreenGame.classList.toggle("fullscreen-fallback", enable);
+  }
+  document.body.classList.toggle("fullscreen-active", enable);
+}
+
+if (fullscreenButton) fullscreenButton.addEventListener("click", toggleFullscreen);
+
+/* CONTROLLI DI GIOCO */
 
 if (startButton) startButton.addEventListener("click", startGame);
 if (jumpButton) jumpButton.addEventListener("click", () => player.jump());
