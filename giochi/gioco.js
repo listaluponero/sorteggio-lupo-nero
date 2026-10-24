@@ -2,8 +2,8 @@
 
 /* =========================================================
     LUPO RUNNER — LISTA LUPO NERO
-    Salto singolo classico (ritorno a terra obbligatorio),
-    controlli reattivi pointerdown, serpente animato e cuore evasivo.
+    Salto singolo classico, controlli reattivi, serpente animato,
+    cuore bonus indipendente ed evasivo (+300 pt), record e classifica.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -51,9 +51,17 @@ let lastTime = 0;
 let worldTime = 0;
 let score = 0;
 let speed = 4.5;
+
+// Gestione Ostacoli Nazionali
 let spawnTimer = 0;
 let nextSpawn = 100;
 let obstacles = [];
+
+// Gestione Bonus Cuore Indipendente
+let heartSpawnTimer = 0;
+let nextHeartSpawn = random(180, 320); // Il cuore appare in momenti casuali indipendenti
+let hearts = [];
+
 let projectiles = [];
 let floatingPopups = [];
 let personalBest = readBest();
@@ -114,7 +122,7 @@ function drawText(text, x, y, size, color, align) {
   ctx.fillText(String(text), x, y);
 }
 
-/* LUPO CON SALTO SINGOLO VINCOLATO A TERRA */
+/* LUPO */
 
 const player = {
   x: 68,
@@ -136,7 +144,6 @@ const player = {
   },
 
   jump() {
-    // Impedisce di risaltare se è già in aria (!this.isJumping)
     if (!running || paused || dead || this.isJumping) return;
     this.vy = this.jumpPower;
     this.isJumping = true;
@@ -150,7 +157,6 @@ const player = {
       this.y += this.vy * factor;
       this.vy += this.gravity * factor;
 
-      // Quando tocca terra si sblocca il salto successivo
       if (this.y >= GROUND - this.h) {
         this.y = GROUND - this.h;
         this.vy = 0;
@@ -218,7 +224,7 @@ function drawBackground() {
   ctx.stroke();
 }
 
-/* OSTACOLI E BONUS */
+/* OSTACOLI */
 
 function makeObstacle(type) {
   const obstacle = {
@@ -247,12 +253,6 @@ function makeObstacle(type) {
     obstacle.w = 46;
     obstacle.h = 52;
     obstacle.y = GROUND - obstacle.h;
-  } else if (type === "heart") {
-    obstacle.w = 22;
-    obstacle.h = 22;
-    obstacle.baseY = GROUND - 110;
-    obstacle.y = obstacle.baseY;
-    obstacle.evadeDir = -1;
   } else if (type === "sheep") {
     obstacle.w = 58;
     obstacle.h = 50;
@@ -265,9 +265,24 @@ function makeObstacle(type) {
 }
 
 function spawnObstacle() {
-  const pool = ["snake", "subwoofer", "heart", "sheep", "angel"];
+  // Il pool contiene solo pericoli veri (il cuore è ora gestito separatamente)
+  const pool = ["snake", "subwoofer", "sheep", "angel"];
   const type = pool[Math.floor(Math.random() * pool.length)];
   obstacles.push(makeObstacle(type));
+}
+
+/* BONUS CUORE INDIPENDENTE */
+
+function spawnHeartBonus() {
+  hearts.push({
+    x: W + 20,
+    w: 22,
+    h: 22,
+    baseY: GROUND - 110,
+    y: GROUND - 110,
+    phase: random(0, Math.PI * 2),
+    evadeDir: -1
+  });
 }
 
 function getAngelY(o) {
@@ -319,38 +334,47 @@ function drawSubwoofer(o) {
   ctx.restore();
 }
 
-function updateAndDrawHeart(o, factor) {
-  const distToPlayer = o.x - player.x;
+function updateAndDrawHearts(factor) {
+  for (let i = hearts.length - 1; i >= 0; i--) {
+    const h = hearts[i];
+    h.x -= speed * factor;
 
-  if (distToPlayer > 40 && distToPlayer < 240) {
-    if (player.isJumping) {
-      o.baseY += o.evadeDir * 2.2 * factor;
-    } else {
-      o.baseY -= 1.2 * factor;
+    const distToPlayer = h.x - player.x;
+
+    // Fuga dinamica se il lupo si avvicina
+    if (distToPlayer > 40 && distToPlayer < 240) {
+      if (player.isJumping) {
+        h.baseY += h.evadeDir * 2.2 * factor;
+      } else {
+        h.baseY -= 1.2 * factor;
+      }
+      h.baseY = Math.max(GROUND - 160, Math.min(GROUND - 70, h.baseY));
     }
-    o.baseY = Math.max(GROUND - 160, Math.min(GROUND - 70, o.baseY));
+
+    h.y = h.baseY + Math.sin(worldTime * 0.08 + h.phase) * 8;
+
+    ctx.save();
+    const x = h.x;
+    const y = h.y;
+
+    ctx.fillStyle = "#a78bfa";
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    ctx.moveTo(x + 11, y + 20);
+    ctx.bezierCurveTo(x + 4, y + 13, x - 1, y + 9, x + 2, y + 3);
+    ctx.bezierCurveTo(x + 4, y - 1, x + 10, y, x + 11, y + 4);
+    ctx.bezierCurveTo(x + 14, y - 1, x + 20, y, x + 21, y + 4);
+    ctx.bezierCurveTo(x + 22, y + 10, x + 16, y + 15, x + 11, y + 20);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
   }
 
-  o.y = o.baseY + Math.sin(worldTime * 0.08 + o.phase) * 8;
-
-  ctx.save();
-  const x = o.x;
-  const y = o.y;
-
-  ctx.fillStyle = "#a78bfa";
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-
-  ctx.moveTo(x + 11, y + 20);
-  ctx.bezierCurveTo(x + 4, y + 13, x - 1, y + 9, x + 2, y + 3);
-  ctx.bezierCurveTo(x + 4, y - 1, x + 10, y, x + 11, y + 4);
-  ctx.bezierCurveTo(x + 14, y - 1, x + 20, y, x + 21, y + 4);
-  ctx.bezierCurveTo(x + 22, y + 10, x + 16, y + 15, x + 11, y + 20);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
+  // Rimuovi i cuori usciti dallo schermo
+  hearts = hearts.filter((h) => h.x + h.w > -30);
 }
 
 function drawSheep(o) {
@@ -374,11 +398,10 @@ function drawAngel(o) {
   ctx.restore();
 }
 
-function drawObstacles(factor) {
+function drawObstacles() {
   for (const o of obstacles) {
     if (o.type === "snake") drawSnake(o);
     if (o.type === "subwoofer") drawSubwoofer(o);
-    if (o.type === "heart") updateAndDrawHeart(o, factor);
     if (o.type === "sheep") drawSheep(o);
     if (o.type === "angel") drawAngel(o);
   }
@@ -445,31 +468,31 @@ function intersects(a, b) {
 function checkCollisions() {
   const hitbox = playerHitbox();
 
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    const o = obstacles[i];
+  // Controllo raccolta cuori bonus (non sono ostacoli mortali)
+  for (let i = hearts.length - 1; i >= 0; i--) {
+    const h = hearts[i];
+    const box = { x: h.x, y: h.y, w: h.w, h: h.h };
+    if (intersects(hitbox, box)) {
+      score += 300;
+      floatingPopups.push({ x: h.x + 10, y: h.y, alpha: 1.0 });
+      hearts.splice(i, 1);
+    }
+  }
 
-    if (o.type === "heart") {
-      const box = { x: o.x, y: o.y, w: o.w, h: o.h };
-      if (intersects(hitbox, box)) {
-        score += 300;
-        floatingPopups.push({ x: o.x + 10, y: o.y, alpha: 1.0 });
-        obstacles.splice(i, 1);
-        continue;
-      }
+  // Controllo ostacoli fatali
+  for (const o of obstacles) {
+    let box;
+    if (o.type === "angel") {
+      const y = getAngelY(o);
+      if (!o.dips) continue;
+      box = { x: o.x + 15, y: y + 15, w: o.w - 30, h: o.h - 30 };
     } else {
-      let box;
-      if (o.type === "angel") {
-        const y = getAngelY(o);
-        if (!o.dips) continue;
-        box = { x: o.x + 15, y: y + 15, w: o.w - 30, h: o.h - 30 };
-      } else {
-        box = { x: o.x + 6, y: o.y + 6, w: o.w - 12, h: o.h - 12 };
-      }
+      box = { x: o.x + 6, y: o.y + 6, w: o.w - 12, h: o.h - 12 };
+    }
 
-      if (intersects(hitbox, box)) {
-        endGame();
-        return;
-      }
+    if (intersects(hitbox, box)) {
+      endGame();
+      return;
     }
   }
 
@@ -517,7 +540,10 @@ function startGame() {
   worldTime = 0;
   spawnTimer = 0;
   nextSpawn = 90;
+  heartSpawnTimer = 0;
+  nextHeartSpawn = random(180, 320);
   obstacles = [];
+  hearts = [];
   projectiles = [];
   floatingPopups = [];
   lastTime = 0;
@@ -573,12 +599,21 @@ function updateGame(dt) {
   score += factor * 0.34;
 
   player.update(dt);
-  spawnTimer += factor;
 
+  // Timer ostacoli
+  spawnTimer += factor;
   if (spawnTimer >= nextSpawn) {
     spawnObstacle();
     spawnTimer = 0;
     nextSpawn = random(80, 130);
+  }
+
+  // Timer bonus cuore indipendente
+  heartSpawnTimer += factor;
+  if (heartSpawnTimer >= nextHeartSpawn) {
+    spawnHeartBonus();
+    heartSpawnTimer = 0;
+    nextHeartSpawn = random(240, 480);
   }
 
   for (const o of obstacles) {
@@ -610,7 +645,8 @@ function drawScene(factor = 1) {
   if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
   drawBackground();
-  drawObstacles(factor);
+  drawObstacles();
+  updateAndDrawHearts(factor);
   drawProjectiles();
   drawPopups(factor);
   player.draw();
