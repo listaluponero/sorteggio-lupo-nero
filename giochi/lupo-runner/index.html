@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lupo Runner — Modalità</title>
+  <title>Lupo Runner — Scegli Modalità</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -25,47 +25,55 @@
       letter-spacing: 2px;
     }
     p { color: #94a3b8; margin-bottom: 30px; text-align: center; }
-    .modes-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
       width: 100%;
-      max-width: 400px;
+      max-width: 600px;
     }
-    .mode-btn {
+    .mode-card {
       background: #152225;
       border: 2px solid #168b87;
       border-radius: 12px;
-      padding: 20px;
+      padding: 24px;
       text-align: center;
       text-decoration: none;
-      color: #fff;
-      font-weight: bold;
-      font-size: 1.2rem;
-      transition: background 0.2s, border-color 0.2s;
+      color: inherit;
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .mode-btn:hover {
-      background: #1e3236;
+    .mode-card:hover {
+      transform: translateY(-5px);
       border-color: #35d6cc;
     }
-    .back-btn {
+    .mode-card h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; }
+    .mode-card p { font-size: 0.9rem; margin-bottom: 0; }
+    .back-link {
       margin-top: 30px;
-      color: #64748b;
+      color: #94a3b8;
       text-decoration: none;
       font-size: 0.9rem;
     }
-    .back-btn:hover { color: #94a3b8; }
+    .back-link:hover { color: #35d6cc; }
   </style>
 </head>
 <body>
-  <h1>LUPO RUNNER</h1>
+  <h1>🐺 LUPO RUNNER</h1>
   <p>Seleziona la modalità di gioco</p>
 
-  <div class="modes-container">
-    <a href="classica/index.html" class="mode-btn">🏆 CLASSIFICATA</a>
-    <a href="storia/index.html" class="mode-btn">📜 MODALITÀ STORIA</a>
+  <div class="modes-grid">
+    <!-- IL COLLEGAMENTO CORRETTO ALLA CARTELLA CLASSICA -->
+    <a href="classica/index.html" class="mode-card">
+      <h2>🏆 CLASSIFICATA</h2>
+      <p>La sfida classica a ostacoli con classifica e record.</p>
+    </a>
+
+    <a href="storia/index.html" class="mode-card">
+      <h2>📜 MODALITÀ STORIA</h2>
+      <p>Vivi i capitoli e le avventure nel territorio del branco.</p>
+    </a>
   </div>
 
-  <a href="../index.html" class="back-btn">← Torna all'Hub Giochi</a>
+  <a href="../index.html" class="back-link">← Torna a Lupo Games</a>
 </body>
 </html>
