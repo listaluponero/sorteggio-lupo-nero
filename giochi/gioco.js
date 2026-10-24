@@ -193,10 +193,6 @@ const player = {
   drawFallback() {
     const x = this.x;
     const y = this.y;
-    const swing = !this.isJumping && running && !paused
-      ? Math.sin(this.animation * 0.65) * 5
-      : 0;
-
     ctx.save();
     ctx.fillStyle = "#0008";
     ctx.beginPath();
@@ -239,7 +235,6 @@ function drawBackground() {
 
   for (let x = -110; x < W + 110; x += 110) {
     const px = x - offset;
-
     ctx.fillStyle = "#101d1d";
     ctx.beginPath();
     ctx.moveTo(px, GROUND);
@@ -275,28 +270,28 @@ function makeObstacle(type) {
   };
 
   if (type === "snake") {
-    obstacle.w = 55;
-    obstacle.h = 24;
+    obstacle.w = 68;
+    obstacle.h = 32;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "angel") {
-    obstacle.w = 55;
-    obstacle.h = 65;
-    obstacle.y = GROUND - 105;
+    obstacle.w = 64;
+    obstacle.h = 64;
+    obstacle.y = GROUND - 110;
     obstacle.dips = Math.random() < 0.38;
     obstacle.dipStarted = false;
     obstacle.dipY = 0;
     obstacle.dipSpeed = random(0.45, 0.75);
-  } else if (type === "crate") {
-    obstacle.w = 43;
-    obstacle.h = 46;
+  } else if (type === "subwoofer") {
+    obstacle.w = 46;
+    obstacle.h = 52;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "heart") {
-    obstacle.w = 40;
-    obstacle.h = 40;
+    obstacle.w = 42;
+    obstacle.h = 42;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "sheep") {
-    obstacle.w = 54;
-    obstacle.h = 48;
+    obstacle.w = 58;
+    obstacle.h = 50;
     obstacle.y = GROUND - obstacle.h;
     obstacle.fires = Math.random() < 1 / 3;
     obstacle.fireDelay = random(30, 75);
@@ -306,7 +301,7 @@ function makeObstacle(type) {
 }
 
 function spawnObstacle() {
-  const pool = ["snake", "crate", "heart", "sheep", "angel"];
+  const pool = ["snake", "subwoofer", "heart", "sheep", "angel"];
   const type = pool[Math.floor(Math.random() * pool.length)];
   obstacles.push(makeObstacle(type));
 }
@@ -334,25 +329,60 @@ function drawSnake(o) {
     ctx.drawImage(images.snake, o.x, o.y, o.w, o.h);
     return;
   }
-  // Fallback se l'immagine non carica
   ctx.save();
   ctx.fillStyle = "#e0c957";
   roundedRect(o.x, o.y, o.w, o.h, 8, "#e0c957");
   ctx.restore();
 }
 
-function drawCrate(o) {
+/* CASSA MUSICALE / SUBWOOFER DISEGNATA VIA CODICE */
+function drawSubwoofer(o) {
   ctx.save();
-  roundedRect(o.x, o.y, o.w, o.h, 5, "#b76c37", "#f2c28b");
+  // Corpo principale della cassa nero/grigio scuro con bordo turchese
+  roundedRect(o.x, o.y, o.w, o.h, 6, "#15181c", "#35d6cc");
+  
+  // Pannello superiore (controlli)
+  ctx.fillStyle = "#252b33";
+  ctx.fillRect(o.x + 4, o.y + 4, o.w - 8, 10);
+
+  // Woofer centrale (cono dell'altoparlante)
+  ctx.fillStyle = "#0c0e12";
+  ctx.beginPath();
+  ctx.arc(o.x + o.w / 2, o.y + 33, 13, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#35d6cc";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Centrowoofer
+  ctx.fillStyle = "#35d6cc";
+  ctx.beginPath();
+  ctx.arc(o.x + o.w / 2, o.y + 33, 4, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.restore();
 }
 
+/* CUORE VIOLA DISEGNATO VIA CODICE */
 function drawHeart(o) {
   ctx.save();
-  ctx.fillStyle = "#9b4be8";
+  const x = o.x;
+  const y = o.y + 4;
+
+  ctx.fillStyle = "#7c3aed";
+  ctx.strokeStyle = "#a78bfa";
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(o.x + 20, o.y + 20, 15, 0, Math.PI * 2);
+
+  ctx.moveTo(x + 21, y + 36);
+  ctx.bezierCurveTo(x + 9, y + 25, x - 1, y + 16, x + 4, y + 7);
+  ctx.bezierCurveTo(x + 8, y - 1, x + 18, y, x + 21, y + 8);
+  ctx.bezierCurveTo(x + 27, y - 1, x + 37, y, x + 38, y + 9);
+  ctx.bezierCurveTo(x + 39, y + 19, x + 30, y + 27, x + 21, y + 36);
+  ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+
   ctx.restore();
 }
 
@@ -382,7 +412,7 @@ function drawAngel(o) {
 function drawObstacles() {
   for (const o of obstacles) {
     if (o.type === "snake") drawSnake(o);
-    if (o.type === "crate") drawCrate(o);
+    if (o.type === "subwoofer") drawSubwoofer(o);
     if (o.type === "heart") drawHeart(o);
     if (o.type === "sheep") drawSheep(o);
     if (o.type === "angel") drawAngel(o);
