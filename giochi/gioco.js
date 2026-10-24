@@ -2,8 +2,8 @@
 
 /* =========================================================
     LUPO RUNNER — LISTA LUPO NERO
-    Salto bilanciato classico, controlli reattivi, 
-    fullscreen, serpente animato e cuore bonus evasivo.
+    Salto singolo classico (ritorno a terra obbligatorio),
+    controlli reattivi pointerdown, serpente animato e cuore evasivo.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -114,7 +114,7 @@ function drawText(text, x, y, size, color, align) {
   ctx.fillText(String(text), x, y);
 }
 
-/* LUPO CON SALTO CLASSICO E BILANCIATO */
+/* LUPO CON SALTO SINGOLO VINCOLATO A TERRA */
 
 const player = {
   x: 68,
@@ -122,8 +122,8 @@ const player = {
   w: 92,
   h: 65,
   vy: 0,
-  gravity: 0.8,    // Ripristinato valore classico
-  jumpPower: -13.5, // Salto controllato per non uscire dallo schermo
+  gravity: 0.8,
+  jumpPower: -14,
   isJumping: false,
   animation: 0,
 
@@ -136,6 +136,7 @@ const player = {
   },
 
   jump() {
+    // Impedisce di risaltare se è già in aria (!this.isJumping)
     if (!running || paused || dead || this.isJumping) return;
     this.vy = this.jumpPower;
     this.isJumping = true;
@@ -149,6 +150,7 @@ const player = {
       this.y += this.vy * factor;
       this.vy += this.gravity * factor;
 
+      // Quando tocca terra si sblocca il salto successivo
       if (this.y >= GROUND - this.h) {
         this.y = GROUND - this.h;
         this.vy = 0;
@@ -677,7 +679,7 @@ document.addEventListener("fullscreenchange", () => {
 
 if (fullscreenButton) fullscreenButton.addEventListener("click", toggleFullscreen);
 
-/* CONTROLLI DI GIOCO */
+/* CONTROLLI RAPIDI DI GIOCO */
 
 if (startButton) startButton.addEventListener("click", startGame);
 if (pauseButton) pauseButton.addEventListener("click", togglePause);
