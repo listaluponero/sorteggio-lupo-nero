@@ -2,7 +2,8 @@
 
 /* =========================================================
     LUPO RUNNER — LISTA LUPO NERO
-    Avvio, salto, pausa, fullscreen, ostacoli, bonus, record e classifica.
+    Salto ultra-rapido istantaneo, fullscreen, serpente 
+    strisciante, cuore evasivo e classifica.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -54,7 +55,7 @@ let spawnTimer = 0;
 let nextSpawn = 100;
 let obstacles = [];
 let projectiles = [];
-let floatingPopups = []; // Per mostrare "+300" a schermo
+let floatingPopups = [];
 let personalBest = readBest();
 let fallbackFullscreen = false;
 
@@ -113,7 +114,7 @@ function drawText(text, x, y, size, color, align) {
   ctx.fillText(String(text), x, y);
 }
 
-/* LUPO */
+/* LUPO CON SALTO ISTANTANEO */
 
 const player = {
   x: 68,
@@ -121,8 +122,8 @@ const player = {
   w: 92,
   h: 65,
   vy: 0,
-  gravity: 0.8,
-  jumpPower: -14,
+  gravity: 0.85,
+  jumpPower: -14.5,
   isJumping: false,
   animation: 0,
 
@@ -135,7 +136,8 @@ const player = {
   },
 
   jump() {
-    if (!running || paused || dead || this.isJumping) return;
+    if (!running || paused || dead) return;
+    // Permette il salto rapido azzerando subito la spinta verticale
     this.vy = this.jumpPower;
     this.isJumping = true;
   },
@@ -229,8 +231,8 @@ function makeObstacle(type) {
   };
 
   if (type === "snake") {
-    obstacle.w = 60;
-    obstacle.h = 35;
+    obstacle.w = 58;
+    obstacle.h = 32;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "angel") {
     obstacle.w = 64;
@@ -245,11 +247,12 @@ function makeObstacle(type) {
     obstacle.h = 52;
     obstacle.y = GROUND - obstacle.h;
   } else if (type === "heart") {
-    // CUORE FLUTTUANTE BONUS: dimensioni dimezzate (20x20)
-    obstacle.w = 20;
-    obstacle.h = 20;
-    obstacle.baseY = GROUND - 100; // Fluttua in alto
+    obstacle.w = 22;
+    obstacle.h = 22;
+    obstacle.baseY = GROUND - 110;
     obstacle.y = obstacle.baseY;
+    obstacle.evading = false;
+    obstacle.evadeDir = -1;
   } else if (type === "sheep") {
     obstacle.w = 58;
     obstacle.h = 50;
@@ -283,13 +286,18 @@ function updateAngel(o, factor) {
   }
 }
 
+/* SERPENTE CON ANIMAZIONE DI STRISCIAMENTO */
 function drawSnake(o) {
-  if (imageReady(images.snake)) {
-    ctx.drawImage(images.snake, o.x, o.y, o.w, o.h);
-    return;
-  }
   ctx.save();
-  roundedRect(o.x, o.y, o.w, o.h, 6, "#e0c957");
+  const wave = Math.sin(worldTime * 0.35 + o.phase);
+  const squishY = wave * 2;
+  const crawlY = o.y + squishY;
+
+  if (imageReady(images.snake)) {
+    ctx.drawImage(images.snake, o.x, crawlY, o.w, o.h - squishY);
+  } else {
+    roundedRect(o.x, crawlY, o.w, o.h, 6, "#e0c957");
+  }
   ctx.restore();
 }
 
@@ -312,9 +320,21 @@ function drawSubwoofer(o) {
   ctx.restore();
 }
 
-/* CUORE VIOLA FLUTTUANTE DIMEZZATO */
-function drawHeart(o) {
-  o.y = o.baseY + Math.sin(worldTime * 0.08 + o.phase) * 12; // Animazione fluttuante
+/* CUORE VIOLA EVASIVO */
+function updateAndDrawHeart(o, factor) {
+  const distToPlayer = o.x - player.x;
+
+  if (distToPlayer > 40 && distToPlayer < 240) {
+    if (player.isJumping) {
+      o.baseY += o.evadeDir * 2.2 * factor;
+    } else {
+      o.baseY -= 1.2 * factor;
+    }
+    o.baseY = Math.max(GROUND - 160, Math.min(GROUND - 70, o.baseY));
+  }
+
+  o.y = o.baseY + Math.sin(worldTime * 0.08 + o.phase) * 8;
+
   ctx.save();
   const x = o.x;
   const y = o.y;
@@ -324,11 +344,11 @@ function drawHeart(o) {
   ctx.lineWidth = 1.5;
   ctx.beginPath();
 
-  ctx.moveTo(x + 10, y + 18);
-  ctx.bezierCurveTo(x + 4, y + 12, x - 1, y + 8, x + 2, y + 3);
-  ctx.bezierCurveTo(x + 4, y - 1, x + 9, y, x + 10, y + 4);
-  ctx.bezierCurveTo(x + 13, y - 1, x + 18, y, x + 19, y + 4);
-  ctx.bezierCurveTo(x + 20, y + 9, x + 15, y + 13, x + 10, y + 18);
+  ctx.moveTo(x + 11, y + 20);
+  ctx.bezierCurveTo(x + 4, y + 13, x - 1, y + 9, x + 2, y + 3);
+  ctx.bezierCurveTo(x + 4, y - 1, x + 10, y, x + 11, y + 4);
+  ctx.bezierCurveTo(x + 14, y - 1, x + 20, y, x + 21, y + 4);
+  ctx.bezierCurveTo(x + 22, y + 10, x + 16, y + 15, x + 11, y + 20);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -356,21 +376,20 @@ function drawAngel(o) {
   ctx.restore();
 }
 
-function drawObstacles() {
+function drawObstacles(factor) {
   for (const o of obstacles) {
     if (o.type === "snake") drawSnake(o);
     if (o.type === "subwoofer") drawSubwoofer(o);
-    if (o.type === "heart") drawHeart(o);
+    if (o.type === "heart") updateAndDrawHeart(o, factor);
     if (o.type === "sheep") drawSheep(o);
     if (o.type === "angel") drawAngel(o);
   }
 }
 
-/* POPUP "+300" */
 function drawPopups(factor) {
   for (let i = floatingPopups.length - 1; i >= 0; i--) {
     const p = floatingPopups[i];
-    p.y -= 1 * factor;
+    p.y -= 1.2 * factor;
     p.alpha -= 0.02 * factor;
     if (p.alpha <= 0) {
       floatingPopups.splice(i, 1);
@@ -378,12 +397,10 @@ function drawPopups(factor) {
     }
     ctx.save();
     ctx.globalAlpha = p.alpha;
-    drawText("+300", p.x, p.y, 20, "#a78bfa", "center");
+    drawText("+300", p.x, p.y, 22, "#a78bfa", "center");
     ctx.restore();
   }
 }
-
-/* PROIETTILI DI LANA */
 
 function fireWool(o) {
   projectiles.push({
@@ -409,8 +426,6 @@ function drawProjectiles() {
   }
 }
 
-/* COLLISIONI E BONUS */
-
 function playerHitbox() {
   return {
     x: player.x + 22,
@@ -435,13 +450,12 @@ function checkCollisions() {
   for (let i = obstacles.length - 1; i >= 0; i--) {
     const o = obstacles[i];
 
-    // GESTIONE CUORE VIOLA BONUS (+300 punti)
     if (o.type === "heart") {
       const box = { x: o.x, y: o.y, w: o.w, h: o.h };
       if (intersects(hitbox, box)) {
         score += 300;
         floatingPopups.push({ x: o.x + 10, y: o.y, alpha: 1.0 });
-        obstacles.splice(i, 1); // Rimuovi il cuore preso
+        obstacles.splice(i, 1);
         continue;
       }
     } else {
@@ -469,8 +483,6 @@ function checkCollisions() {
     }
   }
 }
-
-/* MESSAGGI */
 
 function showMessage(title, description, icon) {
   if (!gameMessage) return;
@@ -596,13 +608,13 @@ function updateGame(dt) {
   if (scoreElement) scoreElement.textContent = String(Math.floor(score));
 }
 
-function drawScene() {
+function drawScene(factor = 1) {
   if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
   drawBackground();
-  drawObstacles();
+  drawObstacles(factor);
   drawProjectiles();
-  drawPopups(1);
+  drawPopups(factor);
   player.draw();
 }
 
@@ -611,32 +623,33 @@ function gameLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;
 
   const dt = Math.min(timestamp - lastTime, MAX_DELTA);
+  const factor = dt / 16.667;
   lastTime = timestamp;
 
   updateGame(dt);
-  drawScene();
+  drawScene(factor);
 
   if (running && !paused && !dead) {
     animationId = requestAnimationFrame(gameLoop);
   }
 }
 
-/* SCHERMO INTERO (FULLSCREEN) CORRETTO */
+/* FULLSCREEN */
 
 function toggleFullscreen() {
-  const elem = fullscreenGame || document.documentElement;
+  const isFull = document.fullscreenElement || document.webkitFullscreenElement || fallbackFullscreen;
 
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen().catch(() => enableFallbackFullscreen(true));
-    } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen();
+  if (!isFull) {
+    if (fullscreenGame.requestFullscreen) {
+      fullscreenGame.requestFullscreen().catch(() => enableFallbackFullscreen(true));
+    } else if (fullscreenGame.webkitRequestFullscreen) {
+      fullscreenGame.webkitRequestFullscreen();
     } else {
       enableFallbackFullscreen(true);
     }
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
     }
@@ -650,25 +663,52 @@ function enableFallbackFullscreen(enable) {
     fullscreenGame.classList.toggle("fullscreen-fallback", enable);
   }
   document.body.classList.toggle("fullscreen-active", enable);
+
+  if (fullscreenButton) {
+    fullscreenButton.textContent = enable ? "RIDUCI SCHERMO" : "ESPANDI GIOCO";
+  }
 }
+
+document.addEventListener("fullscreenchange", () => {
+  const isFull = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  if (!isFull && !fallbackFullscreen) {
+    document.body.classList.remove("fullscreen-active");
+  }
+  if (fullscreenButton) {
+    fullscreenButton.textContent = isFull ? "RIDUCI SCHERMO" : "ESPANDI GIOCO";
+  }
+});
 
 if (fullscreenButton) fullscreenButton.addEventListener("click", toggleFullscreen);
 
-/* CONTROLLI DI GIOCO */
+/* CONTROLLI RAPIDI E ISTANTANEI CON POINTERDOWN */
 
 if (startButton) startButton.addEventListener("click", startGame);
-if (jumpButton) jumpButton.addEventListener("click", () => player.jump());
 if (pauseButton) pauseButton.addEventListener("click", togglePause);
+
+// Usa "pointerdown" invece di "click" per azzerare qualsiasi ritardo sui pulsanti touch e mouse
+if (jumpButton) {
+  jumpButton.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    player.jump();
+  });
+}
 
 if (canvas) {
   canvas.addEventListener("pointerdown", (e) => {
-    if (!running || paused || dead) return;
+    if (!running || paused || dead) {
+      if (!running || dead) startGame();
+      return;
+    }
     e.preventDefault();
     player.jump();
   });
 }
 
 document.addEventListener("keydown", (e) => {
+  const tag = e.target && e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
   if (e.code === "Space" || e.code === "ArrowUp") {
     e.preventDefault();
     if (!running || dead) startGame();
