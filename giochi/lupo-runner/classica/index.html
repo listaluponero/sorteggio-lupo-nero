@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Lupo Runner Classica - Lista Lupo Nero">
+  <title>Lupo Runner (Classica) | Lista Lupo Nero</title>
+  <link rel="stylesheet" href="gioco.css">
+</head>
+<body>
+
+  <!-- Schermata di caricamento -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-wolf">🐺</div>
+    <h1>LUPO RUNNER</h1>
+    <p>Preparazione del territorio...</p>
+    <div class="loading-bar"><span></span></div>
+  </div>
+
+  <div id="gameArea">
+
+    <!-- Pannello principale di gioco -->
+    <div class="game-panel" id="fullscreenGame">
+
+      <header class="game-header-ui">
+        <a class="brand-link" href="../index.html">
+          <div class="brand-symbol">🐺</div>
+          <div class="brand-text">
+            <strong>LISTA LUPO NERO</strong>
+            <small>LUPO GAMES</small>
+          </div>
+        </a>
+
+        <div class="game-stats">
+          <div class="score-box">
+            <span class="stat-label">PUNTI</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="score-box">
+            <span class="stat-label">RECORD</span>
+            <strong id="personalBest">0</strong>
+          </div>
+        </div>
+      </header>
+
+      <div class="game-title">
+        <h1>Lupo Runner — Classica</h1>
+        <p>Salta gli ostacoli, evita le insidie del branco e raccogli i cuori bonus per totalizzare il record.</p>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas"></canvas>
+        <div class="game-message hidden" id="gameMessage"></div>
+      </div>
+
+      <div class="game-controls">
+        <div class="controls">
+          <span class="control-hint">Usa la barra <kbd>Spazio</kbd>, la freccia <kbd>↑</kbd> o tocca lo schermo per saltare.</span>
+        </div>
+
+        <div class="game-buttons">
+          <button class="game-button primary" id="startGame">INIZIA</button>
+          <button class="game-button" id="jumpGame" disabled>SALTA</button>
+          <button class="game-button" id="pauseGame" disabled>PAUSA</button>
+          <button class="game-button fullscreen-button" id="fullscreenBtn">ESPANDI GIOCO</button>
+          <a class="game-button back-button" href="../index.html">SCEGLI MODALITÀ</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sezione Classifica -->
+    <section class="leaderboard-container">
+      <div class="leaderboard-header">
+        <div>
+          <span class="section-eyebrow">HALL OF FAME</span>
+          <h2>Classifica del Branco</h2>
+          <p>I migliori lupi della modalità classica.</p>
+        </div>
+        <button class="game-button refresh-button" id="refreshBoard">Aggiorna</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Nome</th>
+              <th>Punti</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr>
+              <td colspan="3" class="empty-row">Caricamento classifica in corso...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="leaderboard-status" id="leaderboardStatus"></p>
+    </section>
+
+  </div>
+
+  <footer class="game-footer">
+    <div class="container">
+      <p>
+        <a href="../../index.html">Home principale</a>
+        <span>·</span>
+        <a href="https://www.instagram.com/Lista.LupoNero/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      </p>
+      <small>LISTA LUPO NERO — IL BRANCO</small>
+    </div>
+  </footer>
+
+  <script src="gioco.js"></script>
+</body>
+</html>
