@@ -2,8 +2,8 @@
 
 /* =========================================================
     LUPO RUNNER — LISTA LUPO NERO
-    Salto ultra-rapido istantaneo, fullscreen, serpente 
-    strisciante, cuore evasivo e classifica.
+    Salto bilanciato classico, controlli reattivi, 
+    fullscreen, serpente animato e cuore bonus evasivo.
 ========================================================= */
 
 const LEADERBOARD_API_URL =
@@ -114,7 +114,7 @@ function drawText(text, x, y, size, color, align) {
   ctx.fillText(String(text), x, y);
 }
 
-/* LUPO CON SALTO ISTANTANEO */
+/* LUPO CON SALTO CLASSICO E BILANCIATO */
 
 const player = {
   x: 68,
@@ -122,8 +122,8 @@ const player = {
   w: 92,
   h: 65,
   vy: 0,
-  gravity: 0.85,
-  jumpPower: -14.5,
+  gravity: 0.8,    // Ripristinato valore classico
+  jumpPower: -13.5, // Salto controllato per non uscire dallo schermo
   isJumping: false,
   animation: 0,
 
@@ -136,8 +136,7 @@ const player = {
   },
 
   jump() {
-    if (!running || paused || dead) return;
-    // Permette il salto rapido azzerando subito la spinta verticale
+    if (!running || paused || dead || this.isJumping) return;
     this.vy = this.jumpPower;
     this.isJumping = true;
   },
@@ -251,7 +250,6 @@ function makeObstacle(type) {
     obstacle.h = 22;
     obstacle.baseY = GROUND - 110;
     obstacle.y = obstacle.baseY;
-    obstacle.evading = false;
     obstacle.evadeDir = -1;
   } else if (type === "sheep") {
     obstacle.w = 58;
@@ -286,7 +284,6 @@ function updateAngel(o, factor) {
   }
 }
 
-/* SERPENTE CON ANIMAZIONE DI STRISCIAMENTO */
 function drawSnake(o) {
   ctx.save();
   const wave = Math.sin(worldTime * 0.35 + o.phase);
@@ -320,7 +317,6 @@ function drawSubwoofer(o) {
   ctx.restore();
 }
 
-/* CUORE VIOLA EVASIVO */
 function updateAndDrawHeart(o, factor) {
   const distToPlayer = o.x - player.x;
 
@@ -681,12 +677,11 @@ document.addEventListener("fullscreenchange", () => {
 
 if (fullscreenButton) fullscreenButton.addEventListener("click", toggleFullscreen);
 
-/* CONTROLLI RAPIDI E ISTANTANEI CON POINTERDOWN */
+/* CONTROLLI DI GIOCO */
 
 if (startButton) startButton.addEventListener("click", startGame);
 if (pauseButton) pauseButton.addEventListener("click", togglePause);
 
-// Usa "pointerdown" invece di "click" per azzerare qualsiasi ritardo sui pulsanti touch e mouse
 if (jumpButton) {
   jumpButton.addEventListener("pointerdown", (e) => {
     e.preventDefault();
