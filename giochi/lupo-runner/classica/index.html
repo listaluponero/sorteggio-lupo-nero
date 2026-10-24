@@ -1,124 +1,64 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#090909">
-  <meta name="color-scheme" content="dark">
-  <title>Lupo Runner | Lista Lupo Nero</title>
-  <link rel="stylesheet" href="gioco.css">
-  <script src="gioco.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lupo Games — Lista Lupo Nero</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b1112;
+      color: #e0f2fe;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #35d6cc;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    p { color: #94a3b8; margin-bottom: 30px; text-align: center; }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+    .game-card {
+      background: #152225;
+      border: 2px solid #168b87;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .game-card:hover {
+      transform: translateY(-5px);
+      border-color: #35d6cc;
+    }
+    .game-card h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; }
+    .game-card p { font-size: 0.9rem; margin-bottom: 0; }
+  </style>
 </head>
 <body>
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loading-wolf">🐺</div>
-    <h1>LUPO RUNNER</h1>
-    <p>Il branco si sta preparando...</p>
-    <div class="loading-bar"><span></span></div>
+  <h1>🐺 LUPO GAMES</h1>
+  <p>Scegli il minigioco a cui vuoi giocare</p>
+
+  <div class="games-grid">
+    <a href="lupo-runner/index.html" class="game-card">
+      <h2>LUPO RUNNER</h2>
+      <p>Corsa ad ostacoli nel territorio del branco.</p>
+    </a>
   </div>
-
-  <main id="gameArea">
-    <section id="fullscreenGame" class="game-panel">
-      <header class="game-header-ui">
-        <a class="brand-link" href="../index.html" aria-label="Torna alla Lista Lupo Nero">
-          <span class="brand-symbol">🐺</span>
-          <span class="brand-text">
-            <strong>LUPO RUNNER</strong>
-            <small>LISTA LUPO NERO</small>
-          </span>
-        </a>
-
-        <div class="game-stats">
-          <div class="score-box">
-            <span class="stat-label">PUNTEGGIO</span>
-            <strong id="score">0</strong>
-          </div>
-          <div class="score-box">
-            <span class="stat-label">RECORD</span>
-            <strong id="personalBest">0</strong>
-          </div>
-        </div>
-      </header>
-
-      <div class="game-title">
-        <h1>Corri con il branco.</h1>
-        <p>Salta gli ostacoli, evita i pericoli e resisti più a lungo possibile.</p>
-      </div>
-
-      <div id="canvasWrapper" class="canvas-wrapper">
-        <canvas id="gameCanvas" width="800" height="400"
-          aria-label="Area di gioco Lupo Runner"></canvas>
-
-        <div id="gameMessage" class="game-message" aria-live="polite">
-          <div class="message-content">
-            <span class="message-wolf">🐺</span>
-            <strong>PRONTO A CORRERE?</strong>
-            <p>Premi INIZIA e prepara le zampe.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="game-controls">
-        <div class="controls">
-          <span class="control-hint">
-            <kbd>SPAZIO</kbd> / <kbd>↑</kbd> / tocco per saltare
-          </span>
-        </div>
-
-        <div class="game-buttons">
-          <button id="startGame" class="game-button primary" type="button">INIZIA</button>
-          <button id="jumpGame" class="game-button" type="button" disabled>SALTA</button>
-          <button id="pauseGame" class="game-button" type="button" disabled>PAUSA</button>
-          <button id="fullscreenBtn" class="game-button fullscreen-button"
-            type="button" aria-pressed="false">ESPANDI GIOCO</button>
-          <a id="backToList" class="game-button back-button" href="../index.html">
-            TORNA ALLA LISTA
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="leaderboard-container" id="leaderboard">
-      <div class="leaderboard-header">
-        <div>
-          <span class="section-eyebrow">IL BRANCO</span>
-          <h2>Classifica dei lupi</h2>
-          <p>I migliori punteggi registrati.</p>
-        </div>
-        <button id="refreshBoard" class="game-button refresh-button" type="button">
-          AGGIORNA
-        </button>
-      </div>
-
-      <div class="table-wrapper">
-        <table class="leaderboard-table">
-          <thead>
-            <tr>
-              <th scope="col">POS.</th>
-              <th scope="col">LUPETTO</th>
-              <th scope="col">PUNTI</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboardBody">
-            <tr><td colspan="3" class="empty-row">Caricamento classifica...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite">
-        Connessione alla classifica...
-      </p>
-    </section>
-  </main>
-
-  <footer class="game-footer">
-    <p>
-      <a href="https://www.instagram.com/lista.luponero/" target="_blank"
-        rel="noopener noreferrer">@Lista.LupoNero</a>
-      <span>·</span>
-      <a href="https://www.instagram.com/reluponero/" target="_blank"
-        rel="noopener noreferrer">@ReLupoNero</a>
-    </p>
-    <small>Libertà · Musica · Branco</small>
-  </footer>
 </body>
 </html>
