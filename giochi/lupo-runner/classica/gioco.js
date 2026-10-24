@@ -32,7 +32,7 @@ const W = 800;
 const H = 400;
 const GROUND = 320;
 const BEST_KEY = "lupo_runner_best";
-const MODEL_PATH = "../assets/modelli/modello_gioco_corsa/";
+const MODEL_PATH = "../../../assets/modelli/modello_gioco_corsa/";
 const MAX_DELTA = 34;
 
 if (!canvas || !ctx) {
