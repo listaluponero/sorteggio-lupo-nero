@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lupo Games — Lista Lupo Nero</title>
+  <title>Lupo Runner — Scegli Modalità</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -25,14 +25,14 @@
       letter-spacing: 2px;
     }
     p { color: #94a3b8; margin-bottom: 30px; text-align: center; }
-    .games-grid {
+    .modes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
       width: 100%;
       max-width: 600px;
     }
-    .game-card {
+    .mode-card {
       background: #152225;
       border: 2px solid #168b87;
       border-radius: 12px;
@@ -42,23 +42,38 @@
       color: inherit;
       transition: transform 0.2s, border-color 0.2s;
     }
-    .game-card:hover {
+    .mode-card:hover {
       transform: translateY(-5px);
       border-color: #35d6cc;
     }
-    .game-card h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; }
-    .game-card p { font-size: 0.9rem; margin-bottom: 0; }
+    .mode-card h2 { font-size: 1.5rem; color: #fff; margin-bottom: 8px; }
+    .mode-card p { font-size: 0.9rem; margin-bottom: 0; }
+    .back-link {
+      margin-top: 30px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-link:hover { color: #35d6cc; }
   </style>
 </head>
 <body>
-  <h1>🐺 LUPO GAMES</h1>
-  <p>Scegli il minigioco a cui vuoi giocare</p>
+  <h1>🐺 LUPO RUNNER</h1>
+  <p>Seleziona la modalità di gioco</p>
 
-  <div class="games-grid">
-    <a href="lupo-runner/index.html" class="game-card">
-      <h2>LUPO RUNNER</h2>
-      <p>Corsa ad ostacoli nel territorio del branco.</p>
+  <div class="modes-grid">
+    <!-- COLLEGAMENTO ALLA CARTELLA CLASSICA -->
+    <a href="classica/index.html" class="mode-card">
+      <h2>🏆 CLASSIFICATA</h2>
+      <p>La sfida classica a ostacoli con classifica e record.</p>
+    </a>
+
+    <a href="storia/index.html" class="mode-card">
+      <h2>📜 MODALITÀ STORIA</h2>
+      <p>Vivi i capitoli e le avventure nel territorio del branco.</p>
     </a>
   </div>
+
+  <a href="../index.html" class="back-link">← Torna a Lupo Games</a>
 </body>
 </html>
