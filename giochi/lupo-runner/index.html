@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lupo Runner — Modalità</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b1112;
+      color: #e0f2fe;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #35d6cc;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    p { color: #94a3b8; margin-bottom: 30px; text-align: center; }
+    .modes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .mode-btn {
+      background: #152225;
+      border: 2px solid #168b87;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .mode-btn:hover {
+      background: #1e3236;
+      border-color: #35d6cc;
+    }
+    .back-btn {
+      margin-top: 30px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-btn:hover { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>LUPO RUNNER</h1>
+  <p>Seleziona la modalità di gioco</p>
+
+  <div class="modes-container">
+    <a href="classica/index.html" class="mode-btn">🏆 CLASSIFICATA</a>
+    <a href="storia/index.html" class="mode-btn">📜 MODALITÀ STORIA</a>
+  </div>
+
+  <a href="../index.html" class="back-btn">← Torna all'Hub Giochi</a>
+</body>
+</html>
